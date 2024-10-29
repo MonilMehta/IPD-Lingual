@@ -34,8 +34,7 @@ const LoginScreen = ({ navigation }) => {
       await AsyncStorage.setItem('userEmail', email);
       
       // Navigate to main app
-      // navigation.replace('MainApp');
-      navigation.replace('(main)/home');
+      navigation.replace('(main)/home'); // Ensure '(main)/home' is a valid route in your navigator
     } catch (error) {
       Alert.alert('Error', 'Login failed. Please try again.');
     } finally {
@@ -126,80 +125,80 @@ const LoginScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-    keyboardView: {
-        flex: 1,
-    },
-    scrollContainer: {
-        flexGrow: 1,
-        justifyContent: 'space-between',
-    },
-    backButton: {
-        padding: 20,
-    },
-    header: {
-        paddingHorizontal: 20,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    subtitle: {
-        fontSize: 16,
-        color: '#666',
-    },
-    form: {
-        padding: 20,
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    inputIcon: {
-        marginRight: 10,
-    },
-    input: {
-        flex: 1,
-        padding: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
-    },
-    forgotPassword: {
-        alignSelf: 'flex-end',
-        marginBottom: 20,
-    },
-    forgotPasswordText: {
-        color: '#FF6B00',
-    },
-    loginButton: {
-        padding: 15,
-        borderRadius: 5,
-        backgroundColor: '#FF6B00',
-        alignItems: 'center',
-    },
-    disabledButton: {
-        backgroundColor: '#ccc',
-    },
-    loginButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-    signupLink: {
-        alignItems: 'center',
-        padding: 20,
-    },
-    signupText: {
-        color: '#666',
-    },
-    signupTextBold: {
-        fontWeight: 'bold',
-        color: '#FF6B00',
-    },
-    });
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+  },
+  backButton: {
+    padding: 20,
+  },
+  header: {
+    paddingHorizontal: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+  },
+  form: {
+    padding: 20,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  forgotPassword: {
+    alignSelf: 'flex-end',
+    marginBottom: 20,
+  },
+  forgotPasswordText: {
+    color: '#FF6B00',
+  },
+  loginButton: {
+    padding: 15,
+    borderRadius: 5,
+    backgroundColor: '#FF6B00',
+    alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  signupLink: {
+    alignItems: 'center',
+    padding: 20,
+  },
+  signupText: {
+    color: '#666',
+  },
+  signupTextBold: {
+    fontWeight: 'bold',
+    color: '#FF6B00',
+  },
+});
 
 export default LoginScreen;

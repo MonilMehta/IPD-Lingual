@@ -1,10 +1,11 @@
-import React from 'react';
-import { Stack } from 'expo-router';
+import { Stack } from "expo-router";
 
-export default function MainAppLayout() {
+export default function MainLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="home" options={{ headerShown: false }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="home" />
+      <Stack.Screen name="camera" />
+      <Stack.Screen name="settings" />
     </Stack>
   );
 }

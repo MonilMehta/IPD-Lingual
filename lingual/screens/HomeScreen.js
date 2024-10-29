@@ -2,16 +2,16 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MotiView } from 'moti';
-import { Search, User, Book, Camera, Mic, Trophy, Settings } from 'lucide-react';
+import { Search, User, Book, Camera, Mic, Trophy, Settings } from 'lucide-react-native';
 
-const HomeScreen = ({ navigation, route }) => {
+const HomeScreen = ({ navigation }) => {
   const username = "Alex"; // Replace with actual username from authentication
 
   const categories = [
-    { id: 1, title: "Camera Translation", icon: Camera, color: "#FF6B00" },
-    { id: 2, title: "Voice Practice", icon: Mic, color: "#4CAF50" },
-    { id: 3, title: "Vocabulary", icon: Book, color: "#2196F3" },
-    { id: 4, title: "Achievements", icon: Trophy, color: "#FFC107" },
+    { id: 1, title: "Camera Translation", icon: Camera, color: "#FF6B00", route: 'Camera' },
+    { id: 2, title: "Voice Practice", icon: Mic, color: "#4CAF50", route: 'VoicePractice' },
+    { id: 3, title: "Vocabulary", icon: Book, color: "#2196F3", route: 'Vocabulary' },
+    { id: 4, title: "Achievements", icon: Trophy, color: "#FFC107", route: 'Achievements' },
   ];
 
   const recentLessons = [
@@ -19,84 +19,42 @@ const HomeScreen = ({ navigation, route }) => {
     { id: 2, title: "Food & Drinks", language: "French", progress: 45 },
     { id: 3, title: "Numbers 1-100", language: "Japanese", progress: 90 },
   ];
-  console.log({ Search, User, Book, Camera, Mic, Trophy, Settings });
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <MotiView 
-        from={{ opacity: 0, translateY: -20 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'timing', duration: 800 }}
-        style={styles.header}
-      >
-        <View style={styles.headerLeft}>
+      <MotiView style={styles.header}>
+        <View>
           <Text style={styles.greeting}>Hello,</Text>
           <Text style={styles.username}>{username}</Text>
         </View>
-        <TouchableOpacity 
-          style={styles.profileButton}
-          onPress={() => navigation.navigate('Profile')}
-        >
+        <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.profileButton}>
           <User size={24} color="#FF6B00" />
         </TouchableOpacity>
       </MotiView>
 
-      {/* Search Bar */}
-      <MotiView
-        from={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: 'timing', duration: 800, delay: 100 }}
-        style={styles.searchContainer}
-      >
-        <Search size={20} color="#666" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search lessons, words, phrases..."
-          placeholderTextColor="#999"
-        />
+      <MotiView style={styles.searchContainer}>
+        <Search size={20} color="#666" />
+        <TextInput style={styles.searchInput} placeholder="Search lessons, words..." placeholderTextColor="#999" />
       </MotiView>
 
-      {/* Categories */}
       <Text style={styles.sectionTitle}>Quick Actions</Text>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoriesContainer}
-      >
-        {categories.map((category, index) => (
-          <MotiView
-            key={category.id}
-            from={{ opacity: 0, translateX: 20 }}
-            animate={{ opacity: 1, translateX: 0 }}
-            transition={{ type: 'timing', duration: 800, delay: 200 + (index * 100) }}
-          >
-            <TouchableOpacity 
-              style={[styles.categoryCard, { backgroundColor: category.color }]}
-              onPress={() => navigation.navigate(category.title.replace(/\s+/g, ''))}
-            >
-              <category.icon size={24} color="white" />
-              <Text style={styles.categoryTitle}>{category.title}</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
+        {categories.map((Category, index) => (
+          <MotiView key={Category.id} style={[styles.CategoryCard, { backgroundColor: Category.color }]}>
+            <TouchableOpacity onPress={() => navigation.navigate(Category.route)}>
+              <Category.icon size={24} color="white" />
+              <Text style={styles.CategoryTitle}>{Category.title}</Text>
             </TouchableOpacity>
           </MotiView>
         ))}
       </ScrollView>
 
-      {/* Recent Lessons */}
       <View style={styles.recentContainer}>
         <Text style={styles.sectionTitle}>Recent Lessons</Text>
         <ScrollView showsVerticalScrollIndicator={false}>
           {recentLessons.map((lesson, index) => (
-            <MotiView
-              key={lesson.id}
-              from={{ opacity: 0, translateY: 20 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              transition={{ type: 'timing', duration: 800, delay: 300 + (index * 100) }}
-            >
-              <TouchableOpacity 
-                style={styles.lessonCard}
-                onPress={() => navigation.navigate('Lesson', { lessonId: lesson.id })}
-              >
+            <MotiView key={lesson.id} style={styles.lessonCard}>
+              <TouchableOpacity onPress={() => navigation.navigate('Lesson', { lessonId: lesson.id })}>
                 <View style={styles.lessonInfo}>
                   <Text style={styles.lessonTitle}>{lesson.title}</Text>
                   <Text style={styles.lessonLanguage}>{lesson.language}</Text>
@@ -111,11 +69,7 @@ const HomeScreen = ({ navigation, route }) => {
         </ScrollView>
       </View>
 
-      {/* Settings Button */}
-      <TouchableOpacity 
-        style={styles.settingsButton}
-        onPress={() => navigation.navigate('Settings')}
-      >
+      <TouchableOpacity style={styles.settingsButton} onPress={() => navigation.navigate('Settings')}>
         <Settings size={24} color="#666" />
       </TouchableOpacity>
     </SafeAreaView>
@@ -192,7 +146,7 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     marginBottom: 24,
   },
-  categoryCard: {
+  CategoryCard: {
     width: 140,
     height: 100,
     borderRadius: 16,
@@ -200,7 +154,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
     justifyContent: 'space-between',
   },
-  categoryTitle: {
+  CategoryTitle: {
     color: '#FFF',
     fontSize: 14,
     fontWeight: '600',
