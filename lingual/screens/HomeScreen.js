@@ -1,75 +1,155 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Platform, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MotiView } from 'moti';
-import { Search, User, Book, Camera, Mic, Trophy, Settings } from 'lucide-react-native';
+import { 
+  Search, User, Book, Camera, Mic, Trophy, Settings, 
+  Globe, Image, MessageSquare, Map, History, BookOpen,
+  Translate, ScanLine, HeadphonesIcon, BookMarked
+} from 'lucide-react-native';
 
 const HomeScreen = ({ navigation }) => {
-  const username = "Alex"; // Replace with actual username from authentication
+  const username = "Alex";
 
-  const categories = [
-    { id: 1, title: "Camera Translation", icon: Camera, color: "#FF6B00", route: 'Camera' },
-    { id: 2, title: "Voice Practice", icon: Mic, color: "#4CAF50", route: 'VoicePractice' },
-    { id: 3, title: "Vocabulary", icon: Book, color: "#2196F3", route: 'Vocabulary' },
-    { id: 4, title: "Achievements", icon: Trophy, color: "#FFC107", route: 'Achievements' },
+  const mainFeatures = [
+    { 
+      id: 1, 
+      title: "Camera Translate", 
+      icon: Camera, 
+      color: "#FF6B00",
+      route: 'camera',
+    },
+    { 
+      id: 2, 
+      title: "Voice Translate", 
+      icon: Mic, 
+      color: "#F44336",
+      route: 'VoiceTranslation',
+    },
+    { 
+      id: 3, 
+      title: "Phrasebook", 
+      icon: Book, 
+      color: "#2196F3",
+      route: 'Phrasebook',
+    },
+    { 
+      id: 4, 
+      title: "Practice", 
+      icon: MessageSquare, 
+      color: "#4CAF50",
+      route: 'Conversation',
+    }
   ];
 
-  const recentLessons = [
-    { id: 1, title: "Basic Greetings", language: "Spanish", progress: 75 },
-    { id: 2, title: "Food & Drinks", language: "French", progress: 45 },
-    { id: 3, title: "Numbers 1-100", language: "Japanese", progress: 90 },
+  const touristGuides = [
+    {
+      id: 1,
+      title: "Local Markets Guide",
+      description: "Essential phrases for shopping",
+      icon: Map,
+    },
+    {
+      id: 2,
+      title: "Restaurant Guide",
+      description: "Food & dining vocabulary",
+      icon: BookOpen,
+    },
+    {
+      id: 3,
+      title: "Transport Guide",
+      description: "Getting around the city",
+      icon: Globe,
+    }
+  ];
+
+  const quickPhrases = [
+    { id: 1, phrase: "Where is...?", translation: "¿Dónde está...?", category: "Navigation" },
+    { id: 2, phrase: "How much?", translation: "¿Cuánto cuesta?", category: "Shopping" },
+    { id: 3, phrase: "Thank you", translation: "Gracias", category: "Basics" },
+    { id: 4, phrase: "Can you help me?", translation: "¿Me puede ayudar?", category: "Help" },
+    { id: 5, phrase: "I don't understand", translation: "No entiendo", category: "Help" },
+    { id: 6, phrase: "The bill, please", translation: "La cuenta, por favor", category: "Dining" }
   ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <MotiView style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>Hello,</Text>
-          <Text style={styles.username}>{username}</Text>
-        </View>
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.profileButton}>
-          <User size={24} color="#FF6B00" />
-        </TouchableOpacity>
-      </MotiView>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <MotiView style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>Welcome back,</Text>
+            <Text style={styles.username}>{username}</Text>
+          </View>
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.profileButton}>
+            <User size={24} color="#FF6B00" />
+          </TouchableOpacity>
+        </MotiView>
 
-      <MotiView style={styles.searchContainer}>
-        <Search size={20} color="#666" />
-        <TextInput style={styles.searchInput} placeholder="Search lessons, words..." placeholderTextColor="#999" />
-      </MotiView>
+        <MotiView style={styles.searchContainer}>
+          <Search size={20} color="#666" />
+          <TextInput 
+            style={styles.searchInput} 
+            placeholder="Search phrases, translations..." 
+            placeholderTextColor="#999" 
+          />
+        </MotiView>
 
-      <Text style={styles.sectionTitle}>Quick Actions</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
-        {categories.map((Category, index) => (
-          <MotiView key={Category.id} style={[styles.CategoryCard, { backgroundColor: Category.color }]}>
-            <TouchableOpacity onPress={() => navigation.navigate(Category.route)}>
-              <Category.icon size={24} color="white" />
-              <Text style={styles.CategoryTitle}>{Category.title}</Text>
+        <View style={styles.mainFeaturesGrid}>
+          {mainFeatures.map((feature) => (
+            <TouchableOpacity
+              key={feature.id}
+              style={[styles.mainFeatureCard, { backgroundColor: feature.color }]}
+              onPress={() => navigation.navigate(feature.route)}
+            >
+              <feature.icon size={28} color="white" />
+              <Text style={styles.mainFeatureTitle}>{feature.title}</Text>
             </TouchableOpacity>
-          </MotiView>
-        ))}
+          ))}
+        </View>
+
+        <View style={styles.quickPhrasesSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Quick Phrases</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('AllPhrases')}>
+              <Text style={styles.seeAllButton}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.phrasesGrid}>
+            {quickPhrases.map(item => (
+              <TouchableOpacity key={item.id} style={styles.phraseCard}>
+                <View style={styles.phraseContent}>
+                  <Text style={styles.phraseText}>{item.phrase}</Text>
+                  <Text style={styles.translationText}>{item.translation}</Text>
+                </View>
+                <Text style={styles.categoryTag}>{item.category}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.guidesSection}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Tourist Guides</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('AllGuides')}>
+              <Text style={styles.seeAllButton}>See All</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {touristGuides.map(guide => (
+              <TouchableOpacity key={guide.id} style={styles.guideCard}>
+                <guide.icon size={24} color="#FF6B00" />
+                <Text style={styles.guideTitle}>{guide.title}</Text>
+                <Text style={styles.guideDescription}>{guide.description}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
       </ScrollView>
 
-      <View style={styles.recentContainer}>
-        <Text style={styles.sectionTitle}>Recent Lessons</Text>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {recentLessons.map((lesson, index) => (
-            <MotiView key={lesson.id} style={styles.lessonCard}>
-              <TouchableOpacity onPress={() => navigation.navigate('Lesson', { lessonId: lesson.id })}>
-                <View style={styles.lessonInfo}>
-                  <Text style={styles.lessonTitle}>{lesson.title}</Text>
-                  <Text style={styles.lessonLanguage}>{lesson.language}</Text>
-                </View>
-                <View style={styles.progressContainer}>
-                  <View style={[styles.progressBar, { width: `${lesson.progress}%` }]} />
-                  <Text style={styles.progressText}>{lesson.progress}%</Text>
-                </View>
-              </TouchableOpacity>
-            </MotiView>
-          ))}
-        </ScrollView>
-      </View>
-
-      <TouchableOpacity style={styles.settingsButton} onPress={() => navigation.navigate('Settings')}>
+      <TouchableOpacity 
+        style={styles.settingsButton} 
+        onPress={() => navigation.navigate('Settings')}
+      >
         <Settings size={24} color="#666" />
       </TouchableOpacity>
     </SafeAreaView>
@@ -87,9 +167,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
-  },
-  headerLeft: {
-    flexDirection: 'column',
   },
   greeting: {
     fontSize: 16,
@@ -126,87 +203,117 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  searchIcon: {
-    marginRight: 10,
-  },
   searchInput: {
     flex: 1,
     fontSize: 16,
     color: '#333',
+    marginLeft: 10,
     ...(Platform.OS === 'web' && {
       outlineStyle: 'none',
     }),
+  },
+  mainFeaturesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: -16,
+  },
+  mainFeatureCard: {
+    width: '48%',
+    aspectRatio: 1,
+    borderRadius: 16,
+    padding: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    
+  },
+  mainFeatureTitle: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 12,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 16,
   },
-  categoriesContainer: {
-    marginBottom: 24,
-  },
-  CategoryCard: {
-    width: 140,
-    height: 100,
-    borderRadius: 16,
-    padding: 16,
-    marginRight: 12,
-    justifyContent: 'space-between',
-  },
-  CategoryTitle: {
-    color: '#FFF',
+  seeAllButton: {
+    color: '#FF6B00',
     fontSize: 14,
     fontWeight: '600',
-    marginTop: 8,
   },
-  recentContainer: {
-    flex: 1,
+  quickPhrasesSection: {
+    marginBottom: 24,
   },
-  lessonCard: {
+  phrasesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  phraseCard: {
     backgroundColor: '#FFF',
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
+    width: '48%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
   },
-  lessonInfo: {
-    marginBottom: 12,
+  phraseContent: {
+    marginBottom: 8,
   },
-  lessonTitle: {
-    fontSize: 16,
+  phraseText: {
+    fontSize: 15,
     fontWeight: '600',
     color: '#333',
     marginBottom: 4,
   },
-  lessonLanguage: {
-    fontSize: 14,
+  translationText: {
+    fontSize: 13,
     color: '#666',
+    fontStyle: 'italic',
   },
-  progressContainer: {
-    height: 4,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 2,
-    marginTop: 8,
-    position: 'relative',
-  },
-  progressBar: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    height: '100%',
-    backgroundColor: '#FF6B00',
-    borderRadius: 2,
-  },
-  progressText: {
-    position: 'absolute',
-    right: 0,
-    top: -20,
+  categoryTag: {
     fontSize: 12,
+    color: '#FF6B00',
+    fontWeight: '500',
+  },
+  guidesSection: {
+    marginBottom: 24,
+  },
+  guideCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 20,
+    marginRight: 16,
+    width: 200,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+    marginBottom: 8,
+  },
+  guideTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  guideDescription: {
+    fontSize: 14,
     color: '#666',
   },
   settingsButton: {

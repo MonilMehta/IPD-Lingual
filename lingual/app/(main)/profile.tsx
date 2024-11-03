@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { router } from 'expo-router';
-import CameraScreen from '../../screens/CameraScreen';
+import ProfileScreen from '../../screens/ProfileScreen';
 
 export default function Profile() {
   const navigation = {
@@ -9,5 +9,5 @@ export default function Profile() {
     replace: (screen: string) => router.replace(screen.toLowerCase())
   };
 
-  return <CameraScreen navigation={navigation} route={{}} />;
+  return <ProfileScreen navigation={navigation} route={{}} />;
 }
