@@ -15,6 +15,7 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES']= datetime.timedelta(days=1)
 client= MongoClient('mongodb+srv://mehekmde23:UWloBpc8M2znH9qT@ipd.cw6h2.mongodb.net/?retryWrites=true&w=majority&appName=IPD')
 db= client['IPDatabase']
 users_collection= db['users']
+detection_collection = db['detectionResults']
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -40,6 +41,12 @@ def login():
             return jsonify(access_token=access_token),200
     return jsonify({'msg':'Username or password is incorrect'}),401
 
+@app.route("/store_detection", methods="POST")
+def store_detection():
+    data= request.json
+    data['timestamp']= datetime.datetime.now()
+    result= detection_collection.insert_one(data)
+    return jsonify({"status":"success","inserted_id":str(result.inserted_id)})
 
 if __name__ == '__main__':
     app.run(debug=True)
