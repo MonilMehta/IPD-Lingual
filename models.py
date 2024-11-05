@@ -8,13 +8,24 @@ import requests
 # Load the YOLOv5 model
 model = torch.hub.load('ultralytics/yolov5', 'yolov5s')  # Load the small YOLOv5 model
 
+api_endpoint = 'http://localhost:5000/store_detection'
+language_endpoint = 'http://localhost:5000/get_language'
+
+def get_language():
+    response = requests.get(language_endpoint)
+    if response.status_code == 200:
+        return response.json().get('language', 'en')  # Default to English if no preference set
+    else:
+        print("Failed to retrieve language preference.")
+        return 'en' 
+
+user_language = get_language()
+
 # Function to translate text using the translate library
 def translate_text(text, target_language):
     translator = Translator(to_lang=target_language)
     translation = translator.translate(text)
     return translation
-
-api_endpoint = 'http://localhost:5000/store_detection'
 
 # Initialize video capture
 cap = cv2.VideoCapture(0)
@@ -38,7 +49,7 @@ while True:
         print(f"Detected label: {label}")  # Print the detected label
 
         # Translate the label to Hindi
-        translated_label = translate_text(label, 'hi')  # Change 'hi' to Hindi
+        translated_label = translate_text(label, user_language)  # Change 'hi' to Hindi
 
         # Debug: Print the translated label
         print(f"Translated label: {translated_label}")  # Print the translated label
