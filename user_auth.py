@@ -41,12 +41,21 @@ def login():
             return jsonify(access_token=access_token),200
     return jsonify({'msg':'Username or password is incorrect'}),401
 
-@app.route("/store_detection", methods="POST")
+@app.route("/store_detection", methods=["POST"])
 def store_detection():
     data= request.json
-    data['timestamp']= datetime.datetime.now()
-    result= detection_collection.insert_one(data)
-    return jsonify({"status":"success","inserted_id":str(result.inserted_id)})
+    # print(f"Received data: {data}")
+    if not data or 'detections' not in data:
+        return jsonify({"status": "error", "message": "No detections provided"}), 400
+    detections = data['detections']
+    for detection in detections:
+        detection['timestamp'] = datetime.datetime.now()
+    result= detection_collection.insert_many(detections)
+    return jsonify({
+        "status": "success",
+        "inserted_ids": [str(inserted_id) for inserted_id in result.inserted_ids]
+    }), 201
+
 
 if __name__ == '__main__':
     app.run(debug=True)
