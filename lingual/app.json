@@ -35,6 +35,13 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
         }
+      ],
+      [
+        "@react-native-voice/voice", 
+        { 
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone", 
+          "speechRecognitionPermission": "Allow $(PRODUCT_NAME) to securely recognize user speech" 
+        }
       ]
     ],
     "experiments": {

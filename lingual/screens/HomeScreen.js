@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Platform, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MotiView } from 'moti';
@@ -7,10 +7,11 @@ import {
   Globe, Image, MessageSquare, Map, History, BookOpen,
   Translate, ScanLine, HeadphonesIcon, BookMarked
 } from 'lucide-react-native';
+import { LanguageSelector } from './LanguageSelector';
 
 const HomeScreen = ({ navigation }) => {
   const username = "Alex";
-
+  const [selectedLanguage, setSelectedLanguage] = useState('Spanish');
   const mainFeatures = [
     { 
       id: 1, 
@@ -84,6 +85,7 @@ const HomeScreen = ({ navigation }) => {
             <User size={24} color="#FF6B00" />
           </TouchableOpacity>
         </MotiView>
+        <LanguageSelector />
 
         <MotiView style={styles.searchContainer}>
           <Search size={20} color="#666" />
@@ -189,6 +191,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FF6B00',
+  },
+  languagePickerContainer: {
+    marginBottom: 20,
+  },
+  languagePickerLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  languagePicker: {
+    height: 50,
+    width: '100%',
   },
   searchContainer: {
     flexDirection: 'row',
