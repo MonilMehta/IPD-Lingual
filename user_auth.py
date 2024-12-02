@@ -6,16 +6,17 @@ import datetime
 import hashlib
 from bson import ObjectId
 from flasgger import Swagger, swag_from
+from decouple import config
 # import urllib
 
-app = Flask('__ipd__')
+app = Flask(__name__)
 swagger = Swagger(app)
 
 jwt = JWTManager(app)
-app.config['JWT_SECRET_KEY']='bdbb33de02888335b0ed10c9038f40d2581fd7f6f95afef1c42c51de76c566a4'
+app.config['JWT_SECRET_KEY']=config('JWT_SECRET', default='default_secret_key')
 app.config['JWT_ACCESS_TOKEN_EXPIRES']= datetime.timedelta(days=1)  
 
-client= MongoClient('mongodb+srv://mehekmde23:UWloBpc8M2znH9qT@ipd.cw6h2.mongodb.net/?retryWrites=true&w=majority&appName=IPD')
+client= MongoClient(config('MONGODB_URL'))
 db= client['IPDatabase']
 users_collection= db['users']
 detection_collection = db['detectionResults']
@@ -326,17 +327,17 @@ language_mapping = {
     }
 })
 def set_language():
-    data = request.get_json()
-    language = data.get('language')
+    # data = request.get_json()
+    language = request.get_json()
     if not language:
         return jsonify({"status": "error", "message": "No language provided"}), 400
-    language_code = language_mapping.get(language)
-    if not language_code:
+    # language_code = language_mapping.get(language)
+    if not language:
         return jsonify({"status": "error", "message": "Invalid language provided"}), 400
     current_user = get_jwt_identity()   
     language_collection.insert_one(
         {'username': current_user},
-        {'language': language_code}
+        {'language': language}
     )
     return jsonify({"status": "success", "message": "Language preference updated"}), 200
 
@@ -368,5 +369,5 @@ def language_get():
         lang["_id"] = str(lang["_id"])
     return jsonify(languages), 200
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run()

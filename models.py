@@ -1,94 +1,69 @@
 import cv2
 import torch
-from translate import Translator
+from googletrans import Translator
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
-import requests
+from ultralytics import YOLO
 
-# Load the YOLOv5 model
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s')  # Load the small YOLOv5 model
+model = YOLO("yolov8s.pt")
 
-api_endpoint = 'http://localhost:5000/store_detection'
-language_endpoint = 'http://localhost:5000/get_language'
-
-def get_language():
-    response = requests.get(language_endpoint)
-    if response.status_code == 200:
-        return response.json().get('language', 'en')  # Default to English if no preference set
-    else:
-        print("Failed to retrieve language preference.")
-        return 'en' 
-
-user_language = get_language()
-
-# Function to translate text using the translate library
 def translate_text(text, target_language):
-    translator = Translator(to_lang=target_language)
-    translation = translator.translate(text)
-    return translation
+    translator = Translator()
+    translation = translator.translate(text, dest=target_language)
+    return translation.text
 
-# Initialize video capture
 cap = cv2.VideoCapture(0)
+
+font_path = "NotoSansDevanagari-VariableFont_wdth,wght.ttf"
+font_size = 20
+
+translation_cache = {}  
+vertical_offset = 30 
 
 while True:
     ret, frame = cap.read()
     if not ret:
         break
 
-    # Perform object detection
-    results = model(frame)
-    
-    detections=[]
+    frame_resized = cv2.resize(frame, (640, 480))
 
-    # Extract the bounding boxes and labels
-    for result in results.xyxy[0]:  # results.xyxy[0] gives you the detections
-        x1, y1, x2, y2, conf, cls = result  # Extract coordinates and class ID
-        label = model.names[int(cls)]  # Get the label from the model
+    results = model(frame_resized, conf=0.4)
 
-        # Debug: Print the detected label
-        print(f"Detected label: {label}")  # Print the detected label
+    pil_img = Image.fromarray(frame)
+    draw = ImageDraw.Draw(pil_img)
 
-        # Translate the label to Hindi
-        translated_label = translate_text(label, user_language)  # Change 'hi' to Hindi
+    try:
+        font = ImageFont.truetype(font_path, font_size)
+    except IOError:
+        print(f"Font {font_path} not found. Using default font.")
+        font = ImageFont.load_default()
 
-        # Debug: Print the translated label
-        print(f"Translated label: {translated_label}")  # Print the translated label
+    used_positions = []
 
-        # Draw the bounding box on the frame
-        cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+    for result in results:
+        boxes = result.boxes
+        for box in boxes:
+            x1, y1, x2, y2 = map(int, box.xyxy[0])  
+            cls = int(box.cls[0])  
+            label = model.names[cls] 
 
-        # Convert the frame to PIL for drawing text
-        pil_img = Image.fromarray(frame)
-        draw = ImageDraw.Draw(pil_img)
+            if label not in translation_cache:
+                translated_label = translate_text(label, 'hi')
+                translation_cache[label] = translated_label
+            else:
+                translated_label = translation_cache[label]
 
-        # Use a suitable font; adjust the font size as needed
-        font = ImageFont.truetype("arial.ttf", 20)  # Ensure the font supports Hindi characters
+            adjusted_y = y1
+            for used_x, used_y in used_positions:
+                if abs(used_x - x1) < 50 and abs(used_y - adjusted_y) < 30:
+                    adjusted_y += vertical_offset
 
-        # Draw the translated label
-        draw.text((int(x1), int(y1) - 10), translated_label, font=font, fill=(0, 255, 0))
+            draw.text((x1, adjusted_y - 10), translated_label, font=font, fill=(0, 255, 0))  # Green text
 
-        # Convert back to OpenCV format
-        frame = np.array(pil_img)
-        
-        detection_data = {
-            'label': label,
-            'translated_label': translated_label,
-            'coordinates': {
-                'x1': int(x1),
-                'y1': int(y1),
-                'x2': int(x2),
-                'y2': int(y2)
-            },
-            'confidence': float(conf)
-        }
-        
-        detections.append(detection_data)
-        
-    if detections:
-        response=requests.post(api_endpoint,json={'detections':detections})
-        # print(f"Response from server:{response.json()}")
+            used_positions.append((x1, adjusted_y))
 
-    # Display the frame with detection
+    frame = np.array(pil_img)
+
     cv2.imshow('Object Detection with Translation', frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
