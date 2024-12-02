@@ -41,7 +41,7 @@ export default function SplashScreen() {
             ],
           }} 
         />
-        <Text style={styles.text}>Language Lens</Text>
+        <Text style={styles.text}>Lingual</Text>
       </MotiView>
     </View>
   );
