@@ -10,17 +10,17 @@ import {
   Image,
   StatusBar
 } from 'react-native';
-import { Camera,CameraType } from 'expo-camera/legacy';
+import { Camera, CameraType } from 'expo-camera/legacy';
 import { 
   Upload, 
   Camera as CameraIcon, 
   X, 
+  Save, 
+  Info,
   ChevronLeft,
   Settings,
   Languages
 } from 'lucide-react-native';
-import { CameraView } from './Camera/CameraView';
-import { TranslationPanel } from './Camera/TranslationPanel';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -163,15 +163,31 @@ export default function CameraScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       </View>
+
+      {showGrid && (
+        <View style={styles.grid}>
+          {detectedObjects.map((obj) => (
+            <TouchableOpacity
+              key={obj.id}
+              style={[styles.marker, { left: obj.position.x, top: obj.position.y }]}
+              onPress={() => handleObjectPress(obj)}
+            >
+              <View style={styles.markerDot} />
+              <Text style={styles.markerText}>{obj.translation}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
     </View>
   );
 
   const renderCamera = () => (
-    <CameraView 
-      cameraType={facing}
-      detectedObjects={detectedObjects}
-      onObjectPress={handleObjectPress}
-    />
+    <Camera 
+      style={styles.camera} 
+      type={facing}
+    >
+      {renderOverlay()}
+    </Camera>
   );
 
   const renderImagePreview = () => (
@@ -216,11 +232,53 @@ export default function CameraScreen({ navigation }) {
         )}
       </View>
 
-      <TranslationPanel 
-        object={selectedObject}
-        onClose={hideBottomSheet}
-        bottomSheetAnim={bottomSheetAnim}
-      />
+      <Animated.View 
+        style={[
+          styles.bottomSheet,
+          {
+            transform: [{
+              translateY: bottomSheetAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [300, 0],
+              }),
+            }],
+          },
+        ]}
+      >
+        {selectedObject && (
+          <View style={styles.bottomSheetContent}>
+            <View style={styles.bottomSheetHeader}>
+              <Text style={styles.bottomSheetTitle}>{selectedObject.name}</Text>
+              <TouchableOpacity onPress={hideBottomSheet}>
+                <X size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.translationContainer}>
+              <Text style={styles.translationText}>{selectedObject.translation}</Text>
+              <Text style={styles.descriptionText}>{selectedObject.description}</Text>
+            </View>
+
+            <View style={styles.bottomSheetActions}>
+              <TouchableOpacity 
+                style={styles.actionButton}
+                onPress={() => saveTranslation()}
+              >
+                <Save size={20} color="#FF6B00" />
+                <Text style={styles.actionButtonText}>Save</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.actionButton}
+                onPress={() => {/* Handle more info */}}
+              >
+                <Info size={20} color="#FF6B00" />
+                <Text style={styles.actionButtonText}>More Info</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </Animated.View>
     </View>
   );
 }
@@ -235,6 +293,10 @@ const styles = StyleSheet.create({
     height: CAMERA_HEIGHT,
     overflow: 'hidden',
     backgroundColor: '#000',
+  },
+  camera: {
+    width: '100%',
+    height: '100%',
   },
   imagePreviewContainer: {
     width: '100%',
@@ -269,6 +331,10 @@ const styles = StyleSheet.create({
   topBarRight: {
     flexDirection: 'row',
   },
+  grid: {
+    flex: 1,
+    position: 'relative',
+  },
   controls: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -285,13 +351,87 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 12,
   },
-  closeButton: {
+  marker: {
     position: 'absolute',
-    top: 20,
-    right: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    padding: 8,
-    borderRadius: 20,
+    alignItems: 'center',
+  },
+  markerDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#FF6B00',
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  markerText: {
+    color: 'white',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    padding: 4,
+    borderRadius: 4,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  bottomSheet: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  bottomSheetContent: {
+    minHeight: 200,
+  },
+  bottomSheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  bottomSheetTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  translationContainer: {
+    marginBottom: 20,
+  },
+  translationText: {
+    fontSize: 20,
+    color: '#FF6B00',
+    marginBottom: 8,
+  },
+  descriptionText: {
+    fontSize: 16,
+    color: '#666',
+    lineHeight: 24,
+  },
+  bottomSheetActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 20,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#F8F9FA',
+  },
+  actionButtonText: {
+    marginLeft: 8,
+    color: '#FF6B00',
+    fontWeight: '600',
   },
   message: {
     color: 'white',
@@ -307,5 +447,13 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     fontWeight: '600',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 8,
+    borderRadius: 20,
   },
 });
