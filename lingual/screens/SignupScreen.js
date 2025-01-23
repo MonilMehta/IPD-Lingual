@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
 
 const LANGUAGES = [
   { code: 'en', name: 'English' },
@@ -57,6 +58,7 @@ const SignupScreen = ({ navigation }) => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const updateFormData = (data) => {
     setFormData(prev => ({ ...prev, ...data }));
@@ -132,16 +134,40 @@ const SignupScreen = ({ navigation }) => {
 
   const handleSubmit = async () => {
     try {
-      // Here you would typically make an API call to create the account
-      console.log('Form submitted:', formData);
-      Alert.alert('Success', 'Account created successfully', [
-        {
-          text: 'OK',
-          onPress: () => navigation.navigate('Login')
+      setLoading(true);
+      const signupData = {
+        username: formData.name,
+        email: formData.email,
+        password: formData.password,
+        nativeLanguage: formData.nativeLanguage,
+        learningLanguages: formData.learningLanguages,
+        proficiencyLevels: formData.proficiencyLevels,
+        learningGoals: formData.learningGoals
+      };
+
+      const response = await axios.post('https://lingual-e8b7.onrender.com/signup/', signupData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
-      ]);
+      });
+
+      if (response.data) {
+        Alert.alert('Success', 'Account created successfully', [
+          {
+            text: 'OK',
+            onPress: () => router.replace('/(auth)/login')
+          }
+        ]);
+      }
     } catch (error) {
-      Alert.alert('Error', 'Signup failed. Please try again.');
+      console.error('Signup error:', error);
+      Alert.alert(
+        'Signup Failed',
+        error.response?.data?.message || 'An error occurred during signup'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
