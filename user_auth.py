@@ -7,10 +7,12 @@ import hashlib
 from bson import ObjectId
 from flasgger import Swagger, swag_from
 from decouple import config
+from flask_cors import CORS
 # import urllib
 
 app = Flask(__name__)
 swagger = Swagger(app)
+CORS(app)
 
 jwt = JWTManager(app)
 app.config['JWT_SECRET_KEY']=config('JWT_SECRET', default='default_secret_key')
@@ -291,17 +293,17 @@ def delete_detection():
     else:
         return jsonify({"status": "error", "message": "No detections found for the user"}), 404
     
-language_mapping = {
-    'English': 'en',
-    'Hindi': 'hi',
-    'Spanish': 'es',
-    'French': 'fr',
-    'German': 'de',
-    'Italian': 'it',
-    'Chinese': 'zh',
-    'Japanese': 'ja',
-    'Korean': 'ko',
-}
+# language_mapping = {
+#     'English': 'en',
+#     'Hindi': 'hi',
+#     'Spanish': 'es',
+#     'French': 'fr',
+#     'German': 'de',
+#     'Italian': 'it',
+#     'Chinese': 'zh',
+#     'Japanese': 'ja',
+#     'Korean': 'ko',
+# }
     
 @app.route("/set_language", methods=["POST"])
 @jwt_required()
@@ -316,7 +318,7 @@ language_mapping = {
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'language': {'type': 'string', 'enum': list(language_mapping.keys())}
+                    'language': {'type': 'string'} #'enum': list(language_mapping.keys())
                 }
             }
         }
@@ -332,8 +334,8 @@ def set_language():
     if not language:
         return jsonify({"status": "error", "message": "No language provided"}), 400
     # language_code = language_mapping.get(language)
-    if not language:
-        return jsonify({"status": "error", "message": "Invalid language provided"}), 400
+    # if not language:
+    #     return jsonify({"status": "error", "message": "Invalid language provided"}), 400
     current_user = get_jwt_identity()   
     language_collection.insert_one(
         {'username': current_user},
