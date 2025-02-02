@@ -8,11 +8,15 @@ from bson import ObjectId
 from flasgger import Swagger, swag_from
 from decouple import config
 from flask_cors import CORS
+from ultralytics import YOLO
 # import urllib
 
 app = Flask(__name__)
 swagger = Swagger(app)
 CORS(app)
+
+model= None
+model_active= False
 
 jwt = JWTManager(app)
 app.config['JWT_SECRET_KEY']=config('JWT_SECRET', default='default_secret_key')
@@ -197,6 +201,46 @@ def delete_user():
     else:
         return jsonify({"msg": "User not found"}), 404
 
+#this api to load model   
+@app.route("/start_model", methods=["POST"])
+@jwt_required()
+@swag_from({
+    'tags': ['Model'],
+    'description': 'Start the YOLOv8 model for real-time detection.',
+    'responses': {
+        '200': {
+            'description': 'Model started successfully.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'status': {'type': 'string'},
+                    'message': {'type': 'string'}
+                }
+            }
+        },
+        '400': {
+            'description': 'Model is already running.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'status': {'type': 'string'},
+                    'message': {'type': 'string'}
+                }
+            }
+        }
+    }
+})
+def start_model():
+    #load model for real time detection
+    global model , model_active
+    if model_active:
+        return jsonify({"status": "Error", "message":"Model is already running"}),400
+    model= YOLO("yolov8s.pt")
+    model_active= True
+    
+    return jsonify({"status":"Success","message":"Model is successfully running"}),200
+
+#this api to store the detections of yolov8
 @app.route("/store_detection", methods=["POST"])
 @jwt_required()
 @swag_from({
@@ -244,6 +288,68 @@ def store_detection():
         "status": "success",
         "inserted_ids": [str(inserted_id) for inserted_id in result.inserted_ids]
     }), 201
+
+#this api to check status of the model
+@app.route("/check_model", methods=["GET"])
+@jwt_required()
+@swag_from({
+    'tags': ['Model'],
+    'description': 'Check if the YOLOv8 model is running.',
+    'responses': {
+        '200': {
+            'description': 'Returns the status of the model.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'model_active': {'type': 'boolean'}
+                }
+            }
+        }
+    }
+})
+def check_status():
+    # tells whether the model is running or not true/false
+    return jsonify({"model_active": model_active}),200
+    
+#this api to stop the model
+@app.route("/stop_model", methods=["POST"])
+@jwt_required()
+@swag_from({
+    'tags': ['Model'],
+    'description': 'Stop the YOLOv8 model.',
+    'responses': {
+        '200': {
+            'description': 'Model stopped successfully.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'status': {'type': 'string'},
+                    'message': {'type': 'string'}
+                }
+            }
+        },
+        '400': {
+            'description': 'Model is not running.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'status': {'type': 'string'},
+                    'message': {'type': 'string'}
+                }
+            }
+        }
+    }
+})
+def stop_model():
+    global model, model_active
+    if not model_active:
+        return jsonify({"status":"error","message":"Model is not running"}),400
+    
+    model = None
+    model_active = False
+    
+    return jsonify({"status":"success","message":"Model stopped successfully"}),200
+    
 
 @app.route("/detections", methods=["GET"])
 @jwt_required()
@@ -293,17 +399,17 @@ def delete_detection():
     else:
         return jsonify({"status": "error", "message": "No detections found for the user"}), 404
     
-# language_mapping = {
-#     'English': 'en',
-#     'Hindi': 'hi',
-#     'Spanish': 'es',
-#     'French': 'fr',
-#     'German': 'de',
-#     'Italian': 'it',
-#     'Chinese': 'zh',
-#     'Japanese': 'ja',
-#     'Korean': 'ko',
-# }
+language_mapping = {
+     'English': 'en',
+     'Hindi': 'hi',
+     'Spanish': 'es',
+     'French': 'fr',
+     'German': 'de',
+     'Italian': 'it',
+     'Chinese': 'zh',
+     'Japanese': 'ja',
+     'Korean': 'ko',
+ }
     
 @app.route("/set_language", methods=["POST"])
 @jwt_required()
@@ -330,18 +436,21 @@ def delete_detection():
 })
 def set_language():
     # data = request.get_json()
-    language = request.get_json()
-    if not language:
+    data = request.get_json()
+    language_name = data.get('language')
+    if not data:
         return jsonify({"status": "error", "message": "No language provided"}), 400
     # language_code = language_mapping.get(language)
     # if not language:
     #     return jsonify({"status": "error", "message": "Invalid language provided"}), 400
-    current_user = get_jwt_identity()   
-    language_collection.insert_one(
-        {'username': current_user},
-        {'language': language}
-    )
-    return jsonify({"status": "success", "message": "Language preference updated"}), 200
+    current_user = get_jwt_identity()  
+    language_code = language_mapping.get(language_name)
+    language_data = {
+        'username': current_user,
+        'language': language_code
+    }
+    language_collection.insert_one(language_data)
+    return jsonify({"status": "success", "message": "Language preference updated", "language": language_code}), 200
 
 @app.route("/languages", methods=["GET"])
 @jwt_required()
