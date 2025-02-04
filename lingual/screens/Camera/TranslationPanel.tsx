@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native';
 import { X, Save, Info } from 'lucide-react-native';
-import { DetectedObject } from '../types';
+import { DetectedObject } from '../../utils/types';
 import { useLanguageStore } from '../../store/languageStore';
 import { useGeneratedPhrases } from '../../hooks/useGeneratedPhrases';
 

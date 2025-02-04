@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { DetectedObject } from '../types';
+import { DetectedObject } from '../../utils/types';
 
 interface ObjectMarkerProps {
   object: DetectedObject;
@@ -9,17 +9,37 @@ interface ObjectMarkerProps {
 
 export const ObjectMarker: React.FC<ObjectMarkerProps> = ({ object, onPress }) => {
   return (
-    <TouchableOpacity
-      style={[styles.marker, { left: object.position.x, top: object.position.y }]}
-      onPress={() => onPress(object)}
-    >
-      <View style={styles.markerDot} />
-      <Text style={styles.markerText}>{object.translation}</Text>
-    </TouchableOpacity>
+    <>
+      {object.boundingBox && (
+        <View
+          style={[
+            styles.boundingBox,
+            {
+              left: object.boundingBox.x1,
+              top: object.boundingBox.y1,
+              width: object.boundingBox.x2 - object.boundingBox.x1,
+              height: object.boundingBox.y2 - object.boundingBox.y1,
+            },
+          ]}
+        />
+      )}
+      <TouchableOpacity
+        style={[styles.marker, { left: object.position.x, top: object.position.y }]}
+        onPress={() => onPress(object)}
+      >
+        <View style={styles.markerDot} />
+        <Text style={styles.markerText}>{object.translation || object.name}</Text>
+      </TouchableOpacity>
+    </>
   );
 };
-
 const styles = StyleSheet.create({
+  boundingBox: {
+    position: 'absolute',
+    borderWidth: 2,
+    borderColor: '#FF6B00',
+    backgroundColor: 'rgba(255, 107, 0, 0.1)',
+  },
   marker: {
     position: 'absolute',
     alignItems: 'center',
