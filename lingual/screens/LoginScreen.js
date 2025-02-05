@@ -21,7 +21,6 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -43,7 +42,7 @@ const LoginScreen = ({ navigation }) => {
 
       if (response.data) {
         // Store token/user data in AsyncStorage
-        await AsyncStorage.setItem('userToken', response.data.access_token);
+        await AsyncStorage.setItem('userToken', response.data.token);
         router.replace('/(main)/home');
         console.log('Login successful:', response.data);
       }

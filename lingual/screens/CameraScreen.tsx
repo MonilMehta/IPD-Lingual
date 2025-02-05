@@ -1,81 +1,94 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, Platform, Text, TouchableOpacity } from 'react-native';
-import { Camera, CameraType, FlashMode } from 'expo-camera/legacy';
-import * as Speech from 'expo-speech';
-import { ObjectDetector } from '@/utils/objectDetection';
-import { DetectedObject } from '@/utils/types';
-import { CameraControls } from './Camera/CameraControls';
-import { ObjectOverlay } from './Camera/ObjectOverlay';
-import { BottomSheet } from './components/BottomSheet';
+import React, { useState, useRef } from 'react';
+import { 
+  StyleSheet, 
+  Text, 
+  TouchableOpacity, 
+  View, 
+  Platform, 
+  Dimensions,
+  Animated,
+  Image,
+  StatusBar
+} from 'react-native';
+import { Camera,CameraType } from 'expo-camera/legacy';
+import { 
+  Upload, 
+  Camera as CameraIcon, 
+  X, 
+  ChevronLeft,
+  Settings,
+  Languages
+} from 'lucide-react-native';
+import { CameraView } from './Camera/CameraView';
+import { TranslationPanel } from './Camera/TranslationPanel';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+const CAMERA_HEIGHT = Platform.OS === 'web' ? SCREEN_WIDTH * (3/4) : SCREEN_HEIGHT * 0.85;
+
+// Test zones for object detection simulation
+const TEST_ZONES = [
+  {
+    id: '1',
+    name: 'Coffee Cup',
+    translation: 'Taza de café',
+    description: 'A ceramic cup used for hot beverages',
+    position: { x: SCREEN_WIDTH * 0.3, y: CAMERA_HEIGHT * 0.3 },
+  },
+  {
+    id: '2',
+    name: 'Book',
+    translation: 'Libro',
+    description: 'A hardcover book on the table',
+    position: { x: SCREEN_WIDTH * 0.7, y: CAMERA_HEIGHT * 0.4 },
+  },
+  {
+    id: '3',
+    name: 'Chair',
+    translation: 'Silla',
+    description: 'A wooden chair',
+    position: { x: SCREEN_WIDTH * 0.5, y: CAMERA_HEIGHT * 0.6 },
+  },
+  {
+    id: '4',
+    name: 'Window',
+    translation: 'Ventana',
+    description: 'A large window with natural light',
+    position: { x: SCREEN_WIDTH * 0.8, y: CAMERA_HEIGHT * 0.2 },
+  }
+];
+
+interface DetectedObject {
+  id: string;
+  name: string;
+  translation: string;
+  description: string;
+  position: { x: number; y: number };
+}
 
 export default function CameraScreen({ navigation }) {
   const [facing, setFacing] = useState(CameraType.back);
   const [permission, requestPermission] = Camera.useCameraPermissions();
-  const [detectedObjects, setDetectedObjects] = useState<DetectedObject[]>([]);
+  const [detectedObjects, setDetectedObjects] = useState<DetectedObject[]>(TEST_ZONES);
   const [selectedObject, setSelectedObject] = useState<DetectedObject | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isDetecting, setIsDetecting] = useState(false);
-  const [flash, setFlash] = useState(FlashMode.off);
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [showGrid, setShowGrid] = useState(true);
   
-  const cameraRef = useRef<Camera>(null);
-  const objectDetectorRef = useRef(new ObjectDetector());
-  const detectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const bottomSheetAnim = useRef(new Animated.Value(0)).current;
 
-  const captureAndProcess = async () => {
-    if (!cameraRef.current || isProcessing) return;
-    
-    try {
-      setIsProcessing(true);
-      
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.8,
-        base64: true,
-      });
-      
-      const detections = await objectDetectorRef.current.detect(photo.uri);
-      setDetectedObjects(detections);
-      
-      if (detections.length > 0) {
-        Speech.speak(detections[0].translation, { language: 'en' });
-      }
-    } catch (error) {
-      console.error('Error capturing image:', error);
-    } finally {
-      setIsProcessing(false);
-    }
+  const showBottomSheet = () => {
+    Animated.spring(bottomSheetAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
   };
 
-  const startDetection = () => {
-    setIsDetecting(true);
-    // Initial capture
-    captureAndProcess();
-    
-    // Set interval for subsequent captures
-    detectionIntervalRef.current = setInterval(captureAndProcess, 15000);
-  };
-
-  const stopDetection = () => {
-    setIsDetecting(false);
-    if (detectionIntervalRef.current) {
-      clearInterval(detectionIntervalRef.current);
-      detectionIntervalRef.current = null;
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (detectionIntervalRef.current) {
-        clearInterval(detectionIntervalRef.current);
-      }
-    };
-  }, []);
-
-  const handleObjectPress = (object: DetectedObject) => {
-    setSelectedObject(object);
-  };
-
-  const handleBack = () => {
-    navigation.goBack();
+  const hideBottomSheet = () => {
+    Animated.spring(bottomSheetAnim, {
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
+    setSelectedObject(null);
   };
 
   const handleFileUpload = async () => {
@@ -86,11 +99,9 @@ export default function CameraScreen({ navigation }) {
       input.onchange = async (e: any) => {
         const file = e.target.files[0];
         const reader = new FileReader();
-        reader.onload = async (event) => {
-          const uri = event.target?.result as string;
-          // Process uploaded image
-          const detections = await objectDetectorRef.current.detect(uri);
-          setDetectedObjects(detections);
+        reader.onload = (event) => {
+          setImageUri(event.target?.result as string);
+          setDetectedObjects(TEST_ZONES);
         };
         reader.readAsDataURL(file);
       };
@@ -98,14 +109,25 @@ export default function CameraScreen({ navigation }) {
     }
   };
 
+  const handleObjectPress = (object: DetectedObject) => {
+    setSelectedObject(object);
+    showBottomSheet();
+  };
+
+  const saveTranslation = () => {
+    // Implement save functionality
+    console.log('Saving translation:', selectedObject);
+    hideBottomSheet();
+  };
+
   if (!permission) {
-    return <View style={styles.container} />;
+    return <View />;
   }
 
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={styles.permissionText}>We need your permission to show the camera</Text>
+        <Text style={styles.message}>We need your permission to show the camera</Text>
         <TouchableOpacity 
           style={styles.permissionButton} 
           onPress={requestPermission}
@@ -116,44 +138,89 @@ export default function CameraScreen({ navigation }) {
     );
   }
 
+  const renderOverlay = () => (
+    <View style={styles.overlay}>
+      <View style={styles.topBar}>
+        <TouchableOpacity 
+          style={styles.topBarButton} 
+          onPress={() => navigation.goBack()}
+        >
+          <ChevronLeft size={24} color="white" />
+        </TouchableOpacity>
+        
+        <View style={styles.topBarRight}>
+          <TouchableOpacity 
+            style={styles.topBarButton}
+            onPress={() => setShowGrid(!showGrid)}
+          >
+            <Languages size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.topBarButton}
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <Settings size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+
+  const renderCamera = () => (
+    <CameraView 
+      cameraType={facing}
+      detectedObjects={detectedObjects}
+      onObjectPress={handleObjectPress}
+    />
+  );
+
+  const renderImagePreview = () => (
+    <View style={styles.imagePreviewContainer}>
+      <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+      <TouchableOpacity 
+        style={styles.closeButton}
+        onPress={() => setImageUri(null)}
+      >
+        <X size={24} color="white" />
+      </TouchableOpacity>
+      {renderOverlay()}
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <Camera
-        ref={cameraRef}
-        style={styles.camera}
-        type={facing}
-        flashMode={flash}
-      >
-        <ObjectOverlay 
-          detectedObjects={detectedObjects} 
-          onObjectPress={handleObjectPress} 
-        />
-      </Camera>
+      <StatusBar barStyle="light-content" />
+      <View style={styles.cameraContainer}>
+        {imageUri ? renderImagePreview() : renderCamera()}
+      </View>
 
-      <CameraControls 
-        onFlipCamera={() => setFacing(
-          current => current === CameraType.back ? CameraType.front : CameraType.back
-        )}
-        onCapture={isDetecting ? stopDetection : startDetection}
-        onUpload={handleFileUpload}
-        onBack={handleBack}
-        isProcessing={isProcessing}
-      />
-
-      {selectedObject && (
-        <BottomSheet
-          visible={!!selectedObject}
-          onClose={() => setSelectedObject(null)}
+      <View style={styles.controls}>
+        <TouchableOpacity 
+          style={styles.controlButton}
+          onPress={() => setFacing(
+            current => current === CameraType.back ? CameraType.front : CameraType.back
+          )}
         >
-          <View style={styles.bottomSheetContent}>
-            <Text style={styles.objectName}>{selectedObject.name}</Text>
-            <Text style={styles.objectTranslation}>{selectedObject.translation}</Text>
-            <Text style={styles.objectDescription}>
-              Detected with {(selectedObject.confidence * 100).toFixed(0)}% confidence
-            </Text>
-          </View>
-        </BottomSheet>
-      )}
+          <CameraIcon size={24} color="white" />
+          <Text style={styles.controlText}>Flip</Text>
+        </TouchableOpacity>
+
+        {Platform.OS === 'web' && (
+          <TouchableOpacity 
+            style={styles.controlButton}
+            onPress={handleFileUpload}
+          >
+            <Upload size={24} color="white" />
+            <Text style={styles.controlText}>Upload</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <TranslationPanel 
+        object={selectedObject}
+        onClose={hideBottomSheet}
+        bottomSheetAnim={bottomSheetAnim}
+      />
     </View>
   );
 }
@@ -161,47 +228,84 @@ export default function CameraScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'black',
+    backgroundColor: '#000',
   },
-  camera: {
-    flex: 1,
+  cameraContainer: {
+    width: SCREEN_WIDTH,
+    height: CAMERA_HEIGHT,
+    overflow: 'hidden',
+    backgroundColor: '#000',
+  },
+  imagePreviewContainer: {
     width: '100%',
     height: '100%',
+    position: 'relative',
   },
-  bottomSheetContent: {
+  imagePreview: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 20,
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
   },
-  objectName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 8,
+  topBarButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
   },
-  objectTranslation: {
-    fontSize: 18,
-    color: '#666',
-    marginBottom: 12,
+  topBarRight: {
+    flexDirection: 'row',
   },
-  objectDescription: {
-    fontSize: 14,
-    color: '#444',
+  controls: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#000',
   },
-  permissionText: {
+  controlButton: {
+    alignItems: 'center',
+    marginHorizontal: 20,
+  },
+  controlText: {
+    color: 'white',
+    marginTop: 8,
+    fontSize: 12,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 8,
+    borderRadius: 20,
+  },
+  message: {
     color: 'white',
     textAlign: 'center',
     marginBottom: 20,
   },
   permissionButton: {
     backgroundColor: '#FF6B00',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    padding: 12,
     borderRadius: 8,
-    alignSelf: 'center',
   },
   permissionButtonText: {
     color: 'white',
+    textAlign: 'center',
     fontWeight: '600',
   },
 });
-

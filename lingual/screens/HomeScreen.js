@@ -8,7 +8,6 @@ import { MainFeatures } from './components/MainFeatures';
 import { QuickPhrases } from './components/QuickPhrases';
 import { TouristGuides } from './components/TouristGuides';
 import { StyleSheet, Platform } from 'react-native';
-import { router } from 'expo-router';
 
 
 const HomeScreen = ({ navigation }) => {
@@ -25,7 +24,7 @@ const HomeScreen = ({ navigation }) => {
 
       <TouchableOpacity 
         style={styles.settingsButton} 
-        onPress={() => router.navigate('Settings')}
+        onPress={() => navigation.navigate('Settings')}
       >
         <Settings size={24} color="#666" />
       </TouchableOpacity>

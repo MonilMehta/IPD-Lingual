@@ -1,53 +1,41 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MotiView } from 'moti';
 import { Easing } from 'react-native-reanimated';
 import { SharedElement } from 'react-navigation-shared-element';
 import LottieView from 'lottie-react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { router } from 'expo-router';
+
 const { width, height } = Dimensions.get('window');
 
 const LandingScreen = ({ navigation }) => {
   const animationRef = useRef(null);
   const animationInstance = useRef(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkUserToken = async () => {
-      try {
-        const userToken = await AsyncStorage.getItem('userToken');
-        if (userToken) {
-          router.replace('/(main)/home');
-        } else {
-          router.replace('login'); // Redirect to login/signup if no token
+    if (Platform.OS === 'web' && animationRef.current && !animationInstance.current) {
+      import('lottie-web').then(LottieWeb => {
+        if (animationInstance.current) {
+          animationInstance.current.destroy();
         }
-      } catch (error) {
-        console.error('Error checking user token:', error);
-      } finally {
-        setIsLoading(false);
+        
+        animationInstance.current = LottieWeb.default.loadAnimation({
+          container: animationRef.current,
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+          path: '../assets/animations/language.json',
+        });
+      });
+    }
+
+    return () => {
+      if (animationInstance.current) {
+        animationInstance.current.destroy();
+        animationInstance.current = null;
       }
     };
-
-    checkUserToken();
-  }, [router]);
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        {Platform.OS === 'web' ? (
-          <Text>Loading...</Text>
-        ) : (
-          <LottieView
-            source={require('../assets/animations/loader.json')} // Add a loading animation
-            autoPlay
-            loop
-            style={{ width: 150, height: 150 }}
-          />
-        )}
-      </View>
-    );
-  }
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -78,7 +66,13 @@ const LandingScreen = ({ navigation }) => {
               {Platform.OS === 'web' ? (
                 <div 
                   ref={animationRef} 
-                  style={{ width: '40vw', height: '40vw', maxWidth: 300, maxHeight: 300, marginTop: 50 }} 
+                  style={{ 
+                    width: Platform.OS === 'web' ? '40vw' : '80vw',
+                    height: Platform.OS === 'web' ? '40vw' : '80vw',
+                    maxWidth: '300px',
+                    maxHeight: '300px',
+                    marginTop: Platform.OS === 'web' ? 50 : 0,
+                  }} 
                 />
               ) : (
                 <LottieView
@@ -143,26 +137,23 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   contentContainer: {
     flex: 1,
     position: 'relative',
-    zIndex: 2, 
+    zIndex: 2, // Ensure content is above gradient circles
   },
   upperSection: {
     flex: Platform.OS === 'web' ? 0.6 : 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: height * 0.1,
+    paddingTop: Platform.OS === 'web' ? height * 0.05 : height * 0.1,
+    marginTop: Platform.OS === 'web' ? 50 : 0,
   },
   logoContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: Platform.OS === 'web' ? 10 : 20,
+    marginTop: Platform.OS === 'web' ? 40 : 0,
   },
   title: {
     fontSize: 38,
@@ -170,6 +161,7 @@ const styles = StyleSheet.create({
     color: '#FF6B00',
     textAlign: 'center',
     marginBottom: 5,
+    
   },
   subtitle: {
     fontSize: 18,
@@ -183,7 +175,7 @@ const styles = StyleSheet.create({
     padding: 30,
     paddingBottom: 50,
     position: 'relative',
-    zIndex: 3, 
+    zIndex: 3, // Ensure buttons are clickable
   },
   button: {
     height: 56,
@@ -192,15 +184,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
     shadowColor: '#FF6B00',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
     position: 'relative',
     zIndex: 3,
+    ...(Platform.OS === 'web' && {
+      cursor: 'pointer',
+      ':hover': {
+        opacity: 0.9,
+      }
+      
+    }),
   },
   loginButton: {
     backgroundColor: '#FF6B00',
+    ...(Platform.OS === 'web' && {
+      marginTop: 200,
+    }),
   },
   signupButton: {
     backgroundColor: '#FFF',
@@ -228,7 +233,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     backgroundColor: '#FF6B00',
     borderRadius: 1000,
-    zIndex: 1, 
+    zIndex: 1, // Keep circles behind content
   },
   topCircle: {
     width: width * 1.5,
