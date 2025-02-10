@@ -21,40 +21,41 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  
 
   const handleLogin = async () => {
     if (!username || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
+    router.replace('/(main)/home');
+    // setLoading(true);
+    // try {
+    //   const response = await axios.post('https://lingual-e8b7.onrender.com/login/', {
+    //     username,
+    //     password
+    //   }, {
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       'Accept': 'application/json'
+    //     }
+    //   });
 
-    setLoading(true);
-    try {
-      const response = await axios.post('https://lingual-e8b7.onrender.com/login/', {
-        username,
-        password
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-
-      if (response.data) {
-        // Store token/user data in AsyncStorage
-        await AsyncStorage.setItem('userToken', response.data.token);
-        router.replace('/(main)/home');
-        console.log('Login successful:', response.data);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      Alert.alert(
-        'Login Failed',
-        'Invalid username or password. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
+    //   if (response.data) {
+    //     // Store token/user data in AsyncStorage
+    //     await AsyncStorage.setItem('userToken', response.data.access_token);
+    //     router.replace('/(main)/home');
+    //     console.log('Login successful:', response.data);
+    //   }
+    // } catch (error) {
+    //   console.error('Login error:', error);
+    //   Alert.alert(
+    //     'Login Failed',
+    //     'Invalid username or password. Please try again.'
+    //   );
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (

@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 
 export default function MainLayout() {
+  console.log('Control in main')
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="home" />

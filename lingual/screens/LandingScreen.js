@@ -11,7 +11,7 @@ const { width, height } = Dimensions.get('window');
 const LandingScreen = ({ navigation }) => {
   const animationRef = useRef(null);
   const animationInstance = useRef(null);
-
+  console.log('Control in landing')
   useEffect(() => {
     if (Platform.OS === 'web' && animationRef.current && !animationInstance.current) {
       import('lottie-web').then(LottieWeb => {
