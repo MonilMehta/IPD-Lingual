@@ -1,6 +1,6 @@
 import React from 'react';
-import { Camera } from '../../screens/Camera';
+import CameraScreen from '@/screens/Camera';
 
-export default function CameraScreen() {
-  return <Camera />;
+export default function Camera() {
+  return <CameraScreen />;
 }
