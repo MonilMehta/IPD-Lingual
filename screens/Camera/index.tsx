@@ -6,7 +6,7 @@ import * as tf from "@tensorflow/tfjs";
 import "@tensorflow/tfjs-react-native";
 import * as cocossd from "@tensorflow-models/coco-ssd";
 import {  decode } from 'js-base64';
-import { Marker } from './marker';
+import { ObjectMarker } from './marker';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
 import { Base64 } from 'js-base64';
 
@@ -105,10 +105,7 @@ export default function CameraScreen() {
   const loadModel = async () => {
     try {
       console.log('Starting COCO-SSD model loading...');
-      const loadedModel = await cocossd.load({
-        base: 'lite_mobilenet_v2',
-        modelUrl: undefined
-      });
+      const loadedModel = await cocossd.load();
       
       if (!loadedModel) {
         console.error('Model loading failed - model is null');
@@ -183,7 +180,7 @@ export default function CameraScreen() {
       }
 
       const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.5,
+        quality: 0.2,
         base64: true,
         skipProcessing: true,
         exif: false
@@ -252,7 +249,7 @@ export default function CameraScreen() {
     return predictions.map((prediction, index) => {
       console.log(`Rendering marker ${index}:`, prediction);
       return (
-        <Marker
+        <ObjectMarker
           key={index}
           position={{
             x: prediction.bbox[0],
