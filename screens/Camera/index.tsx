@@ -1,460 +1,649 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, Platform } from 'react-native';
-import { CameraView, CameraType, Camera } from 'expo-camera';
-import { GLView } from 'expo-gl';
-import * as tf from "@tensorflow/tfjs";
-import "@tensorflow/tfjs-react-native";
-import * as cocossd from "@tensorflow-models/coco-ssd";
-import {  decode } from 'js-base64';
-import { Marker } from './marker';
-import { decodeJpeg } from '@tensorflow/tfjs-react-native';
-import { Base64 } from 'js-base64';
-import { useIsFocused } from '@react-navigation/native';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Platform,
+  StatusBar,
+  Animated
+} from 'react-native';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import * as SecureStore from 'expo-secure-store';
+import { useIsFocused } from '@react-navigation/native';
+import { Camera as CameraIcon, Settings, Languages, ChevronLeft, X, Save } from 'lucide-react-native';
 
-export default function CameraScreen() {
-  console.log('Rendering CameraScreen component');
-  
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [model, setModel] = useState<cocossd.ObjectDetection | null>(null);
-  const [isModelLoaded, setIsModelLoaded] = useState(false);
-  const [isTfReady, setIsTfReady] = useState(false);
-  const [predictions, setPredictions] = useState<cocossd.DetectedObject[]>([]);
-  const [cameraFacing, setCameraFacing] = useState<CameraType>('back');
+// Use the ngrok URL for WebSocket connection
+const WS_URL = 'wss://eac5-49-36-113-38.ngrok-free.app';
+const FRAME_INTERVAL = 2000; // Capture frame every 2 seconds
+const MAX_QUEUE_SIZE = 1; // Maximum number of frames in queue
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
+
+// Orange theme color from the login screen
+const THEME_COLOR = '#FF6B00';
+
+export default function CameraScreen({ navigation }: any) {
+  const [permission, requestPermission] = useCameraPermissions();
+  const [isConnected, setIsConnected] = useState(false);
+  const [username, setUsername] = useState('');
+  const [detections, setDetections] = useState<any[]>([]);
+  const [language, setLanguage] = useState('en');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [selectedObject, setSelectedObject] = useState<number | null>(null);
-  const [frameCount, setFrameCount] = useState(0);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected' | 'error'>('disconnected');
+  const [cameraFacing, setCameraFacing] = useState<CameraType>('back');
+  const [debugMode, setDebugMode] = useState(false);
+  const [lastError, setLastError] = useState<string | null>(null);
+  const [showGrid, setShowGrid] = useState(true);
   
-  const cameraRef = useRef<CameraView>(null);
-  const glRef = useRef<WebGLRenderingContext | null>(null);
-  const isComponentMounted = useRef(true);
-  const processingTimeRef = useRef<number[]>([]);
-  const modelRef = useRef<cocossd.ObjectDetection | null>(null);
+  const cameraRef = useRef<CameraView | null>(null);
+  const frameInterval = useRef<NodeJS.Timeout | null>(null);
+  const webSocketRef = useRef<WebSocket | null>(null);
+  const reconnectAttempts = useRef<number>(0);
+  const isFocused = useIsFocused();
+  const [queueSize, setQueueSize] = useState(0);
+  const lastCaptureTime = useRef(0);
+  const bottomSheetAnim = useRef(new Animated.Value(0)).current;
+  const [selectedDetection, setSelectedDetection] = useState<any | null>(null);
 
-  // Add a new state for screen dimensions and translations
-  const [screenDimensions, setScreenDimensions] = useState({ width: 0, height: 0 });
-  const [translations, setTranslations] = useState<Record<string, string>>({});
-
-  // Add state for target language
-  const [targetLanguage, setTargetLanguage] = useState('en');
-  const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'es', name: 'Spanish' },
-    { code: 'fr', name: 'French' },
-    { code: 'de', name: 'German' },
-    { code: 'zh-CN', name: 'Chinese' },
-    { code: 'ja', name: 'Japanese' },
-    { code: 'ko', name: 'Korean' },
-    { code: 'ru', name: 'Russian' }
-  ];
+  // Camera ratio for proper marker positioning
+  const [cameraDimensions, setCameraDimensions] = useState({ 
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height * 0.85
+  });
 
   useEffect(() => {
-    console.log('Model state vs ref:', {
-      modelState: !!model,
-      modelRef: !!modelRef.current,
-      isModelLoaded
-    });
-  }, [model, isModelLoaded]);
+    (async () => {
+      if (!permission?.granted) {
+        await requestPermission();
+      }
+      
+      // Get username from secure storage
+      try {
+        const userData = await SecureStore.getItemAsync('userData');
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          setUsername(parsedData.username || 'monil');
+        } else {
+          setUsername('monil');
+        }
+      } catch (err) {
+        console.error('Error retrieving username:', err);
+        setUsername('monil');
+      }
+    })();
+  }, [permission]);
 
   useEffect(() => {
-    console.log('Component mounted, initializing...');
-    initializeApp();
+    // Connect to WebSocket when screen is focused
+    if (isFocused) {
+      connectWebSocket();
+    } else {
+      // Cleanup when screen is not focused
+      cleanupResources();
+    }
+    
+    return cleanupResources;
+  }, [isFocused]);
+
+  useEffect(() => {
+    // Update device dimensions on layout change
+    const updateDimensions = () => {
+      setCameraDimensions(prev => ({
+        ...prev,
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height * 0.85
+      }));
+    };
+
+    Dimensions.addEventListener('change', updateDimensions);
     
     return () => {
-      console.log('Component unmounting, cleaning up...');
-      isComponentMounted.current = false;
-      if (glRef.current) {
-        console.log('Clearing GL context');
-        glRef.current = null;
-      }
+      // Clean up event listener
+      const dimensionsHandler = Dimensions.addEventListener('change', () => {});
+      dimensionsHandler.remove();
     };
   }, []);
 
-  useEffect(() => {
-    console.log('TF ready state changed:', isTfReady);
-    if (isTfReady) {
-      console.log('TensorFlow is ready, loading model...');
-      loadModel();
+  const cleanupResources = () => {
+    // Stop detection
+    if (frameInterval.current) {
+      clearInterval(frameInterval.current);
+      frameInterval.current = null;
+      setIsDetecting(false);
     }
-  }, [isTfReady]);
-
-  useEffect(() => {
-    if (processingTimeRef.current.length > 0) {
-      const avgTime = processingTimeRef.current.reduce((a, b) => a + b, 0) / processingTimeRef.current.length;
-      console.log(`Average processing time: ${avgTime.toFixed(2)}ms over ${processingTimeRef.current.length} frames`);
-    }
-  }, [frameCount]);
-
-  const onGLContextCreate = async (gl: WebGLRenderingContext) => {
-    console.log('GL Context creation started');
-    glRef.current = gl;
     
-    try {
-      console.log('Initializing TensorFlow backend...');
-      await tf.ready();
-      console.log('Setting TF backend to rn-webgl');
-      await tf.setBackend('rn-webgl');
-      
-      console.log('Configuring TensorFlow backend settings');
-      tf.env().set('WEBGL_FORCE_F16_TEXTURES', false);
-      tf.env().set('WEBGL_VERSION', 2);
-      tf.env().set('WEBGL_CPU_FORWARD', true);
-      tf.env().set('WEBGL_PACK', false);
-      
-      const backend = tf.getBackend();
-      console.log('TensorFlow backend configured:', backend);
-      setIsTfReady(true);
-    } catch (error) {
-      console.error('TF initialization error:', error);
+    // Close WebSocket connection
+    if (webSocketRef.current) {
+      try {
+        webSocketRef.current.close();
+      } catch (e) {
+        console.log("Error closing WebSocket:", e);
+      }
+      webSocketRef.current = null;
+      setConnectionStatus('disconnected');
+      setIsConnected(false);
     }
+    
+    // Clear detections
+    setDetections([]);
+    
+    // Reset reconnect attempts
+    reconnectAttempts.current = 0;
   };
 
-  const initializeApp = async () => {
+  const connectWebSocket = () => {
     try {
-      console.log('Requesting camera permissions...');
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      console.log('Camera permission status:', status);
-      setHasPermission(status === 'granted');
-    } catch (error) {
-      console.error('Camera initialization error:', error);
-    }
-  };
-
-  // Optimize model loading by using a more efficient model configuration
-  const loadModel = async () => {
-    try {
-      console.log('Starting COCO-SSD model loading...');
-      // Use a lighter model configuration for better performance
-      const loadedModel = await cocossd.load({
-        base: 'lite_mobilenet_v2',
-        modelUrl: undefined
-      });
+      setConnectionStatus('connecting');
+      setLastError(null);
+      console.log(`Attempting to connect to: ${WS_URL}`);
       
-      if (!loadedModel) {
-        console.error('Model loading failed - model is null');
-        return;
+      // Close existing connection if any
+      if (webSocketRef.current) {
+        webSocketRef.current.close();
       }
       
-      console.log('COCO-SSD model loaded successfully');
-      modelRef.current = loadedModel;
-      setModel(loadedModel);
-      setIsModelLoaded(true);
+      // Create new WebSocket connection
+      webSocketRef.current = new WebSocket(WS_URL);
       
-      console.log('Model ref updated:', !!modelRef.current);
-      console.log('Starting detection...');
-      
-      setTimeout(() => {
-        if (isComponentMounted.current) {
-          startDetection();
+      webSocketRef.current.onopen = () => {
+        console.log('WebSocket connection established');
+        setIsConnected(true);
+        setConnectionStatus('connected');
+        reconnectAttempts.current = 0;
+        
+        // Send start message with username
+        if (username) {
+          const startMsg = JSON.stringify({
+            type: 'start',
+            username
+          });
+          console.log('Sending start message:', startMsg);
+          webSocketRef.current?.send(startMsg);
+          
+          // Set language preference
+          webSocketRef.current?.send(JSON.stringify({
+            type: 'set_language',
+            language
+          }));
+        } else {
+          console.warn('No username available');
         }
-      }, 100);
+      };
       
+      webSocketRef.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          
+          if (data.type === 'detection' && Array.isArray(data.results)) {
+            // Validate and filter invalid detections
+            const validDetections = data.results.filter((det: any) => {
+              return (
+                Array.isArray(det.box) && 
+                det.box.length === 4 &&
+                !det.box.some((coord: number) => isNaN(coord)) &&
+                det.box[2] > det.box[0] && 
+                det.box[3] > det.box[1]
+              );
+            });
+            
+            // Convert server coordinates to center points for markers
+            const adjustedDetections = validDetections.map((det: any) => {
+              // Calculate scaling factor between server processing size and actual camera view
+              const scaleX = cameraDimensions.width / 640;
+              const scaleY = cameraDimensions.height / 480;
+              
+              // Calculate center point of detection
+              const centerX = ((det.box[0] + det.box[2]) / 2) * scaleX;
+              const centerY = ((det.box[1] + det.box[3]) / 2) * scaleY;
+              
+              return {
+                ...det,
+                center: [centerX, centerY]
+              };
+            });
+            
+            console.log('Received detections:', adjustedDetections.length);
+            if (debugMode) {
+              console.log('Detection details:', JSON.stringify(adjustedDetections));
+            }
+            
+            setDetections(adjustedDetections);
+            setIsProcessing(false);
+            setQueueSize(prev => Math.max(0, prev - 1));
+          } else if (data.type === 'error') {
+            console.error('Server error:', data.message);
+            setLastError(`Server: ${data.message}`);
+            setIsProcessing(false);
+            setQueueSize(prev => Math.max(0, prev - 1));
+          } else if (data.type === 'status') {
+            console.log('Status message:', data.message);
+            setIsProcessing(false);
+            setQueueSize(prev => Math.max(0, prev - 1));
+          } else {
+            console.log('Received message of type:', data.type);
+            setIsProcessing(false);
+            setQueueSize(prev => Math.max(0, prev - 1));
+          }
+        } catch (e: unknown) {
+          const errorMessage = e instanceof Error ? e.message : 'Unknown error';
+          console.error('Error parsing WebSocket message:', errorMessage);
+          setLastError(`Parse error: ${errorMessage}`);
+          setIsProcessing(false);
+          setQueueSize(prev => Math.max(0, prev - 1));
+        }
+      };
+      
+      webSocketRef.current.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setConnectionStatus('error');
+        setLastError(`WS Error: ${error || 'Unknown error'}`);
+        setIsConnected(false);
+      };
+      
+      webSocketRef.current.onclose = (event) => {
+        console.log(`WebSocket connection closed with code ${event.code}, reason: ${event.reason}`);
+        setConnectionStatus('disconnected');
+        setIsConnected(false);
+        
+        // Auto reconnect if detection is active or if this wasn't a normal closure
+        if ((isDetecting && isFocused) || (event.code !== 1000 && isFocused)) {
+          // Exponential backoff for reconnection attempts (max 30 seconds)
+          const delay = Math.min(1000 * Math.pow(3, reconnectAttempts.current), 30000);
+          reconnectAttempts.current++;
+          
+          console.log(`Attempting to reconnect in ${delay/1000} seconds...`);
+          setTimeout(() => {
+            if (isFocused) { // Check if still focused before reconnecting
+              connectWebSocket();
+            }
+          }, delay);
+        }
+      };
     } catch (error) {
-      console.error('Model loading error:', error);
+      console.error('Error setting up WebSocket:', error);
+      if (error instanceof Error) {
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        setLastError(`Setup error: ${error.message}`);
+      }
+      setConnectionStatus('error');
+      Alert.alert(
+        'Connection Error',
+        'Failed to connect to detection service. Please check your connection and try again.'
+      );
     }
   };
-
-  const startDetection = () => {
-    console.log('startDetection called');
-    console.log('Model ref state:', !!modelRef.current);
-    
-    if (!cameraRef.current) {
-      console.log('Camera ref not ready');
-      return;
+  
+  const toggleDetection = () => {
+    if (!isDetecting) {
+      if (isConnected) {
+        console.log('Starting detection...');
+        startContinuousDetection();
+        setIsDetecting(true);
+      } else {
+        // Try to reconnect first
+        Alert.alert(
+          'Not Connected',
+          'Trying to connect to the detection service...',
+          [{ text: 'OK' }]
+        );
+        connectWebSocket();
+      }
+    } else {
+      console.log('Stopping detection...');
+      stopContinuousDetection();
+      setIsDetecting(false);
     }
-    if (!glRef.current) {
-      console.log('GL context not ready');
-      return;
-    }
-    if (!modelRef.current) {
-      console.log('Model ref not ready');
-      return;
-    }
-    
-    console.log('All prerequisites met, starting detection loop');
-    requestAnimationFrame(processFrame);
   };
-
-  // Update processFrame to improve performance and add translation
-  const processFrame = async () => {
-    if (!isComponentMounted.current) {
-      console.log('Skipping: component not mounted');
+  
+  const captureAndProcessFrame = async () => {
+    if (!cameraRef.current || !isConnected || isProcessing) {
+      console.log('Skipping capture:', { 
+        hasCamera: !!cameraRef.current, 
+        isConnected, 
+        isProcessing
+      });
       return;
     }
-
-    if (!modelRef.current) {
-      console.log('Skipping: model ref not ready');
+    
+    const currentTime = Date.now();
+    if (currentTime - lastCaptureTime.current < FRAME_INTERVAL) {
+      console.log('Too soon for next capture');
       return;
     }
-
-    if (isProcessing) {
-      console.log('Skipping: already processing a frame');
-      requestAnimationFrame(processFrame); // Keep the loop going
+    
+    if (queueSize >= MAX_QUEUE_SIZE) {
+      console.log('Queue full, skipping frame');
       return;
     }
-
-    setIsProcessing(true);
-    const startTime = Date.now();
     
     try {
-      console.log(`Processing frame ${frameCount + 1}`);
+      console.log('Starting frame capture...');
+      setIsProcessing(true);
+      lastCaptureTime.current = currentTime;
       
       if (!cameraRef.current) {
-        console.log('Camera ref not available');
+        console.error('Camera ref is null');
+        setIsProcessing(false);
         return;
       }
-
-      // Take picture with lower quality for faster processing
+      
+      // Use takePictureAsync with settings to minimize UI flash
       const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.15, // Lower quality for faster processing
+        quality: 0.5,
         base64: true,
         skipProcessing: true,
-        exif: false
+        exif: false,
+        scale: 0.5,       // Lower scale to improve performance
+        pause: false,      // Don't pause the preview during capture
+        fixOrientation: true // Fix orientation issues
       });
-
-      if (!photo?.base64) {
-        console.log('No photo data captured');
-        return;
-      }
-
-      // Process image with optimizations
-      const base64Data = photo.base64.replace(/^data:image\/\w+;base64,/, '');
-      const uint8Array = Base64.toUint8Array(base64Data);
-
-      // Create tensor with optimizations
-      const tensor = await tf.tidy(() => {
-        // Use decodeJpeg to handle JPEG format
-        const imageTensor = decodeJpeg(uint8Array);
-        
-        // Use a smaller resize dimension for faster processing
-        const resized = tf.image.resizeBilinear(imageTensor, [224, 224]);
-        
-        // Cast to float32 instead of int32 for better performance with the lite model
-        return tf.cast(resized, 'float32').expandDims(0);
-      });
-
-      console.log('Running object detection...');
-      const detections = await modelRef.current.detect(tensor.squeeze() as tf.Tensor3D, 3); // Limit to top 3 detections
-      console.log('Raw detections:', detections);
       
-      if (isComponentMounted.current) {
-        const filteredDetections = detections.filter(d => d.score > 0.5); // Lower threshold for more detections
-        console.log('Filtered detections:', filteredDetections);
+      console.log('Photo captured:', photo.uri);
+      
+      // Use a lower quality compress to improve speed
+      const resized = await manipulateAsync(
+        photo.uri,
+        [{ resize: { width: 640 } }],
+        { compress: 0.4, format: SaveFormat.JPEG, base64: true }
+      );
+      
+      console.log('Photo resized, preparing to send');
+      
+      if (webSocketRef.current?.readyState === WebSocket.OPEN) {
+        setQueueSize(prev => prev + 1);
+        const frameData = {
+          type: 'frame',
+          data: `data:image/jpeg;base64,${resized.base64}`
+        };
         
-        // Scale detection coordinates to screen size
-        const scaledDetections = filteredDetections.map(detection => {
-          // Get the original photo dimensions
-          const photoWidth = photo.width || 1;
-          const photoHeight = photo.height || 1;
-          
-          // Get our screen dimensions
-          const { width: screenWidth, height: screenHeight } = screenDimensions;
-          
-          // Calculate scaling factors
-          const scaleX = screenWidth / photoWidth;
-          const scaleY = screenHeight / photoHeight;
-          
-          // Scale the bounding box
-          const scaledBox: [number, number, number, number] = [
-            detection.bbox[0] * scaleX,
-            detection.bbox[1] * scaleY,
-            detection.bbox[2] * scaleX,
-            detection.bbox[3] * scaleY
-          ];
-          
-          return {
-            ...detection,
-            bbox: scaledBox
-          };
-        });
-        
-        // Fetch translations for detected objects
-        const newTranslations = { ...translations };
-        for (const detection of scaledDetections) {
-          if (!newTranslations[detection.class]) {
-            const translation = await fetchTranslation(detection.class);
-            if (translation) {
-              newTranslations[detection.class] = translation;
-            }
-          }
+        console.log('Sending frame to server');
+        webSocketRef.current.send(JSON.stringify(frameData));
+      } else {
+        console.log('WebSocket not connected');
+        setIsProcessing(false);
+        if (isDetecting) {
+          setLastError('WebSocket connection lost while detecting');
+          Alert.alert('Connection Lost', 'Reconnecting to detection service...');
+          connectWebSocket();
         }
-        
-        setPredictions(scaledDetections);
-        setTranslations(newTranslations);
-        setFrameCount(prev => prev + 1);
       }
-      
-      // Cleanup
-      tf.dispose(tensor);
-        
-    } catch (error) {
-      console.error('Frame processing error:', error);
-    } finally {
-      const processingTime = Date.now() - startTime;
-      console.log(`Frame ${frameCount + 1} processed in ${processingTime}ms`);
-      
-      processingTimeRef.current.push(processingTime);
-      if (processingTimeRef.current.length > 30) {
-        processingTimeRef.current.shift();
-      }
-      
+    } catch (err) {
+      console.error('Error capturing frame:', err instanceof Error ? err.message : 'Unknown error');
+      setLastError(`Frame capture: ${err instanceof Error ? err.message : 'Unknown error'}`);
       setIsProcessing(false);
+    }
+  };
+  
+  const startContinuousDetection = async () => {
+    if (!isConnected || !cameraRef.current) {
+      console.log('Cannot start detection:', { isConnected, hasCamera: !!cameraRef.current });
+      return;
+    }
+    
+    console.log('Starting continuous detection');
+    
+    // Clear any existing interval first
+    if (frameInterval.current) {
+      clearInterval(frameInterval.current);
+    }
+    
+    // Call once immediately to start faster
+    captureAndProcessFrame();
+    
+    // Set up interval for continuous capture
+    frameInterval.current = setInterval(captureAndProcessFrame, FRAME_INTERVAL / 2); // Use half the interval for more reliable capture
+    console.log('Detection interval started with interval', FRAME_INTERVAL / 2, 'ms');
+  };
+  
+  const stopContinuousDetection = () => {
+    if (frameInterval.current) {
+      clearInterval(frameInterval.current);
+      frameInterval.current = null;
       
-      // Reduce the delay between frames for faster refresh
-      if (isComponentMounted.current) {
-        setTimeout(() => {
-          requestAnimationFrame(processFrame);
-        }, 50); // Reduced from 100ms to 50ms
+      // Send stop message if connected
+      if (webSocketRef.current?.readyState === WebSocket.OPEN) {
+        webSocketRef.current.send(JSON.stringify({
+          type: 'stop'
+        }));
       }
+      
+      // Clear detections
+      setDetections([]);
     }
   };
 
-  const handleMarkerPress = (index: number) => {
-    console.log('Marker pressed:', index);
-    setSelectedObject(selectedObject === index ? null : index);
-  };
-
-  // Update renderMarkers to include translations
-  const renderMarkers = () => {
-    return predictions.map((prediction, index) => {
-      const translatedLabel = translations[prediction.class] || prediction.class;
-      const label = `${prediction.class}${translatedLabel !== prediction.class ? ` (${translatedLabel})` : ''}`;
-      
-      console.log(`Rendering marker ${index}:`, prediction);
-      return (
-        <Marker
-          key={index}
-          position={{
-            x: prediction.bbox[0],
-            y: prediction.bbox[1]
-          }}
-          isSelected={selectedObject === index}
-          label={label}
-          onPress={() => handleMarkerPress(index)}
-        />
-      );
-    });
-  };
-
-  // Add function to measure screen size
-  const onCameraViewLayout = (event: any) => {
-    const { width, height } = event.nativeEvent.layout;
-    setScreenDimensions({ width, height });
-  };
-
-  // Function to fetch translations
-  const fetchTranslation = async (text: string) => {
-    try {
-      const encodedText = encodeURIComponent(text);
-      const response = await fetch(
-        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLanguage}&dt=t&q=${encodedText}`
-      );
-      const data = await response.json();
-      if (data && data[0] && data[0][0]) {
-        return data[0][0][0];
-      }
-      return null;
-    } catch (error) {
-      console.error('Translation error:', error);
-      return null;
+  // Update language preference
+  useEffect(() => {
+    if (webSocketRef.current?.readyState === WebSocket.OPEN) {
+      webSocketRef.current.send(JSON.stringify({
+        type: 'set_language',
+        language
+      }));
     }
+  }, [language]);
+
+  // Show bottom sheet when a detection is selected
+  const showBottomSheet = () => {
+    Animated.spring(bottomSheetAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
   };
 
-  if (hasPermission === null) {
-    console.log('Rendering permission loading state');
+  // Hide bottom sheet
+  const hideBottomSheet = () => {
+    Animated.spring(bottomSheetAnim, {
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
+    setSelectedDetection(null);
+  };
+
+  // Handle detection press
+  const handleDetectionPress = (detection: any) => {
+    setSelectedDetection(detection);
+    showBottomSheet();
+  };
+
+  if (!permission) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={THEME_COLOR} />
+        <Text style={styles.statusText}>Loading camera permissions...</Text>
       </View>
     );
   }
 
-  if (hasPermission === false) {
-    console.log('Rendering permission denied state');
+  if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <Text style={styles.text}>No access to camera</Text>
+        <Text style={styles.message}>We need your permission to show the camera</Text>
+        <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
+          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
-  console.log('Rendering main camera view');
+  const bottomSheetTranslateY = bottomSheetAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [200, 0],
+  });
+
   return (
     <View style={styles.container}>
-      <View 
-        style={styles.cameraView}
-        onLayout={onCameraViewLayout}
-      >
-        <CameraView
-          ref={cameraRef}
-          style={styles.camera}
-          facing={cameraFacing}
-          onCameraReady={() => {
-            console.log('Camera ready event');
-            console.log('Model ref state:', !!modelRef.current);
-            if (modelRef.current && !isProcessing) {
-              console.log('Starting detection from camera ready');
-              startDetection();
-            }
-          }}
-        >
-          <GLView
-            style={StyleSheet.absoluteFill}
-            onContextCreate={onGLContextCreate}
-          />
-          <View style={styles.markersOverlay}>
-            {renderMarkers()}
-          </View>
-        </CameraView>
+      <StatusBar barStyle="light-content" />
+      <CameraView
+        ref={cameraRef}
+        style={styles.camera}
+        facing={cameraFacing}
         
-        <View style={styles.controlsContainer}>
+        onMountError={(error: { message: string }) => {
+          console.error('Camera mount error:', error);
+          setLastError(`Camera mount error: ${error.message}`);
+        }}
+      >
+        {/* Top Bar */}
+        <View style={styles.topBar}>
           <TouchableOpacity 
-            style={styles.button} 
-            onPress={() => {
-              console.log('Camera flip button pressed');
-              setCameraFacing(current => current === 'back' ? 'front' : 'back');
-              setPredictions([]);
-            }}
+            style={styles.topBarButton} 
+            onPress={() => navigation?.goBack?.()}
           >
-            <Text style={styles.buttonText}>Flip Camera</Text>
+            <ChevronLeft size={24} color="white" />
           </TouchableOpacity>
           
-          <View style={styles.languageSelector}>
-            <Text style={styles.languageLabel}>Target Language:</Text>
-            <View style={styles.languageButtons}>
-              {languages.map(lang => (
-                <TouchableOpacity
-                  key={lang.code}
-                  style={[
-                    styles.langButton,
-                    targetLanguage === lang.code && styles.selectedLangButton
-                  ]}
-                  onPress={() => {
-                    setTargetLanguage(lang.code);
-                    setTranslations({}); // Clear translations when language changes
-                  }}
-                >
-                  <Text 
-                    style={[
-                      styles.langButtonText,
-                      targetLanguage === lang.code && styles.selectedLangButtonText
-                    ]}
-                  >
-                    {lang.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+          <View style={styles.topBarRight}>
+            <TouchableOpacity 
+              style={styles.topBarButton}
+              onPress={() => setShowGrid(!showGrid)}
+            >
+              <Languages size={24} color="white" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.topBarButton}
+              onPress={() => setDebugMode(!debugMode)}
+            >
+              <Settings size={24} color="white" />
+            </TouchableOpacity>
           </View>
         </View>
-      </View>
-      {(!isModelLoaded || !isTfReady) && (
-        <View style={styles.modelLoading}>
-          <ActivityIndicator size="large" color="#0000ff" />
-          <Text style={styles.loadingText}>
-            {!isTfReady ? 'Initializing TensorFlow...' : 'Loading Model...'}
+        
+        {/* Connection Status Indicator */}
+        <View style={[
+          styles.statusBar, 
+          {backgroundColor: connectionStatus === 'connected' ? 'rgba(76, 217, 100, 0.7)' : 
+                          connectionStatus === 'connecting' ? 'rgba(255, 204, 0, 0.7)' : 
+                          'rgba(255, 59, 48, 0.7)'}
+        ]}>
+          <Text style={styles.statusText}>
+            {connectionStatus === 'connected' ? 'Connected' : 
+             connectionStatus === 'connecting' ? 'Connecting...' : 'Disconnected'}
           </Text>
         </View>
+        
+        {/* Debug Information */}
+        {debugMode && (
+          <View style={styles.debugInfo}>
+            <Text style={styles.debugText}>Status: {connectionStatus}</Text>
+            <Text style={styles.debugText}>Connected: {isConnected ? 'Yes' : 'No'}</Text>
+            <Text style={styles.debugText}>Detections: {detections.length}</Text>
+            <Text style={styles.debugText}>Processing: {isProcessing ? 'Yes' : 'No'}</Text>
+            <Text style={styles.debugText}>Language: {language}</Text>
+            <Text style={styles.debugText}>Username: {username || 'Not set'}</Text>
+            <Text style={styles.debugText}>WebSocket URL: {WS_URL}</Text>
+            {lastError && <Text style={styles.debugErrorText}>Error: {lastError}</Text>}
+          </View>
+        )}
+        
+        {/* Processing Indicator */}
+        {isProcessing && (
+          <View style={styles.processingContainer}>
+            <ActivityIndicator 
+              size="small" 
+              color="#ffffff" 
+            />
+          </View>
+        )}
+        
+        {/* Render detection markers instead of boxes */}
+        {detections.map((detection, index) => {
+          // Ensure center coordinates are valid
+          if (!detection.center || 
+              isNaN(detection.center[0]) || 
+              isNaN(detection.center[1])) {
+            return null;
+          }
+          
+          return (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.detectionMarker,
+                {
+                  left: detection.center[0] - 12, // Center the marker
+                  top: detection.center[1] - 12,  // Center the marker
+                }
+              ]}
+              onPress={() => handleDetectionPress(detection)}
+            >
+              <View style={styles.markerDot} />
+            </TouchableOpacity>
+          );
+        })}
+      </CameraView>
+      
+      {/* Bottom Controls Bar */}
+      <View style={styles.controls}>
+        <TouchableOpacity 
+          style={styles.controlButton}
+          onPress={() => setCameraFacing(
+            currentType => currentType === 'back' ? 'front' : 'back'
+          )}
+        >
+          <CameraIcon size={24} color="white" />
+          <Text style={styles.controlText}>Flip</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.detectionButton, isDetecting && styles.stopButton]}
+          onPress={toggleDetection}
+        >
+          <Text style={styles.detectionButtonText}>
+            {isDetecting ? 'Stop' : 'Start'} Detection
+          </Text>
+        </TouchableOpacity>
+      </View>
+      
+      {/* Bottom Sheet for Selected Detection */}
+      {selectedDetection && (
+        <Animated.View
+          style={[
+            styles.bottomSheet,
+            { transform: [{ translateY: bottomSheetTranslateY }] }
+          ]}
+        >
+          <View style={styles.bottomSheetHandle} />
+          <View style={styles.bottomSheetHeader}>
+            <Text style={styles.bottomSheetTitle}>{selectedDetection.label}</Text>
+            <TouchableOpacity onPress={hideBottomSheet}>
+              <X size={24} color="#333" />
+            </TouchableOpacity>
+          </View>
+          <View style={styles.bottomSheetContent}>
+            <View style={styles.translationItem}>
+              <Text style={styles.translationLabel}>Original:</Text>
+              <Text style={styles.translationText}>{selectedDetection.label}</Text>
+            </View>
+            <View style={styles.translationItem}>
+              <Text style={styles.translationLabel}>Translation:</Text>
+              <Text style={styles.translationText}>{selectedDetection.translated}</Text>
+            </View>
+            <View style={styles.translationItem}>
+              <Text style={styles.translationLabel}>Confidence:</Text>
+              <Text style={styles.translationText}>{(selectedDetection.confidence * 100).toFixed(1)}%</Text>
+            </View>
+            
+            {/* Add save button */}
+            <TouchableOpacity style={styles.saveButton} onPress={() => {
+              // Handle save functionality here
+              Alert.alert('Saved', 'Detection saved successfully');
+              hideBottomSheet();
+            }}>
+              <Save size={20} color="white" />
+              <Text style={styles.saveButtonText}>Save Detection</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
       )}
     </View>
   );
@@ -466,93 +655,230 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
   },
   camera: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT * 0.85,
+    overflow: 'hidden',
   },
-  cameraView: {
-    flex: 1,
-    width: '100%',
-    height: '80%',
-    position: 'relative',
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
   },
-  markersOverlay: {
+  topBarButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  topBarRight: {
+    flexDirection: 'row',
+  },
+  statusBar: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1,
+    top: 80,
+    alignSelf: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 15,
+    zIndex: 10,
   },
-  controlsContainer: {
+  statusText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  debugInfo: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    top: 120,
+    right: 10,
+    backgroundColor: 'rgba(0,0,0,0.8)',
     padding: 10,
-    zIndex: 2,
+    borderRadius: 4,
+    maxWidth: 220,
+    zIndex: 10,
   },
-  button: {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  debugText: {
+    color: 'white',
+    fontSize: 10,
+    marginBottom: 4,
+  },
+  debugErrorText: {
+    color: '#ff6b6b',
+    fontSize: 10,
+    marginTop: 4,
+    flexWrap: 'wrap',
+  },
+  processingContainer: {
+    position: 'absolute',
+    top: 80,
+    right: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  // New marker style instead of boxes
+  detectionMarker: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 24,
+    height: 24,
+    zIndex: 20,
+  },
+  markerDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: THEME_COLOR,
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  detectionLabel: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: 'bold',
+    padding: 4,
+    position: 'absolute',
+    top: -30,
+    borderRadius: 2,
+    maxWidth: 180,
+    overflow: 'hidden',
+  },
+  message: {
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 20,
+    fontSize: 16,
+  },
+  permissionButton: {
+    backgroundColor: THEME_COLOR,
     padding: 15,
     borderRadius: 10,
+    width: 200,
+    alignItems: 'center',
+  },
+  permissionButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  controls: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#000',
+    height: SCREEN_HEIGHT * 0.15,
+  },
+  controlButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 60,
+    height: 60,
+  },
+  controlText: {
+    color: 'white',
+    marginTop: 5,
+    fontSize: 12,
+  },
+  detectionButton: {
+    backgroundColor: THEME_COLOR,  // Using orange theme color
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  stopButton: {
+    backgroundColor: 'rgba(255, 59, 48, 0.9)',
+  },
+  detectionButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  bottomSheet: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 10,
+    zIndex: 100,
+  },
+  bottomSheetHandle: {
+    width: 40,
+    height: 5,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 3,
     alignSelf: 'center',
     marginBottom: 10,
   },
-  buttonText: {
-    fontSize: 16,
-    color: '#000',
-  },
-  languageSelector: {
-    marginTop: 10,
-  },
-  languageLabel: {
-    color: '#fff',
-    fontSize: 16,
-    marginBottom: 5,
-    textAlign: 'center',
-  },
-  languageButtons: {
+  bottomSheetHeader: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  langButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    margin: 5,
-  },
-  selectedLangButton: {
-    backgroundColor: '#fff',
-  },
-  langButtonText: {
-    color: '#ddd',
-    fontSize: 14,
-  },
-  selectedLangButtonText: {
-    color: '#000',
-    fontWeight: 'bold',
-  },
-  text: {
-    color: '#fff',
-    fontSize: 16,
-    textAlign: 'center',
-  },
-  modelLoading: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 15,
   },
-  loadingText: {
-    color: '#fff',
-    marginTop: 10,
+  bottomSheetTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  bottomSheetContent: {
+    marginBottom: 20,
+  },
+  translationItem: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  translationLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+    width: 100,
+  },
+  translationText: {
+    fontSize: 16,
+    color: '#333',
+    flex: 1,
+  },
+  saveButton: {
+    flexDirection: 'row',
+    backgroundColor: THEME_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginTop: 15,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 16,
+    marginLeft: 8,
   },
 });
