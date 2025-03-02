@@ -14,6 +14,7 @@ import torch
 from utils.model_manager import load_model
 from collections import deque
 import threading
+from websockets.extensions import permessage_deflate
 
 # MongoDB connection
 client = MongoClient(config('MONGODB_URL'))
@@ -301,6 +302,7 @@ class DetectionService:
             
             # Run inference with confidence threshold
             results = self.model(frame_resized, conf=0.4)
+#            print(f'Results : {results}')
             
             detection_results = []
             
@@ -337,6 +339,7 @@ class DetectionService:
                         'translated': translated_label,
                         'confidence': conf
                     })
+                    print(f"Detected {detection_results}")
             
             return detection_results
             
@@ -354,7 +357,22 @@ async def start_server(host='0.0.0.0', port=8765):
         max_size=MAX_MESSAGE_SIZE,  # Set maximum message size to match our constant
         max_queue=32,               # Increase the message queue size
         ping_interval=30,           # Send ping every 30 seconds
-        ping_timeout=10             # Wait 10 seconds for pong before closing
+        ping_timeout=10,             # Wait 10 seconds for pong before closing
+        # extensions=[permessage_deflate.ServerPerMessageDeflateFactory(
+        #     max_window_bits=15,
+        #     compression_level=9
+        # )],
+        # Add origins for CORS (modify as needed)
+        origins=[
+            'https://websocketking.com',
+            'http://localhost:3000',
+            'http://127.0.0.1:3000',
+            'https://eac5-49-36-113-38.ngrok-free.app',  # Add your ngrok URL
+            'http://eac5-49-36-113-38.ngrok-free.app',   # Both http and https
+            'https://2405:201:28:1847:907e:c994:418a:e14d',  # Your IPv6 address
+            'null',
+            '*'
+        ]
     )
     print(f"WebSocket server started at ws://{host}:{port}")
     await server.wait_closed()
