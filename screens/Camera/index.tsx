@@ -1,15 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, StyleSheet, Platform } from 'react-native';
-import { Camera, CameraView, CameraType } from 'expo-camera';
+import { CameraView, CameraType, Camera } from 'expo-camera';
 import { GLView } from 'expo-gl';
 import * as tf from "@tensorflow/tfjs";
 import "@tensorflow/tfjs-react-native";
 import * as cocossd from "@tensorflow-models/coco-ssd";
 import {  decode } from 'js-base64';
-import { ObjectMarker } from './marker';
+import { Marker } from './marker';
 import { decodeJpeg } from '@tensorflow/tfjs-react-native';
 import { Base64 } from 'js-base64';
-
+import { useIsFocused } from '@react-navigation/native';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 export default function CameraScreen() {
   console.log('Rendering CameraScreen component');
@@ -24,11 +25,28 @@ export default function CameraScreen() {
   const [selectedObject, setSelectedObject] = useState<number | null>(null);
   const [frameCount, setFrameCount] = useState(0);
   
-  const cameraRef = useRef<Camera>(null);
+  const cameraRef = useRef<CameraView>(null);
   const glRef = useRef<WebGLRenderingContext | null>(null);
   const isComponentMounted = useRef(true);
   const processingTimeRef = useRef<number[]>([]);
   const modelRef = useRef<cocossd.ObjectDetection | null>(null);
+
+  // Add a new state for screen dimensions and translations
+  const [screenDimensions, setScreenDimensions] = useState({ width: 0, height: 0 });
+  const [translations, setTranslations] = useState<Record<string, string>>({});
+
+  // Add state for target language
+  const [targetLanguage, setTargetLanguage] = useState('en');
+  const languages = [
+    { code: 'en', name: 'English' },
+    { code: 'es', name: 'Spanish' },
+    { code: 'fr', name: 'French' },
+    { code: 'de', name: 'German' },
+    { code: 'zh-CN', name: 'Chinese' },
+    { code: 'ja', name: 'Japanese' },
+    { code: 'ko', name: 'Korean' },
+    { code: 'ru', name: 'Russian' }
+  ];
 
   useEffect(() => {
     console.log('Model state vs ref:', {
@@ -102,10 +120,15 @@ export default function CameraScreen() {
     }
   };
 
+  // Optimize model loading by using a more efficient model configuration
   const loadModel = async () => {
     try {
       console.log('Starting COCO-SSD model loading...');
-      const loadedModel = await cocossd.load();
+      // Use a lighter model configuration for better performance
+      const loadedModel = await cocossd.load({
+        base: 'lite_mobilenet_v2',
+        modelUrl: undefined
+      });
       
       if (!loadedModel) {
         console.error('Model loading failed - model is null');
@@ -152,6 +175,7 @@ export default function CameraScreen() {
     requestAnimationFrame(processFrame);
   };
 
+  // Update processFrame to improve performance and add translation
   const processFrame = async () => {
     if (!isComponentMounted.current) {
       console.log('Skipping: component not mounted');
@@ -165,6 +189,7 @@ export default function CameraScreen() {
 
     if (isProcessing) {
       console.log('Skipping: already processing a frame');
+      requestAnimationFrame(processFrame); // Keep the loop going
       return;
     }
 
@@ -179,8 +204,9 @@ export default function CameraScreen() {
         return;
       }
 
+      // Take picture with lower quality for faster processing
       const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.2,
+        quality: 0.15, // Lower quality for faster processing
         base64: true,
         skipProcessing: true,
         exif: false
@@ -191,34 +217,76 @@ export default function CameraScreen() {
         return;
       }
 
-     // Create tensor directly from base64 image data
-     const base64Data = photo.base64.replace(/^data:image\/\w+;base64,/, '');
-     const uint8Array = Base64.toUint8Array(base64Data);
- 
-     // Create tensor from JPEG data
-     const tensor = await tf.tidy(() => {
-      // Use decodeJpeg to handle JPEG format
-      const imageTensor = decodeJpeg(uint8Array);
-      // Resize to the expected dimensions
-      const resized = tf.image.resizeBilinear(imageTensor, [300, 300]);
-      // Cast to int32 (and add the batch dimension)
-      return tf.cast(resized, 'int32').expandDims(0);
-    });
- 
-     console.log('Running object detection...');
-     const detections = await modelRef.current.detect(tensor.squeeze() as tf.Tensor3D);
-    console.log('Raw detections:', detections);
-    
-    if (isComponentMounted.current) {
-      const filteredDetections = detections.filter(d => d.score > 0.66);
-      console.log('Filtered detections:', filteredDetections);
-      setPredictions(filteredDetections);
-      setFrameCount(prev => prev + 1);
-    }
-    
-    // Cleanup
-    tf.dispose(tensor);
+      // Process image with optimizations
+      const base64Data = photo.base64.replace(/^data:image\/\w+;base64,/, '');
+      const uint8Array = Base64.toUint8Array(base64Data);
+
+      // Create tensor with optimizations
+      const tensor = await tf.tidy(() => {
+        // Use decodeJpeg to handle JPEG format
+        const imageTensor = decodeJpeg(uint8Array);
+        
+        // Use a smaller resize dimension for faster processing
+        const resized = tf.image.resizeBilinear(imageTensor, [224, 224]);
+        
+        // Cast to float32 instead of int32 for better performance with the lite model
+        return tf.cast(resized, 'float32').expandDims(0);
+      });
+
+      console.log('Running object detection...');
+      const detections = await modelRef.current.detect(tensor.squeeze() as tf.Tensor3D, 3); // Limit to top 3 detections
+      console.log('Raw detections:', detections);
       
+      if (isComponentMounted.current) {
+        const filteredDetections = detections.filter(d => d.score > 0.5); // Lower threshold for more detections
+        console.log('Filtered detections:', filteredDetections);
+        
+        // Scale detection coordinates to screen size
+        const scaledDetections = filteredDetections.map(detection => {
+          // Get the original photo dimensions
+          const photoWidth = photo.width || 1;
+          const photoHeight = photo.height || 1;
+          
+          // Get our screen dimensions
+          const { width: screenWidth, height: screenHeight } = screenDimensions;
+          
+          // Calculate scaling factors
+          const scaleX = screenWidth / photoWidth;
+          const scaleY = screenHeight / photoHeight;
+          
+          // Scale the bounding box
+          const scaledBox: [number, number, number, number] = [
+            detection.bbox[0] * scaleX,
+            detection.bbox[1] * scaleY,
+            detection.bbox[2] * scaleX,
+            detection.bbox[3] * scaleY
+          ];
+          
+          return {
+            ...detection,
+            bbox: scaledBox
+          };
+        });
+        
+        // Fetch translations for detected objects
+        const newTranslations = { ...translations };
+        for (const detection of scaledDetections) {
+          if (!newTranslations[detection.class]) {
+            const translation = await fetchTranslation(detection.class);
+            if (translation) {
+              newTranslations[detection.class] = translation;
+            }
+          }
+        }
+        
+        setPredictions(scaledDetections);
+        setTranslations(newTranslations);
+        setFrameCount(prev => prev + 1);
+      }
+      
+      // Cleanup
+      tf.dispose(tensor);
+        
     } catch (error) {
       console.error('Frame processing error:', error);
     } finally {
@@ -232,10 +300,11 @@ export default function CameraScreen() {
       
       setIsProcessing(false);
       
+      // Reduce the delay between frames for faster refresh
       if (isComponentMounted.current) {
         setTimeout(() => {
           requestAnimationFrame(processFrame);
-        }, 100);
+        }, 50); // Reduced from 100ms to 50ms
       }
     }
   };
@@ -245,22 +314,50 @@ export default function CameraScreen() {
     setSelectedObject(selectedObject === index ? null : index);
   };
 
+  // Update renderMarkers to include translations
   const renderMarkers = () => {
     return predictions.map((prediction, index) => {
+      const translatedLabel = translations[prediction.class] || prediction.class;
+      const label = `${prediction.class}${translatedLabel !== prediction.class ? ` (${translatedLabel})` : ''}`;
+      
       console.log(`Rendering marker ${index}:`, prediction);
       return (
-        <ObjectMarker
+        <Marker
           key={index}
           position={{
             x: prediction.bbox[0],
             y: prediction.bbox[1]
           }}
           isSelected={selectedObject === index}
-          label={prediction.class}
+          label={label}
           onPress={() => handleMarkerPress(index)}
         />
       );
     });
+  };
+
+  // Add function to measure screen size
+  const onCameraViewLayout = (event: any) => {
+    const { width, height } = event.nativeEvent.layout;
+    setScreenDimensions({ width, height });
+  };
+
+  // Function to fetch translations
+  const fetchTranslation = async (text: string) => {
+    try {
+      const encodedText = encodeURIComponent(text);
+      const response = await fetch(
+        `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLanguage}&dt=t&q=${encodedText}`
+      );
+      const data = await response.json();
+      if (data && data[0] && data[0][0]) {
+        return data[0][0][0];
+      }
+      return null;
+    } catch (error) {
+      console.error('Translation error:', error);
+      return null;
+    }
   };
 
   if (hasPermission === null) {
@@ -284,7 +381,10 @@ export default function CameraScreen() {
   console.log('Rendering main camera view');
   return (
     <View style={styles.container}>
-      <View style={styles.cameraView}>
+      <View 
+        style={styles.cameraView}
+        onLayout={onCameraViewLayout}
+      >
         <CameraView
           ref={cameraRef}
           style={styles.camera}
@@ -306,16 +406,47 @@ export default function CameraScreen() {
             {renderMarkers()}
           </View>
         </CameraView>
-        <TouchableOpacity 
-          style={styles.button} 
-          onPress={() => {
-            console.log('Camera flip button pressed');
-            setCameraFacing(current => current === 'back' ? 'front' : 'back');
-            setPredictions([]);
-          }}
-        >
-          <Text style={styles.buttonText}>Flip Camera</Text>
-        </TouchableOpacity>
+        
+        <View style={styles.controlsContainer}>
+          <TouchableOpacity 
+            style={styles.button} 
+            onPress={() => {
+              console.log('Camera flip button pressed');
+              setCameraFacing(current => current === 'back' ? 'front' : 'back');
+              setPredictions([]);
+            }}
+          >
+            <Text style={styles.buttonText}>Flip Camera</Text>
+          </TouchableOpacity>
+          
+          <View style={styles.languageSelector}>
+            <Text style={styles.languageLabel}>Target Language:</Text>
+            <View style={styles.languageButtons}>
+              {languages.map(lang => (
+                <TouchableOpacity
+                  key={lang.code}
+                  style={[
+                    styles.langButton,
+                    targetLanguage === lang.code && styles.selectedLangButton
+                  ]}
+                  onPress={() => {
+                    setTargetLanguage(lang.code);
+                    setTranslations({}); // Clear translations when language changes
+                  }}
+                >
+                  <Text 
+                    style={[
+                      styles.langButtonText,
+                      targetLanguage === lang.code && styles.selectedLangButtonText
+                    ]}
+                  >
+                    {lang.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </View>
       </View>
       {(!isModelLoaded || !isTfReady) && (
         <View style={styles.modelLoading}>
@@ -353,18 +484,57 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 1,
   },
-  button: {
+  controlsContainer: {
     position: 'absolute',
-    bottom: 20,
-    alignSelf: 'center',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    zIndex: 2,
+  },
+  button: {
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     padding: 15,
     borderRadius: 10,
-    zIndex: 2,
+    alignSelf: 'center',
+    marginBottom: 10,
   },
   buttonText: {
     fontSize: 16,
     color: '#000',
+  },
+  languageSelector: {
+    marginTop: 10,
+  },
+  languageLabel: {
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  languageButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
+  langButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    margin: 5,
+  },
+  selectedLangButton: {
+    backgroundColor: '#fff',
+  },
+  langButtonText: {
+    color: '#ddd',
+    fontSize: 14,
+  },
+  selectedLangButtonText: {
+    color: '#000',
+    fontWeight: 'bold',
   },
   text: {
     color: '#fff',
