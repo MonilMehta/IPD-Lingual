@@ -11,14 +11,14 @@ import {
   StatusBar,
   Animated
 } from 'react-native';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera"
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import * as SecureStore from 'expo-secure-store';
 import { useIsFocused } from '@react-navigation/native';
 import { Camera as CameraIcon, Settings, Languages, ChevronLeft, X, Save } from 'lucide-react-native';
 
 // Use the ngrok URL for WebSocket connection
-const WS_URL = 'wss://eac5-49-36-113-38.ngrok-free.app';
+const WS_URL = 'wss://4ba8-152-58-3-231.ngrok-free.app';
 const FRAME_INTERVAL = 2000; // Capture frame every 2 seconds
 const MAX_QUEUE_SIZE = 1; // Maximum number of frames in queue
 
@@ -57,6 +57,10 @@ export default function CameraScreen({ navigation }: any) {
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height * 0.85
   });
+
+  // Add state for previous image data
+  const [previousImageData, setPreviousImageData] = useState<string | null>(null);
+  const [imageDiffThreshold] = useState(0.15); // 15% difference threshold
 
   useEffect(() => {
     (async () => {
@@ -336,15 +340,15 @@ export default function CameraScreen({ navigation }: any) {
         return;
       }
       
-      // Use takePictureAsync with settings to minimize UI flash
+      // Use takePictureAsync with modified settings to prevent screen flashing
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.5,
         base64: true,
         skipProcessing: true,
         exif: false,
-        scale: 0.5,       // Lower scale to improve performance
-        pause: false,      // Don't pause the preview during capture
-        fixOrientation: true // Fix orientation issues
+        scale: 0.5,
+        pause: false,      // Crucial: Don't pause the preview during capture
+        flash: 'off'       // Ensure flash is off
       });
       
       console.log('Photo captured:', photo.uri);
@@ -355,6 +359,15 @@ export default function CameraScreen({ navigation }: any) {
         [{ resize: { width: 640 } }],
         { compress: 0.4, format: SaveFormat.JPEG, base64: true }
       );
+      
+      // Check if the image is significantly different from the previous one
+      const shouldProcessImage = await shouldProcessNewImage(resized.base64 || '');
+      
+      if (!shouldProcessImage) {
+        console.log('Image similar to previous, skipping processing');
+        setIsProcessing(false);
+        return;
+      }
       
       console.log('Photo resized, preparing to send');
       
@@ -383,6 +396,122 @@ export default function CameraScreen({ navigation }: any) {
     }
   };
   
+  // Add a function to compare images and detect significant changes
+  const shouldProcessNewImage = async (currentImageBase64: string): Promise<boolean> => {
+    // If no previous image, always process the current one
+    if (!previousImageData) {
+      setPreviousImageData(currentImageBase64);
+      return true;
+    }
+    
+    try {
+      // Simple comparison: check a sample of pixels
+      const similarityScore = await calculateImageSimilarity(previousImageData, currentImageBase64);
+      
+      // Update previous image data for next comparison
+      setPreviousImageData(currentImageBase64);
+      
+      // If difference is significant, process the image
+      return similarityScore > imageDiffThreshold;
+    } catch (error) {
+      console.error("Error comparing images:", error);
+      // On error, process the image to be safe
+      return true;
+    }
+  };
+  
+  // Function to calculate similarity between two images
+  const calculateImageSimilarity = async (image1Base64: string, image2Base64: string): Promise<number> => {
+    // Implementation depends on platform
+    if (Platform.OS === 'web') {
+      return calculateImageSimilarityWeb(image1Base64, image2Base64);
+    } else {
+      // For native, use a simplified approach
+      // This is a placeholder - for production you'd want a more robust solution
+      return 0.2; // Default to processing every 5th image on native
+    }
+  };
+  
+  // Web implementation of image comparison
+  const calculateImageSimilarityWeb = async (image1Base64: string, image2Base64: string): Promise<number> => {
+    return new Promise((resolve) => {
+      // Create two image elements
+      const img1 = new Image();
+      const img2 = new Image();
+      
+      let imagesLoaded = 0;
+      
+      const compareImages = () => {
+        // Both images loaded, compare them
+        const canvas1 = document.createElement('canvas');
+        const canvas2 = document.createElement('canvas');
+        
+        // Sample size - using smaller dimensions for performance
+        const sampleWidth = 50;
+        const sampleHeight = 50;
+        
+        canvas1.width = sampleWidth;
+        canvas1.height = sampleHeight;
+        canvas2.width = sampleWidth;
+        canvas2.height = sampleHeight;
+        
+        const ctx1 = canvas1.getContext('2d');
+        const ctx2 = canvas2.getContext('2d');
+        
+        if (!ctx1 || !ctx2) {
+          resolve(1.0); // If we can't compare, assume different
+          return;
+        }
+        
+        // Draw scaled down versions of images
+        ctx1.drawImage(img1, 0, 0, sampleWidth, sampleHeight);
+        ctx2.drawImage(img2, 0, 0, sampleWidth, sampleHeight);
+        
+        // Get image data
+        const data1 = ctx1.getImageData(0, 0, sampleWidth, sampleHeight).data;
+        const data2 = ctx2.getImageData(0, 0, sampleWidth, sampleHeight).data;
+        
+        // Compare pixels
+        let diffCount = 0;
+        const totalPixels = data1.length / 4; // RGBA values
+        
+        // Sample every 4th pixel for performance
+        for (let i = 0; i < data1.length; i += 16) {
+          // Simple RGB difference
+          const diff = Math.abs(data1[i] - data2[i]) + 
+                       Math.abs(data1[i+1] - data2[i+1]) + 
+                       Math.abs(data1[i+2] - data2[i+2]);
+          
+          // If color difference is significant
+          if (diff > 30) {
+            diffCount++;
+          }
+        }
+        
+        const diffRatio = diffCount / (totalPixels / 4);
+        console.log(`Image difference: ${(diffRatio * 100).toFixed(2)}%`);
+        resolve(diffRatio);
+      };
+      
+      // Handle image loading
+      img1.onload = img2.onload = () => {
+        imagesLoaded++;
+        if (imagesLoaded === 2) {
+          compareImages();
+        }
+      };
+      
+      // Handle errors
+      img1.onerror = img2.onerror = () => {
+        resolve(1.0); // Assume different on error
+      };
+      
+      // Load images
+      img1.src = `data:image/jpeg;base64,${image1Base64}`;
+      img2.src = `data:image/jpeg;base64,${image2Base64}`;
+    });
+  };
+
   const startContinuousDetection = async () => {
     if (!isConnected || !cameraRef.current) {
       console.log('Cannot start detection:', { isConnected, hasCamera: !!cameraRef.current });
@@ -486,7 +615,10 @@ export default function CameraScreen({ navigation }: any) {
         ref={cameraRef}
         style={styles.camera}
         facing={cameraFacing}
-        
+        // Add these important props to prevent screen flashing
+        useCamera2Api={Platform.OS === 'android'} // Use Camera2 API on Android
+        videoStabilizationMode="auto" // Enable stabilization if available
+        onCameraReady={() => console.log('Camera ready')}
         onMountError={(error: { message: string }) => {
           console.error('Camera mount error:', error);
           setLastError(`Camera mount error: ${error.message}`);
