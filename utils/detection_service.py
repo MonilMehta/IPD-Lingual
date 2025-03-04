@@ -15,6 +15,7 @@ from utils.model_manager import load_model
 from collections import deque
 import threading
 from websockets.extensions import permessage_deflate
+from skimage.metrics import structural_similarity as ssim
 
 # MongoDB connection
 client = MongoClient(config('MONGODB_URL'))
@@ -64,6 +65,9 @@ class DetectionService:
         self.current_language = {}  # Language per client
         self.client_id_counter = 0
         self.rate_limiter = RateLimiter(2.0)  # 2 frames per second max
+        self.last_frames = {}  # Store last processed frame per client
+        self.last_results = {}  # Store last detection results per client
+        self.similarity_threshold = 0.95  # Adjust this value based on your needs (0.0 to 1.0)
         
     async def initialize_model(self):
         # Using your existing YOLOv12l.pt
@@ -128,7 +132,87 @@ class DetectionService:
             # Wait before checking queue again
             await asyncio.sleep(0.1)  # Small delay to prevent busy waiting
     
-    # Updated handler method with safer base64 handling
+    def compute_frame_similarity(self, frame1, frame2):
+        """Compute similarity between two frames using SSIM"""
+        try:
+            # Convert frames to grayscale for faster comparison
+            gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+            gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+            
+            # Ensure same size for comparison
+            if gray1.shape != gray2.shape:
+                gray2 = cv2.resize(gray2, (gray1.shape[1], gray1.shape[0]))
+            
+            # Compute SSIM between the two images
+            score = ssim(gray1, gray2)
+            return score
+        except Exception as e:
+            print(f"Error computing similarity: {e}")
+            return 0.0
+
+    async def process_frame(self, frame, client_id):
+        """Process a video frame with YOLO detection and translation"""
+        try:
+            # Check if we have a previous frame to compare with
+            if client_id in self.last_frames:
+                similarity = self.compute_frame_similarity(frame, self.last_frames[client_id])
+                if similarity > self.similarity_threshold and client_id in self.last_results:
+                    print(f"Frame similar to previous (score: {similarity:.3f}), reusing results")
+                    return self.last_results[client_id]
+
+            # Store current frame for future comparison
+            self.last_frames[client_id] = frame.copy()
+            
+            # Resize for consistent processing
+            frame_resized = cv2.resize(frame, (640, 480))
+            
+            # Run inference with confidence threshold
+            results = self.model(frame_resized, conf=0.4)
+            
+            detection_results = []
+            
+            for result in results:
+                boxes = result.boxes
+                for box in boxes:
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                    cls = int(box.cls[0])
+                    conf = float(box.conf[0])
+                    label = self.model.names[cls]
+                    
+                    # Get client's language
+                    target_language = self.current_language.get(client_id, 'en')
+                    
+                    # Get translation
+                    cache_key = f"{label}_{target_language}"
+                    if cache_key in translation_cache:
+                        translated_label = translation_cache[cache_key]
+                    else:
+                        try:
+                            translated_label = translator.translate(
+                                label,
+                                dest=target_language
+                            ).text
+                            translation_cache[cache_key] = translated_label
+                        except Exception as e:
+                            print(f"Translation error: {e}")
+                            translated_label = label
+                    
+                    detection_results.append({
+                        'box': [x1, y1, x2, y2],
+                        'class': cls,
+                        'label': label,
+                        'translated': translated_label,
+                        'confidence': conf
+                    })
+            
+            # Store results for future reuse
+            self.last_results[client_id] = detection_results
+            return detection_results
+            
+        except Exception as e:
+            print(f"Error in processing frame: {e}")
+            return []
+
     async def handler(self, websocket):
         # Assign a unique ID to this client
         client_id = self.client_id_counter
@@ -145,10 +229,10 @@ class DetectionService:
         
         print(f"New client {client_id} connected. Total clients: {len(self.clients)}")
         
-        # Start the queue processor for this client
-        queue_processor = asyncio.create_task(self.process_queue(websocket, client_id))
-        
         try:
+            # Start the queue processor for this client
+            queue_processor = asyncio.create_task(self.process_queue(websocket, client_id))
+            
             async for message in websocket:
                 try:
                     # Make sure we don't process extremely large messages
@@ -279,11 +363,16 @@ class DetectionService:
             print(f"Client {client_id} disconnected with code {e.code}, reason: {e.reason}")
         finally:
             # Clean up client resources
-            queue_processor.cancel()
+            if 'queue_processor' in locals():
+                queue_processor.cancel()
             if client_id in self.clients:
                 del self.clients[client_id]
             if client_id in self.current_language:
                 del self.current_language[client_id]
+            if client_id in self.last_frames:
+                del self.last_frames[client_id]
+            if client_id in self.last_results:
+                del self.last_results[client_id]
                 
             print(f"Client {client_id} removed. Total clients: {len(self.clients)}")
     
@@ -293,59 +382,6 @@ class DetectionService:
         if language_data and 'language' in language_data:
             return language_data['language']
         return 'en'  # Default to English
-    
-    async def process_frame(self, frame, client_id):
-        """Process a video frame with YOLO detection and translation"""
-        try:
-            # Resize for consistent processing
-            frame_resized = cv2.resize(frame, (640, 480))
-            
-            # Run inference with confidence threshold
-            results = self.model(frame_resized, conf=0.4)
-#            print(f'Results : {results}')
-            
-            detection_results = []
-            
-            for result in results:
-                boxes = result.boxes
-                for box in boxes:
-                    x1, y1, x2, y2 = map(int, box.xyxy[0])
-                    cls = int(box.cls[0])
-                    conf = float(box.conf[0])
-                    label = self.model.names[cls]
-                    
-                    # Get client's language
-                    target_language = self.current_language.get(client_id, 'en')
-                    
-                    # Get translation
-                    cache_key = f"{label}_{target_language}"
-                    if cache_key in translation_cache:
-                        translated_label = translation_cache[cache_key]
-                    else:
-                        try:
-                            translated_label = translator.translate(
-                                label,
-                                dest=target_language
-                            ).text
-                            translation_cache[cache_key] = translated_label
-                        except Exception as e:
-                            print(f"Translation error: {e}")
-                            translated_label = label
-                    
-                    detection_results.append({
-                        'box': [x1, y1, x2, y2],
-                        'class': cls,
-                        'label': label,
-                        'translated': translated_label,
-                        'confidence': conf
-                    })
-                    print(f"Detected {detection_results}")
-            
-            return detection_results
-            
-        except Exception as e:
-            print(f"Error in processing frame: {e}")
-            return []
 
 async def start_server(host='0.0.0.0', port=8765):
     detection_service = DetectionService()
@@ -364,11 +400,11 @@ async def start_server(host='0.0.0.0', port=8765):
         # )],
         # Add origins for CORS (modify as needed)
         origins=[
-            'https://websocketking.com',
             'http://localhost:3000',
+            'http://localhost:8081',
             'http://127.0.0.1:3000',
-            'https://eac5-49-36-113-38.ngrok-free.app',  # Add your ngrok URL
-            'http://eac5-49-36-113-38.ngrok-free.app',   # Both http and https
+            'https://abdd-49-36-113-134.ngrok-free.app',  # Add your ngrok URL
+            'http://abdd-49-36-113-134.ngrok-free.app',  # Add your ngrok URL
             'https://2405:201:28:1847:907e:c994:418a:e14d',  # Your IPv6 address
             'null',
             '*'

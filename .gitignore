@@ -1,3 +1,10 @@
 yolov8_env
 .env
 node_modules
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
