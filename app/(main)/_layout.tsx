@@ -14,6 +14,7 @@ export default function MainLayout() {
       <Stack.Screen name="settings" />
       <Stack.Screen name="phrasebook" />
       <Stack.Screen name="conversation" />
+      <Stack.Screen name="text-translate" />
       <Stack.Screen name="pathway" />
       <Stack.Screen 
         name="challenge/[id]" 
