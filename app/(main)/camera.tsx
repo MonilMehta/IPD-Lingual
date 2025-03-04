@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Platform } from 'react-native';
-import CameraScreen from '@/screens/Camera';
+import CameraScreen from '@/screens/Camera/index';
 import { WebCamera } from '@/screens/Camera/WebCamera';
 
 export default function Camera({ route, navigation }: any) {

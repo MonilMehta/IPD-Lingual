@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 // Configuration constants
-export const WS_URL = 'wss://ee84-14-139-125-227.ngrok-free.app ';
+export const WS_URL = 'wss://abdd-49-36-113-134.ngrok-free.app';
 
 export interface Detection {
   box: number[];

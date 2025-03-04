@@ -5,7 +5,7 @@ import { Marker } from './marker';
 
 const THEME_COLOR = '#FF6B00';
 const ACCENT_COLOR = '#6366F1';
-const WS_URL = 'wss://4ba8-152-58-3-231.ngrok-free.app';
+const WS_URL = 'wss://abdd-49-36-113-134.ngrok-free.app';
 
 export function WebCamera({ navigation }: any) {
   const [isConnected, setIsConnected] = useState(false);
