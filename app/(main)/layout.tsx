@@ -9,11 +9,12 @@ export default function MainLayout() {
         animation: 'slide_from_right',
       }}
     >
-      <Stack.Screen name="home" />
+      <Stack.Screen name="index" />
       <Stack.Screen name="camera" />
-      <Stack.Screen name="settings" />
+      <Stack.Screen name="voice" />
       <Stack.Screen name="phrasebook" />
       <Stack.Screen name="conversation" />
+      <Stack.Screen name="settings" />
       <Stack.Screen name="pathway" />
       <Stack.Screen 
         name="challenge/[id]" 

@@ -59,7 +59,7 @@ export const LearningPathway = ({ navigation }) => {
         
         <TouchableOpacity 
           style={styles.continueButton}
-          onPress={() => navigation.navigate('Lessons')}
+          onPress={() => navigation.navigate('pathway')}
         >
           <BookMarked size={20} color="#FFF" />
           <Text style={styles.continueButtonText}>Continue Learning</Text>

@@ -1,18 +1,31 @@
 import React, { useEffect } from 'react';
-import { View, ScrollView, TouchableOpacity, SafeAreaView, StatusBar } from 'react-native';
+import { View, ScrollView, TouchableOpacity, SafeAreaView, StatusBar, StyleSheet, Platform } from 'react-native';
 import { Settings } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import { Header } from './HomePage/Header';
 import { SearchBar } from './HomePage/SearchBar';
 import { LearningPathway } from './HomePage/LearningPathway';
 import { MainFeatures } from './HomePage/MainFeatures';
-import { DailyChallenge } from './HomePage/DailyChallenge'; // New component
 import { QuickPhrases } from './HomePage/QuickPhrases';
 import { TouristGuides } from './HomePage/TouristGuides';
 import { Challenge } from './HomePage/Challenge';
-import { StyleSheet, Platform } from 'react-native';
+import { useNavigation } from 'expo-router';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-const HomeScreen = ({ navigation }) => {
+// Define the type for the navigation stack
+type RootStackParamList = {
+  Home: undefined;
+  Settings: undefined;
+  // Add other screens as needed
+};
+
+// Define the navigation type using Expo's navigation
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+const HomeScreen: React.FC = () => {
+  // Use the navigation hook from Expo
+  const navigation = useNavigation<NavigationProp>();
+
   useEffect(() => {
     // Debug check for components loading
     console.log('HomeScreen rendered with DailyChallenge component');
@@ -21,7 +34,7 @@ const HomeScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-      
+     
       <MotiView
         style={[styles.gradientCircle, styles.topCircle]}
         from={{ opacity: 0 }}
@@ -34,29 +47,28 @@ const HomeScreen = ({ navigation }) => {
         animate={{ opacity: 0.05 }}
         transition={{ type: 'timing', duration: 1000, delay: 200 }}
       />
-      
-      <ScrollView 
-        showsVerticalScrollIndicator={false} 
+     
+      <ScrollView
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         <Header navigation={navigation} />
         <SearchBar />
         <LearningPathway navigation={navigation} />
         <Challenge navigation={navigation} />
-        <MainFeatures navigation={navigation} /> 
+        <MainFeatures navigation={navigation} />
         <QuickPhrases navigation={navigation} />
         <TouristGuides navigation={navigation} />
         <View style={{ height: 80 }} />
       </ScrollView>
-
       <MotiView
         from={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: 'timing', duration: 500, delay: 800 }}
         style={styles.settingsButtonContainer}
       >
-        <TouchableOpacity 
-          style={styles.settingsButton} 
+        <TouchableOpacity
+          style={styles.settingsButton}
           onPress={() => navigation.navigate('Settings')}
         >
           <Settings size={24} color="#FF6B00" />
@@ -66,7 +78,7 @@ const HomeScreen = ({ navigation }) => {
   );
 };
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -74,7 +86,7 @@ export const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
   },
   settingsButtonContainer: {
     position: 'absolute',
@@ -118,4 +130,3 @@ export const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Platform } from 'react-native';
-import { Camera, Mic, Book, MessageSquare } from 'lucide-react-native';
+import { Camera, MessageSquare, Book, FileText } from 'lucide-react-native';
 import { MotiView } from 'moti';
 
 const { width } = Dimensions.get('window');
@@ -20,13 +20,13 @@ export const MainFeatures = ({ navigation }) => {
       delay: 100,
     },
     { 
-      id: 2, 
-      title: "Voice Translate", 
-      description: "Speak to translate",
-      icon: Mic, 
-      color: "#F44336",
-      bgColor: "rgba(244, 67, 54, 0.1)",
-      route: '/(main)/voice',
+      id: 4, 
+      title: "Conversation", 
+      description: "Real-time translation",
+      icon: MessageSquare, 
+      color: "#4CAF50",
+      bgColor: "rgba(76, 175, 80, 0.1)",
+      route: '/(main)/conversation',
       delay: 200,
     },
     { 
@@ -40,13 +40,13 @@ export const MainFeatures = ({ navigation }) => {
       delay: 300,
     },
     { 
-      id: 4, 
-      title: "Practice", 
-      description: "Practice conversations",
-      icon: MessageSquare, 
-      color: "#4CAF50",
-      bgColor: "rgba(76, 175, 80, 0.1)",
-      route: '/(main)/conversation',
+      id: 2, 
+      title: "Text Translate", 
+      description: "Type to translate",
+      icon: FileText, 
+      color: "#9C27B0",
+      bgColor: "rgba(156, 39, 176, 0.1)",
+      route: '/(main)/text-translate',
       delay: 400,
     }
   ];
