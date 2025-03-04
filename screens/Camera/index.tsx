@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -14,11 +14,13 @@ import {
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera"
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import * as SecureStore from 'expo-secure-store';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useFocusEffect } from '@react-navigation/native';
 import { Camera as CameraIcon, Settings, Languages, ChevronLeft, X, Save } from 'lucide-react-native';
 
-// Use the ngrok URL for WebSocket connection
-const WS_URL = 'wss://4ba8-152-58-3-231.ngrok-free.app';
+// Import from our separated file
+import { WS_URL, setupWebSocket, Detection, CameraDimensions } from './websocket';
+import styles from './styles';
+
 const FRAME_INTERVAL = 2000; // Capture frame every 2 seconds
 const MAX_QUEUE_SIZE = 1; // Maximum number of frames in queue
 
@@ -32,8 +34,8 @@ export default function CameraScreen({ navigation }: any) {
   const [permission, requestPermission] = useCameraPermissions();
   const [isConnected, setIsConnected] = useState(false);
   const [username, setUsername] = useState('');
-  const [detections, setDetections] = useState<any[]>([]);
-  const [language, setLanguage] = useState('en');
+  const [detections, setDetections] = useState<Detection[]>([]);
+  const [language, setLanguage] = useState('hi');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected' | 'error'>('disconnected');
@@ -41,6 +43,7 @@ export default function CameraScreen({ navigation }: any) {
   const [debugMode, setDebugMode] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
   const [showGrid, setShowGrid] = useState(true);
+  const [cameraReady, setCameraReady] = useState(false);
   
   const cameraRef = useRef<CameraView | null>(null);
   const frameInterval = useRef<NodeJS.Timeout | null>(null);
@@ -50,10 +53,10 @@ export default function CameraScreen({ navigation }: any) {
   const [queueSize, setQueueSize] = useState(0);
   const lastCaptureTime = useRef(0);
   const bottomSheetAnim = useRef(new Animated.Value(0)).current;
-  const [selectedDetection, setSelectedDetection] = useState<any | null>(null);
+  const [selectedDetection, setSelectedDetection] = useState<Detection | null>(null);
 
   // Camera ratio for proper marker positioning
-  const [cameraDimensions, setCameraDimensions] = useState({ 
+  const [cameraDimensions, setCameraDimensions] = useState<CameraDimensions>({ 
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height * 0.85
   });
@@ -84,6 +87,35 @@ export default function CameraScreen({ navigation }: any) {
     })();
   }, [permission]);
 
+  // Fix for black screen issue - "pre-recording" when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      const prepareCamera = async () => {
+        if (cameraRef.current && Platform.OS === "ios" && cameraReady) {
+          try {
+            console.log("Starting pre-recording to prevent black screens");
+            // Take a photo with minimal settings to initialize camera properly
+            await cameraRef.current.takePictureAsync({
+              quality: 0.2,
+              skipProcessing: true,
+              exif: false,
+              pause: false,
+              flash: 'off',
+              shutterSound: false,
+              ...(Platform.OS === 'android' && {
+                disableShutterSound: true, // Android-specific fallback
+                skipProcessing: true       // Crucial for Android
+              })
+            });
+          } catch (error) {
+            console.log("Pre-recording error:", error);
+          }
+        }
+      };
+      prepareCamera();
+    }, [cameraRef.current, cameraReady])
+  );
+
   useEffect(() => {
     // Connect to WebSocket when screen is focused
     if (isFocused) {
@@ -99,11 +131,10 @@ export default function CameraScreen({ navigation }: any) {
   useEffect(() => {
     // Update device dimensions on layout change
     const updateDimensions = () => {
-      setCameraDimensions(prev => ({
-        ...prev,
+      setCameraDimensions({
         width: Dimensions.get('window').width,
         height: Dimensions.get('window').height * 0.85
-      }));
+      });
     };
 
     Dimensions.addEventListener('change', updateDimensions);
@@ -144,132 +175,64 @@ export default function CameraScreen({ navigation }: any) {
 
   const connectWebSocket = () => {
     try {
-      setConnectionStatus('connecting');
-      setLastError(null);
-      console.log(`Attempting to connect to: ${WS_URL}`);
-      
       // Close existing connection if any
       if (webSocketRef.current) {
         webSocketRef.current.close();
       }
-      
-      // Create new WebSocket connection
-      webSocketRef.current = new WebSocket(WS_URL);
-      
-      webSocketRef.current.onopen = () => {
-        console.log('WebSocket connection established');
-        setIsConnected(true);
-        setConnectionStatus('connected');
-        reconnectAttempts.current = 0;
-        
-        // Send start message with username
-        if (username) {
-          const startMsg = JSON.stringify({
-            type: 'start',
-            username
-          });
-          console.log('Sending start message:', startMsg);
-          webSocketRef.current?.send(startMsg);
-          
-          // Set language preference
-          webSocketRef.current?.send(JSON.stringify({
-            type: 'set_language',
-            language
-          }));
-        } else {
-          console.warn('No username available');
-        }
-      };
-      
-      webSocketRef.current.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          
-          if (data.type === 'detection' && Array.isArray(data.results)) {
-            // Validate and filter invalid detections
-            const validDetections = data.results.filter((det: any) => {
-              return (
-                Array.isArray(det.box) && 
-                det.box.length === 4 &&
-                !det.box.some((coord: number) => isNaN(coord)) &&
-                det.box[2] > det.box[0] && 
-                det.box[3] > det.box[1]
-              );
-            });
-            
-            // Convert server coordinates to center points for markers
-            const adjustedDetections = validDetections.map((det: any) => {
-              // Calculate scaling factor between server processing size and actual camera view
-              const scaleX = cameraDimensions.width / 640;
-              const scaleY = cameraDimensions.height / 480;
-              
-              // Calculate center point of detection
-              const centerX = ((det.box[0] + det.box[2]) / 2) * scaleX;
-              const centerY = ((det.box[1] + det.box[3]) / 2) * scaleY;
-              
-              return {
-                ...det,
-                center: [centerX, centerY]
-              };
-            });
-            
-            console.log('Received detections:', adjustedDetections.length);
-            if (debugMode) {
-              console.log('Detection details:', JSON.stringify(adjustedDetections));
+      console.log('Connecting to WebSocket with lan:', language);
+      // Use the setupWebSocket function imported from WebSocketService
+      webSocketRef.current = setupWebSocket(
+        username,
+        language,
+        cameraDimensions,
+        {
+          onOpen: (ws) => {
+            setIsConnected(true);
+            reconnectAttempts.current = 0;
+          },
+          onMessage: (data) => {
+            // Handle other messages that aren't detections
+            if (data.type === 'error') {
+              console.error('Server error:', data.message);
+              setLastError(`Server: ${data.message}`);
+              setIsProcessing(false);
+              setQueueSize(prev => Math.max(0, prev - 1));
+            } else if (data.type === 'status') {
+              console.log('Status message:', data.message);
+              setIsProcessing(false);
+              setQueueSize(prev => Math.max(0, prev - 1));
             }
-            
+          },
+          onDetections: (adjustedDetections) => {
             setDetections(adjustedDetections);
             setIsProcessing(false);
             setQueueSize(prev => Math.max(0, prev - 1));
-          } else if (data.type === 'error') {
-            console.error('Server error:', data.message);
-            setLastError(`Server: ${data.message}`);
-            setIsProcessing(false);
-            setQueueSize(prev => Math.max(0, prev - 1));
-          } else if (data.type === 'status') {
-            console.log('Status message:', data.message);
-            setIsProcessing(false);
-            setQueueSize(prev => Math.max(0, prev - 1));
-          } else {
-            console.log('Received message of type:', data.type);
-            setIsProcessing(false);
-            setQueueSize(prev => Math.max(0, prev - 1));
-          }
-        } catch (e: unknown) {
-          const errorMessage = e instanceof Error ? e.message : 'Unknown error';
-          console.error('Error parsing WebSocket message:', errorMessage);
-          setLastError(`Parse error: ${errorMessage}`);
-          setIsProcessing(false);
-          setQueueSize(prev => Math.max(0, prev - 1));
-        }
-      };
-      
-      webSocketRef.current.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        setConnectionStatus('error');
-        setLastError(`WS Error: ${error || 'Unknown error'}`);
-        setIsConnected(false);
-      };
-      
-      webSocketRef.current.onclose = (event) => {
-        console.log(`WebSocket connection closed with code ${event.code}, reason: ${event.reason}`);
-        setConnectionStatus('disconnected');
-        setIsConnected(false);
-        
-        // Auto reconnect if detection is active or if this wasn't a normal closure
-        if ((isDetecting && isFocused) || (event.code !== 1000 && isFocused)) {
-          // Exponential backoff for reconnection attempts (max 30 seconds)
-          const delay = Math.min(1000 * Math.pow(3, reconnectAttempts.current), 30000);
-          reconnectAttempts.current++;
-          
-          console.log(`Attempting to reconnect in ${delay/1000} seconds...`);
-          setTimeout(() => {
-            if (isFocused) { // Check if still focused before reconnecting
-              connectWebSocket();
+          },
+          onError: (error) => {
+            setLastError(`WS Error: ${error || 'Unknown error'}`);
+            setIsConnected(false);
+          },
+          onClose: (event) => {
+            // Auto reconnect if detection is active or if this wasn't a normal closure
+            if ((isDetecting && isFocused) || (event.code !== 1000 && isFocused)) {
+              // Exponential backoff for reconnection attempts (max 30 seconds)
+              const delay = Math.min(1000 * Math.pow(3, reconnectAttempts.current), 30000);
+              reconnectAttempts.current++;
+              
+              console.log(`Attempting to reconnect in ${delay/1000} seconds...`);
+              setTimeout(() => {
+                if (isFocused) { // Check if still focused before reconnecting
+                  connectWebSocket();
+                }
+              }, delay);
             }
-          }, delay);
-        }
-      };
+          },
+          onStatusChange: (status) => {
+            setConnectionStatus(status);
+          }
+        },
+        debugMode
+      );
     } catch (error) {
       console.error('Error setting up WebSocket:', error);
       if (error instanceof Error) {
@@ -309,11 +272,12 @@ export default function CameraScreen({ navigation }: any) {
   };
   
   const captureAndProcessFrame = async () => {
-    if (!cameraRef.current || !isConnected || isProcessing) {
+    if (!cameraRef.current || !isConnected || isProcessing || !cameraReady) {
       console.log('Skipping capture:', { 
         hasCamera: !!cameraRef.current, 
         isConnected, 
-        isProcessing
+        isProcessing,
+        cameraReady
       });
       return;
     }
@@ -396,7 +360,7 @@ export default function CameraScreen({ navigation }: any) {
     }
   };
   
-  // Add a function to compare images and detect significant changes
+  // Function to compare images and detect significant changes
   const shouldProcessNewImage = async (currentImageBase64: string): Promise<boolean> => {
     // If no previous image, always process the current one
     if (!previousImageData) {
@@ -555,7 +519,7 @@ export default function CameraScreen({ navigation }: any) {
     if (webSocketRef.current?.readyState === WebSocket.OPEN) {
       webSocketRef.current.send(JSON.stringify({
         type: 'set_language',
-        language
+        language:'hi'
       }));
     }
   }, [language]);
@@ -578,7 +542,7 @@ export default function CameraScreen({ navigation }: any) {
   };
 
   // Handle detection press
-  const handleDetectionPress = (detection: any) => {
+  const handleDetectionPress = (detection: Detection) => {
     setSelectedDetection(detection);
     showBottomSheet();
   };
@@ -614,11 +578,15 @@ export default function CameraScreen({ navigation }: any) {
       <CameraView
         ref={cameraRef}
         style={styles.camera}
+        animateShutter={false}
         facing={cameraFacing}
         // Add these important props to prevent screen flashing
         useCamera2Api={Platform.OS === 'android'} // Use Camera2 API on Android
         videoStabilizationMode="auto" // Enable stabilization if available
-        onCameraReady={() => console.log('Camera ready')}
+        onCameraReady={() => {
+          console.log('Camera ready');
+          setCameraReady(true);
+        }}
         onMountError={(error: { message: string }) => {
           console.error('Camera mount error:', error);
           setLastError(`Camera mount error: ${error.message}`);
@@ -780,237 +748,3 @@ export default function CameraScreen({ navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  camera: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.85,
-    overflow: 'hidden',
-  },
-  topBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    paddingTop: Platform.OS === 'ios' ? 50 : 20,
-  },
-  topBarButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  topBarRight: {
-    flexDirection: 'row',
-  },
-  statusBar: {
-    position: 'absolute',
-    top: 80,
-    alignSelf: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 15,
-    zIndex: 10,
-  },
-  statusText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  debugInfo: {
-    position: 'absolute',
-    top: 120,
-    right: 10,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    padding: 10,
-    borderRadius: 4,
-    maxWidth: 220,
-    zIndex: 10,
-  },
-  debugText: {
-    color: 'white',
-    fontSize: 10,
-    marginBottom: 4,
-  },
-  debugErrorText: {
-    color: '#ff6b6b',
-    fontSize: 10,
-    marginTop: 4,
-    flexWrap: 'wrap',
-  },
-  processingContainer: {
-    position: 'absolute',
-    top: 80,
-    right: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
-  },
-  // New marker style instead of boxes
-  detectionMarker: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 24,
-    height: 24,
-    zIndex: 20,
-  },
-  markerDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: THEME_COLOR,
-    borderWidth: 2,
-    borderColor: 'white',
-  },
-  detectionLabel: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-    padding: 4,
-    position: 'absolute',
-    top: -30,
-    borderRadius: 2,
-    maxWidth: 180,
-    overflow: 'hidden',
-  },
-  message: {
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: 20,
-    fontSize: 16,
-  },
-  permissionButton: {
-    backgroundColor: THEME_COLOR,
-    padding: 15,
-    borderRadius: 10,
-    width: 200,
-    alignItems: 'center',
-  },
-  permissionButtonText: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  controls: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#000',
-    height: SCREEN_HEIGHT * 0.15,
-  },
-  controlButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 60,
-    height: 60,
-  },
-  controlText: {
-    color: 'white',
-    marginTop: 5,
-    fontSize: 12,
-  },
-  detectionButton: {
-    backgroundColor: THEME_COLOR,  // Using orange theme color
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-  },
-  stopButton: {
-    backgroundColor: 'rgba(255, 59, 48, 0.9)',
-  },
-  detectionButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  bottomSheet: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 10,
-    zIndex: 100,
-  },
-  bottomSheetHandle: {
-    width: 40,
-    height: 5,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 3,
-    alignSelf: 'center',
-    marginBottom: 10,
-  },
-  bottomSheetHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  bottomSheetTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  bottomSheetContent: {
-    marginBottom: 20,
-  },
-  translationItem: {
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  translationLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666',
-    width: 100,
-  },
-  translationText: {
-    fontSize: 16,
-    color: '#333',
-    flex: 1,
-  },
-  saveButton: {
-    flexDirection: 'row',
-    backgroundColor: THEME_COLOR,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginTop: 15,
-  },
-  saveButtonText: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: 16,
-    marginLeft: 8,
-  },
-});
