@@ -10,6 +10,9 @@ from decouple import config
 from flask_cors import CORS
 from ultralytics import YOLO
 from utils.model_manager import load_model
+import asyncio
+import threading
+from utils.speech_service import start_speech_server
 
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -543,5 +546,28 @@ def get_current_language():
         "language_name": language_name
     }), 200
 
+@app.route("/speech_test")
+@swag_from({
+    'tags': ['Speech'],
+    'description': 'Test speech functionality using word2vec.',
+    'responses': {
+        '200': {
+            'description': 'Speech test page rendered successfully'
+        }
+    }
+})
+def speech_test():
+    # Get the WebSocket URL for speech service
+    host = request.host.split(':')[0]  # Extract host without port
+    speech_websocket_url = f"ws://{host}:8766"  # Speech service runs on port 8766
+    return render_template('speech_test.html', speech_websocket_url=speech_websocket_url)
+
 if __name__ == "__main__":
+    # Start speech WebSocket server in a separate thread
+    speech_thread = threading.Thread(target=lambda: asyncio.run(start_speech_server()))
+    speech_thread.daemon = True
+    speech_thread.start()
+    print("Speech WebSocket server started on port 8766")
+    
+    # Start the Flask server
     app.run(host="0.0.0.0", port=5000)

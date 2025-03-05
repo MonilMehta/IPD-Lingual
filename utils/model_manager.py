@@ -85,8 +85,10 @@ def load_model(model_name=DEFAULT_MODEL):
         model_path = download_model(model_name)
     
     try:
+        # Force CPU usage to avoid CUDA compatibility issues
         model = YOLO(model_path)
-        print(f"Successfully loaded model: {model_name} from {model_path}")
+        model.to('cpu')  # Explicitly move model to CPU
+        print(f"Successfully loaded model: {model_name} from {model_path} on CPU")
         return model
     except Exception as e:
         print(f"Error loading model {model_name}: {e}")

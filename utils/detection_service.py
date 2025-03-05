@@ -68,6 +68,7 @@ class DetectionService:
         self.last_frames = {}  # Store last processed frame per client
         self.last_results = {}  # Store last detection results per client
         self.similarity_threshold = 0.95  # Adjust this value based on your needs (0.0 to 1.0)
+        self.client_translation_cache = {}  # Separate translation cache per client
         
     async def initialize_model(self):
         # Using your existing YOLOv12l.pt
@@ -166,10 +167,28 @@ class DetectionService:
             # Resize for consistent processing
             frame_resized = cv2.resize(frame, (640, 480))
             
-            # Run inference with confidence threshold
-            results = self.model(frame_resized, conf=0.4)
+            # Ensure frame is on CPU and run inference with confidence threshold
+            frame_resized = torch.from_numpy(frame_resized).cpu() if torch.is_tensor(frame_resized) else frame_resized
+            try:
+                with torch.no_grad():
+                    results = self.model(frame_resized, conf=0.4)
+            except RuntimeError as e:
+                if "CUDA" in str(e):
+                    print("CUDA error detected, falling back to CPU")
+                    if hasattr(self.model, 'to'):
+                        self.model.to('cpu')
+                    results = self.model(frame_resized, conf=0.4)
+                else:
+                    raise
             
             detection_results = []
+            
+            # Get client's language
+            target_language = self.current_language.get(client_id, 'en')
+            
+            # Initialize client's translation cache if not exists
+            if client_id not in self.client_translation_cache:
+                self.client_translation_cache[client_id] = {}
             
             for result in results:
                 boxes = result.boxes
@@ -179,20 +198,17 @@ class DetectionService:
                     conf = float(box.conf[0])
                     label = self.model.names[cls]
                     
-                    # Get client's language
-                    target_language = self.current_language.get(client_id, 'en')
-                    
-                    # Get translation
+                    # Get translation using client-specific cache
                     cache_key = f"{label}_{target_language}"
-                    if cache_key in translation_cache:
-                        translated_label = translation_cache[cache_key]
+                    if cache_key in self.client_translation_cache[client_id]:
+                        translated_label = self.client_translation_cache[client_id][cache_key]
                     else:
                         try:
                             translated_label = translator.translate(
                                 label,
                                 dest=target_language
                             ).text
-                            translation_cache[cache_key] = translated_label
+                            self.client_translation_cache[client_id][cache_key] = translated_label
                         except Exception as e:
                             print(f"Translation error: {e}")
                             translated_label = label
@@ -325,10 +341,20 @@ class DetectionService:
                             }))
                     
                     elif data['type'] == 'set_language':
-                        self.current_language[client_id] = data['language']
+                        old_language = self.current_language.get(client_id, 'en')
+                        new_language = data['language']
+                        
+                        # Only update if language actually changed
+                        if old_language != new_language:
+                            self.current_language[client_id] = new_language
+                            # Clear the translation cache for this client when language changes
+                            if client_id in self.client_translation_cache:
+                                self.client_translation_cache[client_id] = {}
+                            print(f"Client {client_id}: Language changed from {old_language} to {new_language}")
+                        
                         await websocket.send(json.dumps({
                             'type': 'status',
-                            'message': f'Language set to {data["language"]}',
+                            'message': f'Language set to {new_language}',
                             'status': 'success'
                         }))
                     
@@ -373,6 +399,8 @@ class DetectionService:
                 del self.last_frames[client_id]
             if client_id in self.last_results:
                 del self.last_results[client_id]
+            if client_id in self.client_translation_cache:
+                del self.client_translation_cache[client_id]
                 
             print(f"Client {client_id} removed. Total clients: {len(self.clients)}")
     
@@ -402,9 +430,11 @@ async def start_server(host='0.0.0.0', port=8765):
         origins=[
             'http://localhost:3000',
             'http://localhost:8081',
+            'http://localhost:8765',
             'http://127.0.0.1:3000',
-            'https://abdd-49-36-113-134.ngrok-free.app',  # Add your ngrok URL
-            'http://abdd-49-36-113-134.ngrok-free.app',  # Add your ngrok URL
+            'http://127.0.0.1:5000',
+            'https://7991-49-36-113-134.ngrok-free.app',  # Add your ngrok URL
+            'http://7991-49-36-113-134.ngrok-free.app',  # Add your ngrok URL
             'https://2405:201:28:1847:907e:c994:418a:e14d',  # Your IPv6 address
             'null',
             '*'

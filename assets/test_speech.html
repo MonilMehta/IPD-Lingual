@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Speech WebSocket Test</title>
+</head>
+<body>
+    <h2>Speech WebSocket Test</h2>
+    <textarea id="textInput" rows="4" cols="50">Enter text to process</textarea>
+    <br>
+    <button onclick="sendText()">Send Text</button>
+    <div id="results"></div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8766');
+        
+        socket.onopen = () => {
+            console.log('Connected to speech service');
+            document.getElementById('results').innerHTML = 'Connected to speech service';
+        };
+        
+        socket.onmessage = (event) => {
+            console.log('Received:', event.data);
+            document.getElementById('results').innerHTML += '<br>Received: ' + event.data;
+        };
+        
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            document.getElementById('results').innerHTML = 'Error: ' + error;
+        };
+        
+        function sendText() {
+            const text = document.getElementById('textInput').value;
+            socket.send(JSON.stringify({text: text}));
+            document.getElementById('results').innerHTML += '<br>Sent: ' + text;
+        }
+    </script>
+</body>
+</html>
