@@ -427,18 +427,6 @@ async def start_server(host='0.0.0.0', port=8765):
         #     compression_level=9
         # )],
         # Add origins for CORS (modify as needed)
-        origins=[
-            'http://localhost:3000',
-            'http://localhost:8081',
-            'http://localhost:8765',
-            'http://127.0.0.1:3000',
-            'http://127.0.0.1:5000',
-            'https://7991-49-36-113-134.ngrok-free.app',  # Add your ngrok URL
-            'http://7991-49-36-113-134.ngrok-free.app',  # Add your ngrok URL
-            'https://2405:201:28:1847:907e:c994:418a:e14d',  # Your IPv6 address
-            'null',
-            '*'
-        ]
     )
     print(f"WebSocket server started at ws://{host}:{port}")
     await server.wait_closed()

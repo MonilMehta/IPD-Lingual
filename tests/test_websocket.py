@@ -18,7 +18,7 @@ WEBSOCKET_HEADERS = {
 
 async def test_object_detection_websocket():
     """Test the object detection WebSocket service"""
-    uri = "ws://localhost:8765"
+    uri = "ws://localhost:8765/camera"
     try:
         async with websockets.connect(
             uri,
@@ -118,86 +118,82 @@ def detect_language(text):
             return 'hi'
         # Default to English if all detection methods fail
         return 'en'
-
 async def test_speech_websocket():
-    """Test the speech processing WebSocket service"""
+    """Test the speech processing WebSocket service with proper initialization handling"""
     uri = "ws://localhost:8766"
+    audio_files = {
+        'conference.wav': 'en',  # English audio
+        'sports.wav': 'hi'   # Hindi audio
+    }
+    
     try:
         async with websockets.connect(
             uri,
             origin="http://localhost:5000",
-            user_agent_header="Mozilla/5.0"
+            user_agent_header="Mozilla/5.0",
+            ping_timeout=20  # Increased timeout for debugging
         ) as websocket:
             print(f"\nConnected to speech service at {uri}")
             
-            # First set up the languages
+            # Step 1: Receive server initialization message
+            init_response = await websocket.recv()
+            print("Received initialization message from server")
+            
+            # Step 2: Configure languages
             config_message = {
                 "setLanguages": {
-                    "lang1": "hi",  # Hindi
-                    "lang2": "en"   # English
+                    "language1": "en",
+                    "language2": "hi"
                 }
             }
             await websocket.send(json.dumps(config_message))
-            response = await websocket.recv()
-            print(f"Language config response: {response}")
+            config_response = await websocket.recv()
+            print(f"Language configuration confirmed: {config_response}")
             
-            # Process audio files
-            audio_files = {
-                'sports.wav': 'hi',     # Hindi audio
-                'conference.wav': 'en'  # English audio
-            }
-            recognizer = sr.Recognizer()
-            
+            # Step 3: Process test audio files
             for audio_file, expected_lang in audio_files.items():
                 if not os.path.exists(audio_file):
-                    print(f"Warning: {audio_file} not found")
+                    print(f"\n⛔ Test file not found: {audio_file}")
                     continue
                 
-                print(f"\nProcessing {audio_file} (Expected language: {expected_lang})...")
+                print(f"\n🔊 Processing {audio_file} (expecting {expected_lang.upper()})...")
                 
                 try:
-                    # Convert audio to text
-                    with sr.AudioFile(audio_file) as source:
-                        print("Reading audio...")
-                        audio = recognizer.record(source)
-                        print(f"Converting to text (language: {expected_lang})...")
-                        
-                        # Use language-specific recognition
-                        if expected_lang == 'hi':
-                            text = recognizer.recognize_google(audio, language='hi-IN')
-                        else:
-                            text = recognizer.recognize_google(audio, language='en-US')
-                            
-                        print(f"Transcribed text: {text}")
-                        
-                        # Send the transcribed text with the known language
-                        message = {
-                            "text": text,
-                            "sourceLanguage": expected_lang
-                        }
-                        print(f"Sending text with source language: {expected_lang}")
-                        await websocket.send(json.dumps(message))
-                        
-                        # Wait for translation response
-                        response = await asyncio.wait_for(websocket.recv(), timeout=5.0)
-                        result = json.loads(response)
-                        print("\nTranslation result:")
+                    # Read and encode audio file
+                    with open(audio_file, 'rb') as f:
+                        audio_data = base64.b64encode(f.read()).decode('utf-8')
+                    
+                    # Construct and send audio message
+                    audio_message = {
+                        "audio": audio_data,
+                        "format": "wav"
+                    }
+                    await websocket.send(json.dumps(audio_message))
+                    
+                    # Receive and process response with timeout
+                    response = await asyncio.wait_for(websocket.recv(), timeout=15.0)
+                    result = json.loads(response)
+                    
+                    # Handle response
+                    if result.get('type') == 'error':
+                        print(f"❌ Error processing audio: {result.get('message', 'Unknown error')}")
+                    else:
+                        print("\n✅ Translation Results:")
                         print(f"Original ({result['original']['language']}): {result['original']['text']}")
                         print(f"Translated ({result['translated']['language']}): {result['translated']['text']}")
+                        print(f"Speaker: Person {result.get('person', 'Unknown')}")
                         
-                except sr.UnknownValueError:
-                    print("Speech recognition could not understand the audio")
-                except sr.RequestError as e:
-                    print(f"Could not request results from speech recognition service; {e}")
                 except asyncio.TimeoutError:
-                    print("Timeout waiting for translation response")
+                    print(f"⌛ Timeout waiting for response on {audio_file}")
                 except Exception as e:
-                    print(f"Error processing audio: {e}")
-                
-    except websockets.exceptions.ConnectionClosed:
-        print("Connection closed - Make sure the speech WebSocket server is running")
+                    print(f"⚠️ Unexpected error processing {audio_file}: {str(e)}")
+                    
+            print("\nTest sequence completed")
+            
+    except websockets.exceptions.ConnectionClosed as cc:
+        print(f"🔌 Connection closed unexpectedly: {cc.reason} (code: {cc.code})")
     except Exception as e:
-        print(f"An error occurred with speech service: {str(e)}")
+        print(f"🔥 Critical error in test session: {str(e)}")
 
 def convert_audio_to_text(audio_file, language='hi-IN'):
     """Convert WAV audio file to text using speech recognition with specified language"""
@@ -219,13 +215,9 @@ def convert_audio_to_text(audio_file, language='hi-IN'):
 
 async def test_audio_processing():
     """Test the audio processing functionality with conference.wav"""
-    uri = "ws://localhost:8766"
+    uri = "ws://localhost:8765/voice"
     try:
-        async with websockets.connect(
-            uri,
-            origin="http://localhost:5000",
-            user_agent_header="Mozilla/5.0"
-        ) as websocket:
+        async with websockets.connect(uri) as websocket:
             print("\nTesting audio processing service...")
             
             # Wait for initialization message
@@ -233,38 +225,61 @@ async def test_audio_processing():
             init_data = json.loads(init_response)
             print(f"Initialization response: {json.dumps(init_data, indent=2)}")
             
-            # Process conference.wav file
+            # Set languages first
+            config_message = {
+                "setLanguages": {
+                    "language1": "en",
+                    "language2": "hi"
+                }
+            }
+            await websocket.send(json.dumps(config_message))
+            config_response = await websocket.recv()
+            print(f"Language config response: {config_response}")
+            
             audio_file = 'conference.wav'
             if not os.path.exists(audio_file):
                 print(f"Error: {audio_file} not found")
                 return
-                
+            
             print(f"\nProcessing {audio_file}...")
             
             try:
-                # Read the audio file and convert to base64
                 with open(audio_file, 'rb') as file:
                     audio_data = base64.b64encode(file.read()).decode('utf-8')
                 
-                # Send the audio data
                 message = {
-                    "audio": audio_data
+                    "audio": audio_data,
+                    "format": "wav"
                 }
                 print("Sending audio data...")
-                await websocket.send(json.dumps(message))
                 
-                # Wait for response
-                response = await asyncio.wait_for(websocket.recv(), timeout=10.0)
-                result = json.loads(response)
+                # Send audio with improved timeout handling
+                try:
+                    await websocket.send(json.dumps(message))
+                    response = await asyncio.wait_for(
+                        websocket.recv(),
+                        timeout=15.0  # Increased timeout
+                    )
+                    result = json.loads(response)
+                    
+                    # Add response validation
+                    if result.get("type") == "error":
+                        print(f"Error: {result.get('message')}")
+                    elif "translated" not in result:
+                        print("Invalid response format")
+                    else:
+                        # Verify language direction
+                        if result['original']['language'] != 'en':
+                            print("Warning: Unexpected language detection!")
+                        print("\nProcessing Results:")
+                        print(f"Original ({result['original']['language']}): {result['original']['text']}")
+                        print(f"Translated ({result['translated']['language']}): {result['translated']['text']}")
+                        
+                except asyncio.TimeoutError:
+                    print("Translation timeout - check server load")
+                except Exception as e:
+                    print(f"Error processing audio: {str(e)}")
                 
-                print("\nProcessing Results:")
-                print(f"Original Language: {result['original']['language']}")
-                print(f"Original Text: {result['original']['text']}")
-                print(f"Translated Language: {result['translated']['language']}")
-                print(f"Translated Text: {result['translated']['text']}")
-                
-            except asyncio.TimeoutError:
-                print("Timeout waiting for response")
             except Exception as e:
                 print(f"Error processing audio: {str(e)}")
             
@@ -273,19 +288,16 @@ async def test_audio_processing():
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
+# Update main execution
 async def main():
     print("Starting WebSocket tests...")
     print("Note: Two different WebSocket services will be tested:")
     print("1. Object Detection Service on ws://localhost:8765")
-    print("2. Speech Processing Service on ws://localhost:8766")
+    print("2. Speech Processing Service on ws://localhost:8765")
     
     try:
-        # Test audio processing first
-        await test_audio_processing()
         
-        # Then test other services
-        # await test_object_detection_websocket()
-        # await test_speech_websocket()
+        await test_speech_websocket()
     except KeyboardInterrupt:
         print("\nTest interrupted by user")
     except Exception as e:
@@ -293,4 +305,5 @@ async def main():
 
 if __name__ == "__main__":
     print("Starting WebSocket test client...")
-    asyncio.get_event_loop().run_until_complete(main()) 
+    # Use modern asyncio.run() instead of get_event_loop()
+    asyncio.run(main())
