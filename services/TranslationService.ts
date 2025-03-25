@@ -67,183 +67,320 @@ class TranslationService {
     language1: null,
     language2: null
   };
+  private static connectionPromise: Promise<void> | null = null;
+  private static connectionResolve: (() => void) | null = null;
   
 
-  static connect() {
-    if (this.ws) return;
-
-    this.ws = new WebSocket('wss://3800-49-36-113-134.ngrok-free.app');
+  static async connect(): Promise<boolean> {
+    // If already connected, return resolved promise
+    if (this.isConnected && this.ws) {
+      return Promise.resolve(true);
+    }
     
-    // Don't disconnect WebSocket when stopping recording
-    let isClosingIntentionally = false;
-
-    this.ws.onopen = () => {
-      console.log('🔗 WebSocket connected to translation service');
-      this.isConnected = true;
-      
-      // If we have languages set, send them immediately
-      if (this.languageSettings.language1 && this.languageSettings.language2) {
-        console.log('🔄 Restoring language settings...');
-        this.setLanguages(
-          this.languageSettings.language1,
-          this.languageSettings.language2
-        ).catch(error => {
-          console.error('❌ Failed to restore language settings:', error);
-        });
-      }
-      
-      this.processQueue();
-    };
-
-    this.ws.onclose = () => {
-      if (!isClosingIntentionally) {
-        console.log('WebSocket disconnected unexpectedly, attempting to reconnect...');
-        this.isConnected = false;
-        this.ws = null;
-        // Attempt to reconnect after 5 seconds
-        setTimeout(() => this.connect(), 5000);
-      } else {
-        console.log('WebSocket closed intentionally');
-        this.isConnected = false;
-        this.ws = null;
-      }
-    };
-
-    this.ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-    this.ws.onmessage = (event: WebSocketMessage) => {
+    // If a connection is in progress, return the existing promise
+    if (this.connectionPromise) {
+      return this.connectionPromise.then(() => this.isConnected);
+    }
+    
+    console.log('🔄 Starting new WebSocket connection attempt');
+    
+    // Create a new connection promise
+    this.connectionPromise = new Promise<boolean>((resolve) => {
       try {
-        const response = JSON.parse(event.data as string);
-        console.log('📥 Received message:', response.type);
+        this.ws = new WebSocket('wss://02b2-2405-201-28-1847-cdc9-b943-2ea-57b8.ngrok-free.app');
         
-        switch (response.type) {
-          case 'init':
-            console.log('🌍 Received initialization with supported languages');
-            this.supportedLanguages = response.supportedLanguages;
-            this.supportedFormats = response.supportedFormats;
-            this.maxAudioSize = response.maxAudioSize;
-            if (this.onInitCallback) {
-              this.onInitCallback(response);
-            }
-            break;
-          case 'translation':
-          case 'message':
-            console.log(`🗣️ Language detected: ${response.original.language}`);
-            if (response.translated) {
-              console.log(`🔄 Translated to: ${response.translated.language}`);
-            }
-            if (response.languageSettings) {
-              this.languageSettings = response.languageSettings;
-            }
-            if (this.onMessageCallback) {
-              this.onMessageCallback(response);
-            }
-            break;
-          case 'config':
-            console.log('⚙️ Received configuration update');
-            if (response.languageSettings) {
-              this.languageSettings = response.languageSettings;
-            }
-            if (this.onConfigCallback) {
-              this.onConfigCallback(response);
-            }
-            break;
-          case 'error':
-            console.error('❌ Server error:', response.message);
-            break;
-        }
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
-      }
-    };
-  }
+        // Don't disconnect WebSocket when stopping recording
+        let isClosingIntentionally = false;
 
-  static setLanguages(language1: string, language2: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!this.isConnected || !this.ws) {
-        console.log('🔄 WebSocket not connected, connecting first...');
-        this.connect();
-        reject(new Error('WebSocket not connected'));
-        return;
-      }
-
-      try {
-        // Format as specified in the API
-        const message = {
-          setLanguages: {
-            language1,
-            language2
-          }
+        this.ws.onopen = () => {
+          console.log('🔗 WebSocket connected to translation service');
+          this.isConnected = true;
+          
+          // No need to send any message on initial connection
+          // The server will automatically send initialization data
+          
+          this.processQueue();
+          resolve(true);
         };
 
-        console.log('📤 Setting languages:', message);
-        this.ws.send(JSON.stringify(message));
-        resolve();
+        this.ws.onclose = () => {
+          if (!isClosingIntentionally) {
+            console.log('WebSocket disconnected unexpectedly, attempting to reconnect...');
+            this.isConnected = false;
+            this.ws = null;
+            this.connectionPromise = null;
+            // Attempt to reconnect after a delay
+            setTimeout(() => this.connect(), 5000);
+          } else {
+            console.log('WebSocket closed intentionally');
+            this.isConnected = false;
+            this.ws = null;
+            this.connectionPromise = null;
+          }
+          resolve(false);
+        };
+
+        this.ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          this.isConnected = false;
+          // Reset connection promise on error
+          this.connectionPromise = null;
+          resolve(false);
+        };
+
+        // Keep onmessage handler implementation...
+        this.ws.onmessage = (event: WebSocketMessage) => {
+          try {
+            const response = JSON.parse(event.data as string);
+            console.log('📥 Received message type:', response.type);
+            
+            if (response.supportedLanguages) {
+              console.log('🌍 Received languages:', Object.keys(response.supportedLanguages).length);
+              
+              // Create a mapping of language codes to human-readable names
+              const languageNames: Record<string, string> = {
+                'en': 'English',
+                'fr': 'French',
+                'es': 'Spanish',
+                'de': 'German',
+                'hi': 'Hindi',
+                'zh': 'Chinese',
+                'ja': 'Japanese',
+                'ko': 'Korean',
+                'ar': 'Arabic',
+                'ru': 'Russian',
+                'pt': 'Portuguese',
+                'it': 'Italian',
+                'nl': 'Dutch',
+                'tr': 'Turkish',
+                'pl': 'Polish',
+                'sv': 'Swedish',
+                'vi': 'Vietnamese',
+                'th': 'Thai',
+                'id': 'Indonesian'
+              };
+                
+              // Process and fix language data
+              const processedLanguages: SupportedLanguages = {};
+              
+              for (const [code, info] of Object.entries(response.supportedLanguages)) {
+                const displayName = languageNames[code] || `Language (${code})`;
+                
+                if (typeof info === 'object') {
+                  const langInfo = info as any;
+                  processedLanguages[code] = {
+                    name: langInfo.name || displayName,
+                    code: langInfo.code || code
+                  };
+                } else {
+                  // If the structure is unexpected, create a valid language info object
+                  processedLanguages[code] = {
+                    name: displayName,
+                    code: code
+                  };
+                }
+              }
+              
+              this.supportedLanguages = processedLanguages;
+            }
+            
+            switch (response.type) {
+              case 'initialization':
+                console.log('🌍 Received initialization with supported languages');
+                if (response.supportedFormats) this.supportedFormats = response.supportedFormats;
+                if (response.maxAudioSize) this.maxAudioSize = response.maxAudioSize;
+                
+                // Restore language settings if they're in the response
+                if (response.currentSettings) {
+                  this.languageSettings = response.currentSettings;
+                }
+                
+                if (this.onInitCallback) {
+                  this.onInitCallback({
+                    ...response,
+                    supportedLanguages: this.supportedLanguages
+                  });
+                }
+                
+                // If we have languages set, make sure to send them after initialization
+                if (this.languageSettings.language1 && this.languageSettings.language2) {
+                  console.log('🔄 Sending language settings after initialization');
+                  this.setLanguages(
+                    this.languageSettings.language1,
+                    this.languageSettings.language2
+                  ).catch(error => {
+                    console.error('❌ Failed to restore language settings after init:', error);
+                  });
+                }
+                break;
+              case 'translation':
+              case 'message':
+                console.log(`🗣️ Language detected: ${response.original.language}`);
+                if (response.translated) {
+                  console.log(`🔄 Translated to: ${response.translated.language}`);
+                }
+                if (response.languageSettings) {
+                  this.languageSettings = response.languageSettings;
+                }
+                if (this.onMessageCallback) {
+                  this.onMessageCallback(response);
+                }
+                break;
+              case 'config':
+                console.log('⚙️ Received configuration update');
+                if (response.languageSettings) {
+                  this.languageSettings = response.languageSettings;
+                }
+                if (this.onConfigCallback) {
+                  this.onConfigCallback(response);
+                }
+                break;
+              case 'error':
+                console.error('❌ Server error:', response.message);
+                break;
+            }
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
+          }
+        };
       } catch (error) {
-        reject(error);
+        console.error('Error creating WebSocket connection:', error);
+        this.connectionPromise = null;
+        resolve(false);
       }
     });
+    
+    return this.connectionPromise;
   }
 
-  static async sendAudioData(audioUri: string): Promise<void> {
+  static async setLanguages(language1: string, language2: string): Promise<boolean> {
+    try {
+      // Make sure we're connected first
+      const isConnected = await this.connect();
+      
+      if (!isConnected || !this.ws) {
+        console.error('❌ Cannot set languages - WebSocket not connected');
+        return false;
+      }
+
+      // Fix the message format to match server expectations
+      const message = {
+        setLanguages: {
+          language1,
+          language2
+        }
+      };
+
+      console.log('📤 Setting languages:', message);
+      this.ws.send(JSON.stringify(message));
+      
+      // Update local language settings immediately
+      this.languageSettings = {
+        language1,
+        language2
+      };
+      
+      return true;
+    } catch (error) {
+      console.error('❌ Error in setLanguages:', error);
+      return false;
+    }
+  }
+
+  static async sendAudioData(audioUri: string): Promise<boolean> {
     try {
       console.log('📱 Starting to process audio file from URI:', audioUri);
       
-      if (!this.isConnected) {
+      // Check connection first
+      const isConnected = await this.connect();
+      if (!isConnected) {
         console.warn('❌ WebSocket not connected, audio data discarded');
-        return;
+        return false;
       }
 
       if (!this.ws) {
         console.warn('❌ WebSocket instance is null');
-        console.log('🔄 Attempting to reconnect...');
-        this.connect();
-        return;
+        return false;
       }
 
       if (!this.languageSettings?.language1 || !this.languageSettings?.language2) {
         console.error('❌ Languages must be set before processing audio');
-        throw new Error('Languages must be set before processing audio');
+        return false;
       }
 
       // Read the file as base64
       const response = await fetch(audioUri);
       const blob = await response.blob();
-      const reader = new FileReader();
       
-      reader.onload = () => {
-        const base64Audio = (reader.result as string).split(',')[1];
+      return new Promise((resolve) => {
+        const reader = new FileReader();
         
-        console.log('�� Audio data size:', Math.round(base64Audio.length / 1024), 'KB');
-        console.log('🎵 Audio format: AAC');
-        console.log('📤 Sending audio for translation...');
+        reader.onload = () => {
+          try {
+            const base64Audio = (reader.result as string).split(',')[1];
+            
+            console.log('📊 Audio data size:', Math.round(base64Audio.length / 1024), 'KB');
+            console.log('🎵 Audio format: AAC');
+            console.log('📤 Sending audio for translation...');
 
-        const message = {
-          audio: base64Audio,
-          format: 'aac'
+            // Fix the message format to match server expectations
+            const message = {
+              audio: base64Audio,
+              format: 'aac'
+            };
+            
+            this.ws?.send(JSON.stringify(message));
+            console.log('✅ Audio data sent successfully');
+            resolve(true);
+          } catch (error) {
+            console.error('❌ Error processing audio data:', error);
+            resolve(false);
+          }
         };
         
-        this.ws?.send(JSON.stringify(message));
-        console.log('✅ Audio data sent successfully');
-      };
-      
-      reader.readAsDataURL(blob);
+        reader.onerror = () => {
+          console.error('❌ Error reading audio file');
+          resolve(false);
+        };
+        
+        reader.readAsDataURL(blob);
+      });
     } catch (error) {
       console.error('❌ Error sending audio data:', error);
-      throw error;
+      return false;
     }
   }
 
-  static async processConversationAudio(audioUri: string): Promise<void> {
-    await this.sendAudioData(audioUri);
+  static async processConversationAudio(audioUri: string): Promise<boolean> {
+    if (!this.isConnected || !this.ws) {
+      console.error('❌ Cannot process audio - WebSocket not connected');
+      return false;
+    }
+    
+    if (!this.languageSettings?.language1 || !this.languageSettings?.language2) {
+      console.error('❌ Cannot process audio - Languages not set');
+      return false;
+    }
+    
+    return await this.sendAudioData(audioUri);
   }
 
   static onInit(callback: (init: InitResponse) => void) {
     this.onInitCallback = callback;
     // If we already have supported languages, call the callback immediately
     if (Object.keys(this.supportedLanguages).length > 0) {
+      // Make sure all languages have proper name and code
+      const processedLanguages: SupportedLanguages = {};
+      
+      for (const [code, info] of Object.entries(this.supportedLanguages)) {
+        processedLanguages[code] = {
+          name: info.name || `Language (${code})`,
+          code: info.code || code
+        };
+      }
+      
+      this.supportedLanguages = processedLanguages;
+      
       callback({
         type: 'init',
         message: 'Connected to Speech Translation Service',
@@ -313,4 +450,4 @@ export {
   type SupportedLanguages,
   type LanguageInfo,
   type LanguageSettings 
-}; 
+};

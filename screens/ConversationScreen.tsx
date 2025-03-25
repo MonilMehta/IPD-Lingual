@@ -17,6 +17,31 @@ import {
 } from '../services/TranslationService';
 import { Ionicons } from '@expo/vector-icons';
 
+// Improved wave animation component
+const WaveAnimation = () => {
+  return (
+    <View style={styles.waveContainer}>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <MotiView
+          key={i}
+          style={styles.waveLine}
+          from={{ height: 5, opacity: 0.3 }}
+          animate={{ 
+            height: [5, 20, 5],
+            opacity: [0.3, 1, 0.3]
+          }}
+          transition={{ 
+            type: 'timing',
+            duration: 1000,
+            loop: true,
+            delay: i * 150,
+          }}
+        />
+      ))}
+    </View>
+  );
+};
+
 interface Utterance {
   id: string;
   text: string;
@@ -48,6 +73,9 @@ const ConversationScreen: React.FC = () => {
   const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
   const [lastConnectionAttempt, setLastConnectionAttempt] = useState<number>(0);
   const connectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const checkConnectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
 
   const createUtterance = useCallback((data: Partial<Utterance>): Utterance => ({
     id: Date.now().toString(),
@@ -60,11 +88,12 @@ const ConversationScreen: React.FC = () => {
     ...data
   }), []);
 
-  const connectWithThrottle = useCallback(() => {
+  const connectWithThrottle = useCallback(async () => {
     const now = Date.now();
-    if (now - lastConnectionAttempt > 30000) {
+    if (now - lastConnectionAttempt > 10000) {
       console.log('Attempting to connect to translation service...');
-      TranslationService.connect();
+      const success = await TranslationService.connect();
+      setIsConnected(success);
       setLastConnectionAttempt(now);
     } else {
       console.log('Skipping connection attempt - too soon since last attempt');
@@ -101,7 +130,7 @@ const ConversationScreen: React.FC = () => {
       if (!TranslationService.getConnectionStatus()) {
         connectWithThrottle();
       }
-    }, 30000);
+    }, 10000);
 
     return () => {
       if (connectionIntervalRef.current) {
@@ -175,6 +204,25 @@ const ConversationScreen: React.FC = () => {
       }, 100);
     }
   }, [conversation]);
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      const status = TranslationService.getConnectionStatus();
+      setIsConnected(status);
+    };
+    
+    // Check initially
+    checkConnection();
+    
+    // Setup interval to check connection status
+    checkConnectionIntervalRef.current = setInterval(checkConnection, 3000);
+    
+    return () => {
+      if (checkConnectionIntervalRef.current) {
+        clearInterval(checkConnectionIntervalRef.current);
+      }
+    };
+  }, []);
 
   const processAndSchedule = async () => {
     if (!isRecording) return;
@@ -266,6 +314,7 @@ const ConversationScreen: React.FC = () => {
     }
     
     setIsProcessing(true);
+    setIsWaitingForResponse(true);
     try {
       console.log('⏹️ Stopping current recording segment');
       const uri = recording.getURI();
@@ -274,7 +323,25 @@ const ConversationScreen: React.FC = () => {
 
       if (uri) {
         console.log('📤 Sending audio to backend for processing:', uri);
-        await TranslationService.processConversationAudio(uri);
+        // Ensure we're connected before sending audio
+        if (!isConnected) {
+          await connectWithThrottle();
+        }
+        
+        // Check if language settings are set
+        if (!languageSettings.language1 || !languageSettings.language2) {
+          console.error('❌ Languages must be set before processing audio');
+          Alert.alert('Error', 'Languages must be set before processing audio');
+          setIsWaitingForResponse(false);
+          return;
+        }
+        
+        const success = await TranslationService.processConversationAudio(uri);
+        if (!success) {
+          console.error('❌ Failed to process audio');
+          setIsWaitingForResponse(false);
+        }
+        
         try {
           await FileSystem.deleteAsync(uri);
           console.log('🗑️ Cleaned up recording file');
@@ -289,6 +356,7 @@ const ConversationScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('❌ Error in processCurrentRecording:', error);
+      setIsWaitingForResponse(false);
       if (isRecording) {
         console.log('🔄 Attempting to recover by starting new recording...');
         await startNewRecordingSegment();
@@ -334,6 +402,20 @@ const ConversationScreen: React.FC = () => {
   };
 
   const toggleRecording = async () => {
+    // Check connection first
+    if (!isConnected) {
+      await connectWithThrottle();
+      
+      if (!isConnected) {
+        Alert.alert(
+          "Connection Error",
+          "Not connected to translation service. Please try again.",
+          [{ text: "OK" }]
+        );
+        return;
+      }
+    }
+    
     if (isRecording) {
       await stopRecording();
     } else {
@@ -364,17 +446,53 @@ const ConversationScreen: React.FC = () => {
     }
   };
 
+  // Add response handling to reset waiting state
+  useEffect(() => {
+    const handleResponse = () => {
+      setIsWaitingForResponse(false);
+    };
+
+    // Update the message callback to include our handler
+    TranslationService.onTranslation((response: TranslationResponse) => {
+      if (response.languageSettings) {
+        setLanguageSettings(response.languageSettings);
+      }
+      
+      const utterance: Utterance = {
+        id: Date.now().toString(),
+        text: response.original.text,
+        language: response.original.language,
+        translation: response.translated.text,
+        audio: response.audio,
+        person: response.person,
+        timestamp: new Date()
+      };
+      
+      setConversation(prev => [...prev, utterance]);
+      handleResponse();
+    });
+
+    return () => {
+      // No cleanup needed as we're just enhancing the existing callback
+    };
+  }, []);
+
   const MemoizedUtterance = React.memo(({ utterance }: { utterance: Utterance }) => (
     <View style={[
       styles.utteranceContainer,
       { alignSelf: utterance.person === '1' ? 'flex-start' : 'flex-end' }
     ]}>
       <Text style={styles.utteranceSpeaker}>
-        {utterance.person === '1' 
-          ? `${supportedLanguages[languageSettings?.language1 || '']?.name || 'Person 1'}`
-          : `${supportedLanguages[languageSettings?.language2 || '']?.name || 'Person 2'}`}
+        {utterance.person === '1' && languageSettings?.language1 && supportedLanguages[languageSettings.language1]
+          ? supportedLanguages[languageSettings.language1].name || 'Person 1'
+          : utterance.person === '2' && languageSettings?.language2 && supportedLanguages[languageSettings.language2]
+          ? supportedLanguages[languageSettings.language2].name || 'Person 2'
+          : utterance.person === '1' ? 'Person 1' : 'Person 2'}
       </Text>
-      <View style={styles.utteranceContent}>
+      <View style={[
+        styles.utteranceContent,
+        utterance.person === '1' ? styles.person1Bubble : styles.person2Bubble
+      ]}>
         <Text style={styles.utteranceText}>{utterance.text}</Text>
         {utterance.translation && (
           <Text style={styles.translationText}>{utterance.translation}</Text>
@@ -402,18 +520,47 @@ const ConversationScreen: React.FC = () => {
       return;
     }
 
+    // Check connection first
+    if (!isConnected) {
+      await connectWithThrottle();
+      
+      if (!isConnected) {
+        Alert.alert(
+          "Connection Error",
+          "Not connected to translation service. Please try again.",
+          [{ text: "OK" }]
+        );
+        return;
+      }
+    }
+
     setIsSettingLanguages(true);
     try {
-      await TranslationService.setLanguages(selectedLanguage1, selectedLanguage2);
-      setShowLanguagePicker(false);
+      const success = await TranslationService.setLanguages(selectedLanguage1, selectedLanguage2);
       
-      if (languageSettings.language1 !== selectedLanguage1 || 
-          languageSettings.language2 !== selectedLanguage2) {
-        setConversation([]);
-      }
+      if (success) {
+        setShowLanguagePicker(false);
+        
+        // Update local language settings
+        setLanguageSettings({
+          language1: selectedLanguage1,
+          language2: selectedLanguage2
+        });
+        
+        if (languageSettings.language1 !== selectedLanguage1 || 
+            languageSettings.language2 !== selectedLanguage2) {
+          setConversation([]);
+        }
 
-      if (!languageSettings.language1 || !languageSettings.language2) {
-        await startRecording();
+        if (!languageSettings.language1 || !languageSettings.language2) {
+          await startRecording();
+        }
+      } else {
+        Alert.alert(
+          "Error",
+          "Failed to set languages. Please check your connection.",
+          [{ text: "OK" }]
+        );
       }
     } catch (error) {
       console.error('Error setting languages:', error);
@@ -443,7 +590,7 @@ const ConversationScreen: React.FC = () => {
             {Object.entries(supportedLanguages).map(([code, info]) => (
               <Picker.Item 
                 key={code} 
-                label={`${info.name} (${code})`} 
+                label={info.name} 
                 value={code}
               />
             ))}
@@ -459,7 +606,7 @@ const ConversationScreen: React.FC = () => {
             {Object.entries(supportedLanguages).map(([code, info]) => (
               <Picker.Item 
                 key={code} 
-                label={`${info.name} (${code})`} 
+                label={info.name} 
                 value={code}
               />
             ))}
@@ -505,12 +652,24 @@ const ConversationScreen: React.FC = () => {
       >
         <Text style={styles.speakerLabel}>Language 1</Text>
         <Text style={styles.languageLabel}>
-          {languageSettings?.language1 
-            ? supportedLanguages[languageSettings.language1]?.name 
+          {languageSettings?.language1 && supportedLanguages[languageSettings.language1] 
+            ? supportedLanguages[languageSettings.language1].name 
             : 'Not Set'}
         </Text>
         <Text style={styles.tapToChange}>Tap to change</Text>
       </TouchableOpacity>
+      
+      {/* Connection Status Indicator */}
+      <View style={styles.connectionStatus}>
+        <View style={[
+          styles.connectionDot,
+          isConnected ? styles.connected : styles.disconnected
+        ]} />
+        <Text style={styles.connectionText}>
+          {isConnected ? 'Connected' : 'Disconnected'}
+        </Text>
+      </View>
+      
       <TouchableOpacity 
         style={styles.languageCard}
         onPress={() => {
@@ -521,8 +680,8 @@ const ConversationScreen: React.FC = () => {
       >
         <Text style={styles.speakerLabel}>Language 2</Text>
         <Text style={styles.languageLabel}>
-          {languageSettings?.language2 
-            ? supportedLanguages[languageSettings.language2]?.name 
+          {languageSettings?.language2 && supportedLanguages[languageSettings.language2] 
+            ? supportedLanguages[languageSettings.language2].name 
             : 'Not Set'}
         </Text>
         <Text style={styles.tapToChange}>Tap to change</Text>
@@ -568,29 +727,42 @@ const ConversationScreen: React.FC = () => {
             <Text style={styles.processingText}>Processing...</Text>
           </View>
         )}
+        {isWaitingForResponse && (
+          <View style={styles.waitingContainer}>
+            <WaveAnimation />
+            <Text style={styles.waitingText}>Getting translation...</Text>
+          </View>
+        )}
       </ScrollView>
       
-      {/* Recording Button */}
+      {/* Recording Button or Wave Animation */}
       <View style={styles.controlsContainer}>
         <MotiView
           from={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'timing', duration: 300 }}
         >
-          <TouchableOpacity
-            style={[
-              styles.recordButton,
-              isRecording ? styles.recordingActive : {}
-            ]}
-            onPress={toggleRecording}
-            disabled={isProcessing}
-          >
-            {isRecording ? (
-              <MicOff size={32} color="#fff" />
-            ) : (
-              <Mic size={32} color="#fff" />
-            )}
-          </TouchableOpacity>
+          {isWaitingForResponse ? (
+            <View style={styles.waveAnimationContainer}>
+              <WaveAnimation />
+              <Text style={styles.waitingText}>Listening...</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.recordButton,
+                isRecording ? styles.recordingActive : {}
+              ]}
+              onPress={toggleRecording}
+              disabled={isProcessing}
+            >
+              {isRecording ? (
+                <MicOff size={32} color="#fff" />
+              ) : (
+                <Mic size={32} color="#fff" />
+              )}
+            </TouchableOpacity>
+          )}
         </MotiView>
         <Text style={styles.recordingStatus}>
           {isRecording ? 'Recording...' : 'Tap to start conversation'}
@@ -781,11 +953,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   translationText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 17, // Increased from 14 to 17
+    color: '#444', // Made slightly darker for better readability
+    fontWeight: '500', // Added medium font weight for emphasis
     fontStyle: 'italic',
-    marginTop: 4,
-    marginBottom: 4,
+    marginTop: 6, // Increased from 4 to 6
+    marginBottom: 6, // Increased from 4 to 6
   },
   playButton: {
     marginTop: 8,
@@ -797,6 +970,86 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginTop: 4,
+  },
+  connectionStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  connectionDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 6,
+  },
+  connected: {
+    backgroundColor: '#4CAF50', // Green
+  },
+  disconnected: {
+    backgroundColor: '#F44336', // Red
+  },
+  connectionText: {
+    fontSize: 12,
+    color: '#666',
+  },
+  person1Bubble: {
+    backgroundColor: '#E3F2FD', // Light blue for person 1
+    borderRadius: 12,
+    borderTopLeftRadius: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  person2Bubble: {
+    backgroundColor: '#E8F5E9', // Light green for person 2
+    borderRadius: 12,
+    borderTopRightRadius: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  waveAnimationContainer: {
+    width: 70,
+    height: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 107, 0, 0.1)',
+    borderRadius: 35,
+    marginBottom: 12,
+  },
+  waveContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    height: 30,
+    width: 40,
+  },
+  waveLine: {
+    width: 3,
+    backgroundColor: '#FF6B00',
+    borderRadius: 3,
+    marginHorizontal: 1,
+  },
+  waitingText: {
+    fontSize: 12,
+    color: '#FF6B00',
+    marginTop: 5,
+  },
+  waitingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 16,
+    padding: 10,
+    backgroundColor: 'rgba(255, 107, 0, 0.05)',
+    borderRadius: 20,
+  },
+  recordButtonDisabled: {
+    backgroundColor: '#cccccc',
   },
 });
 
