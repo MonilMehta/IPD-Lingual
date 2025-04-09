@@ -3,9 +3,10 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import { Audio } from 'expo-av';
 import { Picker } from '@react-native-picker/picker';
 import { MotiView } from 'moti';
-import { Mic, MicOff, ArrowLeft, Languages } from 'lucide-react-native';
+import { Mic, MicOff, ArrowLeft, Languages, Volume2, Volume } from 'lucide-react-native';
 import { useNavigation } from 'expo-router';
 import * as FileSystem from 'expo-file-system';
+import * as Speech from 'expo-speech';
 import { 
   TranslationService, 
   TranslationResponse, 
@@ -17,7 +18,7 @@ import {
 } from '../services/TranslationService';
 import { Ionicons } from '@expo/vector-icons';
 
-// Improved wave animation component
+// Improved wave animation component with pulsing effect
 const WaveAnimation = () => {
   return (
     <View style={styles.waveContainer}>
@@ -39,6 +40,47 @@ const WaveAnimation = () => {
         />
       ))}
     </View>
+  );
+};
+
+// New typing indicator animation
+const TypingIndicator = () => {
+  return (
+    <View style={styles.typingContainer}>
+      {[0, 1, 2].map((i) => (
+        <MotiView
+          key={i}
+          style={styles.typingDot}
+          from={{ opacity: 0.3, scale: 0.8 }}
+          animate={{ 
+            opacity: [0.3, 1, 0.3],
+            scale: [0.8, 1, 0.8]
+          }}
+          transition={{ 
+            type: 'timing',
+            duration: 1000,
+            loop: true,
+            delay: i * 300,
+          }}
+        />
+      ))}
+    </View>
+  );
+};
+
+// Pulsing animation component
+const PulsingCircle = ({color = '#FF6B00'}) => {
+  return (
+    <MotiView
+      style={[styles.pulsingCircle, {backgroundColor: color}]}
+      from={{ opacity: 0.8, scale: 1 }}
+      animate={{ opacity: 0.2, scale: 1.3 }}
+      transition={{
+        type: 'timing',
+        duration: 1500,
+        loop: true,
+      }}
+    />
   );
 };
 
@@ -76,6 +118,8 @@ const ConversationScreen: React.FC = () => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const checkConnectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [speakingUtteranceId, setSpeakingUtteranceId] = useState<string | null>(null);
 
   const createUtterance = useCallback((data: Partial<Utterance>): Utterance => ({
     id: Date.now().toString(),
@@ -314,7 +358,7 @@ const ConversationScreen: React.FC = () => {
     }
     
     setIsProcessing(true);
-    setIsWaitingForResponse(true);
+    
     try {
       console.log('⏹️ Stopping current recording segment');
       const uri = recording.getURI();
@@ -323,23 +367,34 @@ const ConversationScreen: React.FC = () => {
 
       if (uri) {
         console.log('📤 Sending audio to backend for processing:', uri);
-        // Ensure we're connected before sending audio
+        // Explicitly set waiting state before sending
+        setIsWaitingForResponse(true);
+        
+        // Check connection and language settings
         if (!isConnected) {
-          await connectWithThrottle();
+          const connected = await connectWithThrottle();
+          if (!connected) {
+            setIsWaitingForResponse(false);
+            Alert.alert('Error', 'Could not connect to translation service');
+            setIsProcessing(false);
+            return;
+          }
         }
         
-        // Check if language settings are set
         if (!languageSettings.language1 || !languageSettings.language2) {
+          setIsWaitingForResponse(false);
           console.error('❌ Languages must be set before processing audio');
           Alert.alert('Error', 'Languages must be set before processing audio');
-          setIsWaitingForResponse(false);
+          setIsProcessing(false);
           return;
         }
         
         const success = await TranslationService.processConversationAudio(uri);
+        
         if (!success) {
-          console.error('❌ Failed to process audio');
           setIsWaitingForResponse(false);
+          console.error('❌ Failed to process audio');
+          Alert.alert('Error', 'Failed to process audio. Please try again.');
         }
         
         try {
@@ -384,7 +439,14 @@ const ConversationScreen: React.FC = () => {
         
         if (uri) {
           console.log('📤 Processing final segment...');
-          await TranslationService.processConversationAudio(uri);
+          setIsWaitingForResponse(true);  // Set waiting state explicitly
+          
+          const success = await TranslationService.processConversationAudio(uri);
+          if (!success) {
+            setIsWaitingForResponse(false);  // Reset on failure
+            Alert.alert('Error', 'Failed to process audio. Please try again.');
+          }
+          
           try {
             await FileSystem.deleteAsync(uri);
             console.log('🗑️ Cleaned up final recording file');
@@ -397,6 +459,7 @@ const ConversationScreen: React.FC = () => {
         console.log('✅ Recording stopped successfully');
       } catch (error) {
         console.error('❌ Error stopping recording:', error);
+        setIsWaitingForResponse(false);  // Reset on error
       }
     }
   };
@@ -477,6 +540,55 @@ const ConversationScreen: React.FC = () => {
     };
   }, []);
 
+  // Text-to-speech functionality
+  const speakText = async (text: string, utteranceId: string) => {
+    try {
+      if (isSpeaking && speakingUtteranceId === utteranceId) {
+        // Stop if already speaking this utterance
+        Speech.stop();
+        setIsSpeaking(false);
+        setSpeakingUtteranceId(null);
+        return;
+      }
+      
+      // Stop any current speech
+      if (isSpeaking) {
+        Speech.stop();
+      }
+      
+      setIsSpeaking(true);
+      setSpeakingUtteranceId(utteranceId);
+      
+      Speech.speak(text, {
+        language: 'en', // Default language
+        rate: 0.9,
+        pitch: 1.0,
+        onDone: () => {
+          setIsSpeaking(false);
+          setSpeakingUtteranceId(null);
+        },
+        onError: () => {
+          setIsSpeaking(false);
+          setSpeakingUtteranceId(null);
+          Alert.alert("Speech Error", "Unable to play speech");
+        },
+      });
+    } catch (error) {
+      console.error('Text-to-speech error:', error);
+      setIsSpeaking(false);
+      setSpeakingUtteranceId(null);
+    }
+  };
+
+  // Clean up speech on unmount
+  useEffect(() => {
+    return () => {
+      if (isSpeaking) {
+        Speech.stop();
+      }
+    };
+  }, [isSpeaking]);
+
   const MemoizedUtterance = React.memo(({ utterance }: { utterance: Utterance }) => (
     <View style={[
       styles.utteranceContainer,
@@ -495,15 +607,28 @@ const ConversationScreen: React.FC = () => {
       ]}>
         <Text style={styles.utteranceText}>{utterance.text}</Text>
         {utterance.translation && (
-          <Text style={styles.translationText}>{utterance.translation}</Text>
-        )}
-        {utterance.audio && (
-          <TouchableOpacity 
-            style={styles.playButton}
-            onPress={() => playAudio(utterance.audio!)}
-          >
-            <Ionicons name="play" size={16} color="#fff" />
-          </TouchableOpacity>
+          <View style={styles.translationSection}>
+            <Text style={styles.translationText}>{utterance.translation}</Text>
+            <View style={styles.actionButtons}>
+              {utterance.audio && (
+                <TouchableOpacity 
+                  style={styles.actionButton}
+                  onPress={() => playAudio(utterance.audio!)}
+                >
+                  <Ionicons name="play" size={16} color="#FF6B00" />
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity 
+                style={[styles.actionButton, isSpeaking && speakingUtteranceId === utterance.id ? styles.activeButton : {}]}
+                onPress={() => speakText(utterance.translation!, utterance.id)}
+              >
+                {isSpeaking && speakingUtteranceId === utterance.id ? 
+                  <Volume2 size={16} color="#FF6B00" /> : 
+                  <Volume size={16} color="#FF6B00" />
+                }
+              </TouchableOpacity>
+            </View>
+          </View>
         )}
       </View>
     </View>
@@ -729,7 +854,7 @@ const ConversationScreen: React.FC = () => {
         )}
         {isWaitingForResponse && (
           <View style={styles.waitingContainer}>
-            <WaveAnimation />
+            <TypingIndicator />
             <Text style={styles.waitingText}>Getting translation...</Text>
           </View>
         )}
@@ -744,28 +869,32 @@ const ConversationScreen: React.FC = () => {
         >
           {isWaitingForResponse ? (
             <View style={styles.waveAnimationContainer}>
-              <WaveAnimation />
-              <Text style={styles.waitingText}>Listening...</Text>
+              <PulsingCircle color="rgba(255, 107, 0, 0.3)" />
+              <TypingIndicator />
             </View>
           ) : (
             <TouchableOpacity
               style={[
                 styles.recordButton,
-                isRecording ? styles.recordingActive : {}
+                isRecording ? styles.recordingActive : {},
+                !isConnected ? styles.recordButtonDisabled : {}
               ]}
               onPress={toggleRecording}
-              disabled={isProcessing}
+              disabled={isProcessing || !isConnected || isWaitingForResponse}
             >
               {isRecording ? (
                 <MicOff size={32} color="#fff" />
               ) : (
-                <Mic size={32} color="#fff" />
+                <Mic size={32} color={isConnected ? "#fff" : "#ccc"} />
               )}
             </TouchableOpacity>
           )}
         </MotiView>
         <Text style={styles.recordingStatus}>
-          {isRecording ? 'Recording...' : 'Tap to start conversation'}
+          {isRecording ? 'Recording...' : 
+           isWaitingForResponse ? 'Getting translation...' :
+           !isConnected ? 'Connecting...' : 
+           'Tap to start conversation'}
         </Text>
       </View>
       
@@ -1050,6 +1179,72 @@ const styles = StyleSheet.create({
   },
   recordButtonDisabled: {
     backgroundColor: '#cccccc',
+  },
+  // Enhance existing styles
+  translationSection: {
+    marginTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+    paddingTop: 6,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 4,
+  },
+  actionButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 107, 0, 0.1)',
+    marginLeft: 8,
+  },
+  activeButton: {
+    backgroundColor: 'rgba(255, 107, 0, 0.25)',
+  },
+  
+  // New typing indicator styles
+  typingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 30,
+    marginHorizontal: 10,
+  },
+  typingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FF6B00',
+    marginHorizontal: 3,
+  },
+  
+  // Waiting container with improved styling
+  waitingText: {
+    fontSize: 14,
+    color: '#FF6B00',
+    marginLeft: 6,
+    fontWeight: '500',
+  },
+  
+  // Pulsing animation styles
+  pulsingCircle: {
+    position: 'absolute',
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+  },
+  
+  // Wave animation container with better visibility
+  waveAnimationContainer: {
+    width: 70,
+    height: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 35,
+    marginBottom: 12,
+    backgroundColor: 'rgba(255, 107, 0, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 0, 0.1)',
   },
 });
 
