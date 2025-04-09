@@ -1,3 +1,28 @@
-venv/  
-__pycache__/  
-*.pyc 
+# Node.js
+node_modules/
+*.log
+
+# Expo
+.expo/
+*.expo
+*.expo-shared
+expo-env.d.ts
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Environment Variables
+.env
+.env.*
+
+# TypeScript build files
+*.tsbuildinfo
+
+# VSCode settings (optional, if not needed in repo)
+.vscode/
+
+# macOS / OS-specific files
+.DS_Store
+Thumbs.db
