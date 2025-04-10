@@ -10,10 +10,8 @@ import io
 import re
 import wave
 import pydub
+import aiohttp  # Add aiohttp for API calls
 from functools import partial
-import tempfile
-import whisper  # Import OpenAI Whisper
-import torch
 
 # Initialize translator and recognizer
 translator = Translator()
@@ -21,21 +19,6 @@ recognizer = sr.Recognizer()
 
 # Translation cache to avoid repeated translations
 translation_cache = {}
-
-# Initialize Whisper model (load once at startup)
-print("Loading Whisper model...")
-try:
-    # Check for CUDA availability
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"Using device: {device}")
-    
-    # Load the model (choose size based on your needs and resources)
-    # Options: "tiny", "base", "small", "medium", "large", "large-v2"
-    whisper_model = whisper.load_model("small", device=device)  # Upgrade from base to small for better accuracy
-    print("Whisper model loaded successfully")
-except Exception as e:
-    print(f"Warning: Failed to load Whisper model: {str(e)}")
-    whisper_model = None
 
 def detect_hindi_patterns(text):
     """Detect if text contains Hindi patterns"""
@@ -95,7 +78,6 @@ class SpeechTranslationService:
         self.translator = Translator()
         self.recognizer = sr.Recognizer()
         self.translation_cache = {}
-        self.whisper_model = whisper_model
         
         # Adjust recognizer settings for better accuracy
         self.recognizer.energy_threshold = 300
@@ -104,19 +86,19 @@ class SpeechTranslationService:
         
         # Supported languages with their codes and script patterns
         self.supported_languages = {
-            'hi': {'name': 'Hindi', 'code': 'hi-IN', 'whisper_code': 'hi'},
-            'en': {'name': 'English', 'code': 'en-US', 'whisper_code': 'en'},
-            'es': {'name': 'Spanish', 'code': 'es-ES', 'whisper_code': 'es'},
-            'fr': {'name': 'French', 'code': 'fr-FR', 'whisper_code': 'fr'},
-            'de': {'name': 'German', 'code': 'de-DE', 'whisper_code': 'de'},
-            'ja': {'name': 'Japanese', 'code': 'ja-JP', 'whisper_code': 'ja'},
-            'ko': {'name': 'Korean', 'code': 'ko-KR', 'whisper_code': 'ko'},
-            'zh': {'name': 'Chinese', 'code': 'zh-CN', 'whisper_code': 'zh'},
-            'ar': {'name': 'Arabic', 'code': 'ar-AE', 'whisper_code': 'ar'},
-            'ru': {'name': 'Russian', 'code': 'ru-RU', 'whisper_code': 'ru'},
-            'gu': {'name': 'Gujarati', 'code': 'gu-IN', 'whisper_code': 'gu'},
-            'mr': {'name': 'Marathi', 'code': 'mr-IN', 'whisper_code': 'mr'},
-            'kn': {'name': 'Kannada', 'code': 'kn-IN', 'whisper_code': 'kn'}
+            'hi': {'name': 'Hindi', 'code': 'hi-IN', 'script': r'[\u0900-\u097F]'},
+            'en': {'name': 'English', 'code': 'en-US', 'script': r'[a-zA-Z]'},
+            'es': {'name': 'Spanish', 'code': 'es-ES', 'script': r'[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]'},
+            'fr': {'name': 'French', 'code': 'fr-FR', 'script': r'[a-zA-ZàâäæçéèêëîïôœùûüÿÀÂÄÆÇÉÈÊËÎÏÔŒÙÛÜŸ]'},
+            'de': {'name': 'German', 'code': 'de-DE', 'script': r'[a-zA-ZäöüßÄÖÜ]'},
+            'ja': {'name': 'Japanese', 'code': 'ja-JP', 'script': r'[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]'},
+            'ko': {'name': 'Korean', 'code': 'ko-KR', 'script': r'[\uac00-\ud7af\u1100-\u11ff]'},
+            'zh': {'name': 'Chinese', 'code': 'zh-CN', 'script': r'[\u4e00-\u9fff]'},
+            'ar': {'name': 'Arabic', 'code': 'ar-AE', 'script': r'[\u0600-\u06ff]'},
+            'ru': {'name': 'Russian', 'code': 'ru-RU', 'script': r'[\u0400-\u04ff]'},
+            'gu': {'name': 'Gujarati', 'code': 'gu-IN', 'script': r'[\u0A80-\u0AFF]'},
+            'mr': {'name': 'Marathi', 'code': 'mr-IN', 'script': r'[\u0900-\u097F]'},
+            'kn': {'name': 'Kannada', 'code': 'kn-IN', 'script': r'[\u0C80-\u0CFF]'}
         }
         
         # Language validation parameters
@@ -155,300 +137,337 @@ class SpeechTranslationService:
         print(f"Languages set to {self.supported_languages[lang1]['name']} and {self.supported_languages[lang2]['name']}")
         return True
 
-    def transcribe_with_whisper(self, audio_path):
+    def detect_language(self, audio):
         """
-        Transcribe audio using Whisper model with automatic language detection
-        Returns detected language, transcription, and confidence
+        Detect language from audio using configured languages.
+        Returns language code, transcribed text, and person identifier.
         """
-        if not self.whisper_model:
-            raise ValueError("Whisper model not available")
+        print("\n=== Speech Recognition Results ===")
+        print("Attempting transcription in both languages:")
+        
+        results = {}
+        
+        # Try both languages first to see transcription results
+        for lang_code in [self.language1, self.language2]:
+            lang_name = self.supported_languages[lang_code]['name']
+            try:
+                # First attempt with show_all=False to get direct text
+                transcript = self.recognizer.recognize_google(
+                    audio, 
+                    language=self.supported_languages[lang_code]['code']
+                )
+                print(f"  {lang_name}: {transcript}")
+                
+                # Now try again with show_all=True to get confidence
+                detailed_result = self.recognizer.recognize_google(
+                    audio,
+                    language=self.supported_languages[lang_code]['code'],
+                    show_all=True
+                )
+                
+                # Initialize default confidence
+                confidence = 0
+                
+                # Extract confidence from detailed result if available
+                if isinstance(detailed_result, dict) and detailed_result.get('alternative'):
+                    # Google API format when confidence is available
+                    if 'confidence' in detailed_result:
+                        confidence = detailed_result['confidence']
+                    elif detailed_result['alternative'] and 'confidence' in detailed_result['alternative'][0]:
+                        confidence = detailed_result['alternative'][0]['confidence']
+                
+                results[lang_code] = {
+                    'transcript': transcript,
+                    'confidence': confidence
+                }
+                
+            except Exception as e:
+                print(f"  {lang_name}: Recognition failed ({str(e)})")
+        
+        print("\nFinal Detection:")
+        
+        # Process the recognition results in detail
+        best_lang = None
+        best_confidence = 0
+        best_transcript = ""
+        
+        for lang_code in [self.language1, self.language2]:
+            if lang_code not in results:
+                continue
+                
+            transcript = results[lang_code]['transcript']
+            confidence = results[lang_code]['confidence']
             
-        try:
-            print(f"Transcribing with Whisper (auto language detection)")
+            print(f"Recognition attempt for {lang_code}:")
+            print(f"  Confidence: {confidence}")
+            print(f"  Text: {transcript}")
             
-            # Load audio and pad/trim it to fit 30 seconds
-            audio = whisper.load_audio(audio_path)
-            audio = whisper.pad_or_trim(audio)
+            # Get validation and script scores
+            try:
+                is_valid = self.validate_transcript(transcript, lang_code)
+                script_score = self.calculate_script_match(transcript, lang_code)
+                
+                # Log the validation results
+                print(f"  Script match score: {script_score:.2f}")
+                print(f"  Validation result: {'Passed' if is_valid else 'Failed'}")
+                
+                if confidence > 0:
+                    # When we have confidence score, use it as primary factor
+                    if is_valid and confidence >= self.validation_rules.get(lang_code, {}).get('min_confidence', 0.6):
+                        if confidence > best_confidence:
+                            best_lang = lang_code
+                            best_confidence = confidence
+                            best_transcript = transcript
+                else:
+                    # When confidence is 0 for both, use script matching as deciding factor
+                    if is_valid and script_score > 0:
+                        # Only update if we don't have a valid result yet or this one is better
+                        if best_lang is None or script_score > results.get(best_lang, {}).get('script_score', 0):
+                            best_lang = lang_code
+                            best_transcript = transcript
+                            # Store script score for comparison
+                            results[lang_code]['script_score'] = script_score
+            except Exception as e:
+                print(f"  Validation failed: {str(e)}")
+        
+        # If we found a valid language, return it
+        if best_lang:
+            print(f"Selected language: {best_lang} based on {'confidence score' if best_confidence > 0 else 'script analysis'}")
+            return best_lang, best_transcript, self.get_person(best_lang)
             
-            # Make log-Mel spectrogram and move to the same device as the model
-            mel = whisper.log_mel_spectrogram(audio).to(self.whisper_model.device)
+        # Special handling for Hindi phrases in Latin script
+        if self.language1 == 'hi' or self.language2 == 'hi':
+            for lang_code in [self.language1, self.language2]:
+                if lang_code not in results:
+                    continue
+                    
+                transcript = results[lang_code]['transcript']
+                # Check if this could be Hindi written in Latin script
+                if self.detect_transliterated_hindi(transcript):
+                    print(f"Detected transliterated Hindi in: {transcript}")
+                    return 'hi', transcript, self.get_person('hi')
+        
+        # If still no valid results, try again with fallback approach
+        for lang_code in [self.language1, self.language2]:
+            try:
+                transcript = self.recognizer.recognize_google(
+                    audio,
+                    language=self.supported_languages[lang_code]['code']
+                )
+                
+                # Validate using script detection only for fallback
+                is_valid = self.fallback_validate(transcript, lang_code)
+                if is_valid:
+                    return lang_code, transcript, self.get_person(lang_code)
+            except:
+                continue
+                
+        # If everything else fails, return the first language as a last resort
+        if results.get(self.language1):
+            return self.language1, results[self.language1]['transcript'], self.get_person(self.language1)
+        elif results.get(self.language2):
+            return self.language2, results[self.language2]['transcript'], self.get_person(self.language2)
             
-            # Detect the spoken language
-            _, probs = self.whisper_model.detect_language(mel)
-            detected_lang = max(probs, key=probs.get)
-            lang_probability = probs[detected_lang]
-            
-            print(f"Whisper detected language: {detected_lang} (probability: {lang_probability:.2f})")
-            
-            # Transcribe with the detected language
-            options = whisper.DecodingOptions(language=detected_lang, fp16=torch.cuda.is_available())
-            result = whisper.decode(self.whisper_model, mel, options)
-            
-            # Get the transcription
-            transcription = result.text.strip()
-            
-            print(f"Whisper transcription: {transcription}")
-            
-            return detected_lang, transcription, lang_probability
-            
-        except Exception as e:
-            print(f"Whisper transcription error: {str(e)}")
-            raise
+        raise Exception("Could not recognize speech confidently")
 
-    def validate_script(self, text, lang_code):
-        """
-        Validate if the text uses the expected script for the language
-        Returns True if the script is valid, False otherwise
-        """
+    def calculate_script_match(self, text, lang_code):
+        """Calculate how well the text matches the expected script for the language"""
         if not text:
-            return False
+            return 0
+            
+        lang_info = self.supported_languages.get(lang_code, {})
+        script_pattern = lang_info.get('script', r'[a-zA-Z]')
         
-        # Script patterns for different languages
-        script_patterns = {
-            'hi': r'[\u0900-\u097F]',  # Devanagari for Hindi
-            'en': r'[a-zA-Z]',         # Latin for English
-            'ja': r'[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]',  # Japanese scripts
-            'zh': r'[\u4e00-\u9fff]',  # Chinese characters
-            'ar': r'[\u0600-\u06ff]',  # Arabic script
-            'ru': r'[\u0400-\u04ff]',  # Cyrillic for Russian
-            'ko': r'[\uac00-\ud7af\u1100-\u11ff]',  # Korean Hangul
-            'gu': r'[\u0A80-\u0AFF]',  # Gujarati script
-            'mr': r'[\u0900-\u097F]',  # Devanagari for Marathi
-            'kn': r'[\u0C80-\u0CFF]',  # Kannada script
-        }
-        
-        # For languages that use Latin script
-        latin_script_langs = ['en', 'es', 'fr', 'de']
-        
-        # Get the appropriate script pattern
-        if lang_code in latin_script_langs:
-            pattern = script_patterns['en']  # Latin script
-        elif lang_code in script_patterns:
-            pattern = script_patterns[lang_code]
-        else:
-            # Default to Latin script for unknown languages
-            pattern = script_patterns['en']
-        
-        # Count characters that match the expected script
-        script_chars = re.findall(pattern, text)
+        # Count characters that match the language script
+        script_chars = re.findall(script_pattern, text)
         total_chars = len(text.strip())
         
         if total_chars == 0:
-            return False
+            return 0
+            
+        # Return ratio of matching characters to total characters
+        return len(script_chars) / total_chars
         
-        # Calculate the ratio of matching characters
-        script_ratio = len(script_chars) / total_chars
-        
-        # Special case for Hindi: check for Urdu script (Arabic) which is often confused
-        if lang_code == 'hi' and script_ratio < 0.5:
-            # Check if it's using Arabic script (Urdu)
-            arabic_chars = re.findall(script_patterns['ar'], text)
-            if len(arabic_chars) / total_chars > 0.5:
-                print("Detected Urdu script in Hindi transcription")
-                return False
-        
-        # For most languages, require at least 50% of characters to match the expected script
-        threshold = 0.5
-        
-        # Special case for languages with mixed scripts
-        if lang_code == 'ja':  # Japanese can mix scripts
-            threshold = 0.3
-        
-        return script_ratio >= threshold
-
-    def correct_common_phrases(self, text, lang_code):
-        """Apply corrections for commonly misrecognized phrases"""
+    def detect_transliterated_hindi(self, text):
+        """Detect if text is likely Hindi transliterated in Latin script"""
         if not text:
-            return text
-        
-        # Common Hindi greetings and phrases that might be misrecognized
-        hindi_corrections = {
-            # Greetings
-            r'(?i)namaste\s*ab\s*ke\s*se\s*ho': 'नमस्ते आप कैसे हो',
-            r'(?i)namaste\s*abke\s*seho': 'नमस्ते आप कैसे हो',
-            r'(?i)namaste\s*abgesero': 'नमस्ते आप कैसे हो',
-            r'(?i)namaste\s*ap\s*kaise\s*ho': 'नमस्ते आप कैसे हो',
-            r'(?i)namaste\s*aap\s*kaise\s*ho': 'नमस्ते आप कैसे हो',
+            return False
             
-            # Other common phrases
-            r'(?i)mera\s*naam': 'मेरा नाम',
-            r'(?i)aap\s*ka\s*naam': 'आपका नाम',
-            r'(?i)kya\s*hal\s*hai': 'क्या हाल है',
-            r'(?i)theek\s*h[au][io]n': 'ठीक हूँ',
-            r'(?i)dhanyavad': 'धन्यवाद',
-            r'(?i)shukriya': 'शुक्रिया'
-        }
+        # Common Hindi words in Latin script
+        hindi_words = [
+            r'\b(main|mein|mai|hoon|hun|hai|hain|tha|thi|the)\b',  # Common verbs
+            r'\b(aap|tum|tu|hum|ham|ye|woh|yeh|voh|vo)\b',  # Pronouns
+            r'\b(ka|ki|ke|ko|se|mein|par|tak)\b',  # Postpositions
+            r'\b(kya|kyun|kaise|kahan|kab|kaun)\b',  # Question words
+            r'\b(aur|lekin|phir|kyunki|isliye)\b',  # Conjunctions
+            r'\b(accha|theek|bura|acha)\b',  # Adjectives
+            r'\b(bahut|thoda|jyada|kam)\b',  # Adverbs
+            r'\b(ghar|naam|baat|din|raat|subah|shaam)\b',  # Common nouns
+            r'\b(rahata|rahna|karna|khana|pina|sona|jana)\b',  # Common verb forms
+            r'\b(mera|tera|hamara|tumhara|apna|uska)\b',  # Possessives
+            r'\b(bhai|behen|mata|pita|chacha|maa|baap)\b',  # Family relations
+        ]
         
-        # Apply corrections based on language
+        # Count matches
+        match_count = 0
+        word_count = len(text.split())
+        
+        for pattern in hindi_words:
+            if re.search(pattern, text, re.IGNORECASE):
+                match_count += 1
+                
+        # If more than 35% of common Hindi patterns are found, it's likely Hindi
+        return match_count > 0 and (match_count / max(word_count, 1)) >= 0.35
+        
+    def validate_transcript(self, text, lang_code):
+        """
+        Validate if transcript matches expected patterns for the language.
+        Now accepts only the text string, not the full recognition result.
+        """
+        if not text or not isinstance(text, str):
+            return False
+            
+        # Get validation rules for this language
+        rules = self.validation_rules.get(lang_code, {})
+        lang_info = self.supported_languages.get(lang_code, {})
+        
+        # Check script composition based on language
+        script_pattern = lang_info.get('script', r'[a-zA-Z]')
+        script_chars = re.findall(script_pattern, text)
+        total_chars = len(text.strip())
+        
+        # Skip very short texts
+        if total_chars < 2:
+            return False
+            
+        # For languages that require specific character counts
+        if 'min_chars' in rules:
+            return len(script_chars) >= rules['min_chars']
+            
+        # For languages that use character ratio validation
+        if 'min_ratio' in rules and total_chars > 0:
+            script_ratio = len(script_chars) / total_chars
+            
+            # Special handling for languages that might share scripts
+            if lang_code == 'hi':
+                return detect_hindi_patterns(text) or script_ratio >= rules['min_ratio'] or self.detect_transliterated_hindi(text)
+            elif lang_code == 'mr':
+                # Marathi should have Devanagari script but not too many Hindi patterns
+                return script_ratio >= rules['min_ratio'] and not detect_hindi_patterns(text)
+                
+            return script_ratio >= rules['min_ratio']
+            
+        # Default case
+        return True
+        
+    def fallback_validate(self, text, lang_code):
+        """
+        Simplified validation for fallback cases, focusing on script detection
+        """
+        if not text:
+            return False
+            
+        lang_info = self.supported_languages.get(lang_code, {})
+        script_pattern = lang_info.get('script', r'[a-zA-Z]')
+        
+        # Check if text contains characters from the language's script
         if lang_code == 'hi':
-            for pattern, replacement in hindi_corrections.items():
-                if re.search(pattern, text, re.IGNORECASE):
-                    print(f"Applying Hindi phrase correction: '{text}' -> '{replacement}'")
-                    return replacement
-        
-        return text
-
-    def process_audio(self, audio_data, audio_format="wav"):
-        """Process audio data with Whisper for enhanced recognition"""
-        try:
-            print(f"Processing {audio_format} audio data...")
-            
-            # Validate audio size
-            if len(audio_data) > 5000000:
-                raise ValueError("Audio file too large (max 500KB)")
-                
-            audio_bytes = base64.b64decode(audio_data)
-            
-            # Create a temporary file for Whisper processing
-            with tempfile.NamedTemporaryFile(suffix=f".{audio_format}", delete=False) as temp_file:
-                temp_path = temp_file.name
-                temp_file.write(audio_bytes)
-            
-            try:
-                # Use Whisper for transcription with auto language detection
-                if self.whisper_model:
-                    detected_lang, transcription, confidence = self.transcribe_with_whisper(temp_path)
-                    
-                    # Check for common phrases that might need correction
-                    corrected_text = self.correct_common_phrases(transcription, detected_lang)
-                    if corrected_text != transcription:
-                        transcription = corrected_text
-                        # If we applied a Hindi correction, force the language to Hindi
-                        if detected_lang != 'hi' and any(char in transcription for char in '[\u0900-\u097F]'):
-                            detected_lang = 'hi'
-                            print(f"Applied Hindi correction, forcing language to Hindi")
-                    
-                    # Map Whisper language code to our language code
-                    whisper_to_our_lang = {info['whisper_code']: code for code, info in self.supported_languages.items()}
-                    our_lang_code = whisper_to_our_lang.get(detected_lang)
-                    
-                    # Check if the script matches the expected script for the language
-                    script_valid = self.validate_script(transcription, detected_lang)
-                    print(f"Script validation for {detected_lang}: {'Passed' if script_valid else 'Failed'}")
-                    
-                    # Force transcription if needed
-                    if not our_lang_code or our_lang_code not in [self.language1, self.language2] or not script_valid:
-                        if not script_valid:
-                            print(f"Script mismatch for {detected_lang}. Forcing transcription in configured languages.")
-                        else:
-                            print(f"Whisper detected {detected_lang} which is not in our configured languages")
-                        
-                        # Try to force transcription with our configured languages
-                        print("Trying forced transcription with configured languages")
-                        
-                        # Load audio for forced transcription
-                        audio = whisper.load_audio(temp_path)
-                        audio = whisper.pad_or_trim(audio)
-                        mel = whisper.log_mel_spectrogram(audio).to(self.whisper_model.device)
-                        
-                        best_transcription = ""  # Start with empty string instead of original transcription
-                        best_lang_code = self.language1  # Default to first language
-                        best_confidence = 0
-                        
-                        # Try both configured languages
-                        for lang_code in [self.language1, self.language2]:
-                            whisper_code = self.supported_languages[lang_code]['whisper_code']
-                            try:
-                                options = whisper.DecodingOptions(language=whisper_code, fp16=torch.cuda.is_available())
-                                result = whisper.decode(self.whisper_model, mel, options)
-                                forced_transcription = result.text.strip()
-                                
-                                print(f"Forced {lang_code} transcription: {forced_transcription}")
-                                
-                                # Validate script for forced transcription
-                                forced_script_valid = self.validate_script(forced_transcription, whisper_code)
-                                print(f"Forced script validation: {'Passed' if forced_script_valid else 'Failed'}")
-                                
-                                # Only consider valid script transcriptions
-                                if forced_script_valid and forced_transcription and (not best_transcription or len(forced_transcription) > len(best_transcription)):
-                                    best_transcription = forced_transcription
-                                    best_lang_code = lang_code
-                                    best_confidence = 0.7  # Arbitrary confidence for forced transcription
-                            except Exception as e:
-                                print(f"Forced transcription with {lang_code} failed: {str(e)}")
-                        
-                        # Use the best forced transcription if we found one
-                        if best_transcription:
-                            transcription = best_transcription
-                            our_lang_code = best_lang_code
-                            print(f"Using forced transcription: {transcription}")
-                        else:
-                            # If forced transcription failed, fall back to original but map to one of our languages
-                            our_lang_code = self.language1
-                            print(f"Forced transcription failed, falling back to {our_lang_code}")
-                            
-                            # Try one more time with a direct transcription in our first language
-                            try:
-                                options = whisper.DecodingOptions(
-                                    language=self.supported_languages[our_lang_code]['whisper_code'], 
-                                    fp16=torch.cuda.is_available()
-                                )
-                                result = whisper.decode(self.whisper_model, mel, options)
-                                fallback_transcription = result.text.strip()
-                                if fallback_transcription:
-                                    transcription = fallback_transcription
-                                    print(f"Using fallback transcription: {transcription}")
-                            except Exception as e:
-                                print(f"Fallback transcription failed: {str(e)}")
-                    
-                    person = self.get_person(our_lang_code)
-                    print(f"Final language: {our_lang_code}, Person: {person}")
-                    print(f"Final transcription: {transcription}")
-                    return transcription, our_lang_code, person
-                
-                # Fallback to Google Speech Recognition if Whisper fails or is not available
-                print("\nFalling back to Google Speech Recognition")
-                
-                # Convert to WAV format if needed for Google Speech API
-                if audio_format.lower() == "aac":
-                    wav_io, metadata = convert_aac_to_wav(audio_bytes)
-                else:  # Assume WAV format
-                    wav_io = io.BytesIO(audio_bytes)
-                    wav_io.seek(0)
-                
-                with sr.AudioFile(wav_io) as source:
-                    # Adjust for ambient noise
-                    self.recognizer.adjust_for_ambient_noise(source)
-                    audio = self.recognizer.record(source)
-                    
-                    # Try recognition in both configured languages
-                    results = {}
-                    
-                    for lang_code in [self.language1, self.language2]:
-                        try:
-                            text = self.recognizer.recognize_google(
-                                audio, 
-                                language=self.supported_languages[lang_code]['code']
-                            )
-                            results[lang_code] = text
-                            print(f"Google recognized ({lang_code}): {text}")
-                        except Exception as e:
-                            print(f"Google recognition failed for {lang_code}: {str(e)}")
-                    
-                    # If we have results, use the one from the first language
-                    if results:
-                        for lang_code in [self.language1, self.language2]:
-                            if lang_code in results:
-                                return results[lang_code], lang_code, self.get_person(lang_code)
-                
-                raise ValueError("Speech recognition failed with all methods")
-                
-            finally:
-                # Clean up the temporary file
-                try:
-                    os.unlink(temp_path)
-                except:
-                    pass
-                
-        except Exception as e:
-            raise Exception(f"Error processing audio: {str(e)}")
-
+            return detect_hindi_patterns(text)
+        elif lang_code == 'en':
+            # For English, make sure it's mostly Latin characters
+            latin_chars = re.findall(r'[a-zA-Z]', text)
+            return len(latin_chars) / max(len(text), 1) > 0.7
+        elif lang_code == 'ja':
+            # For Japanese, require at least some Japanese characters
+            japanese_chars = re.findall(r'[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]', text)
+            return len(japanese_chars) > 0
+        elif lang_code == 'gu':
+            # For Gujarati, check for Gujarati script
+            return bool(re.search(r'[\u0A80-\u0AFF]', text))
+        else:
+            # Default case: just check if the script pattern appears
+            return bool(re.search(script_pattern, text))
+    
     def get_person(self, detected_lang):
         """Return person identifier based on detected language"""
         return "1" if detected_lang == self.language1 else "2"
+        
+    async def process_audio(self, audio_data, audio_format="wav"):
+        """Process audio data using Hugging Face Space API instead of local processing"""
+        try:
+            print(f"Processing {audio_format} audio data via Hugging Face API...")
+            
+            # Prepare API request to Hugging Face Space
+            space_url = "https://monilm-lingual.hf.space/api/transcribe"
+            payload = {
+                "audio": audio_data,  # Already base64 encoded
+                "format": audio_format,
+                "language": self.language1  # Set source language or None for auto-detection
+            }
+            
+            # Use aiohttp for async API calls
+            async with aiohttp.ClientSession() as session:
+                try:
+                    async with session.post(space_url, json=payload, timeout=30) as response:
+                        if response.status != 200:
+                            error_text = await response.text()
+                            raise Exception(f"API Error {response.status}: {error_text}")
+                        
+                        result = await response.json()
+                        
+                        if result.get("status") == "error":
+                            raise Exception(f"Transcription error: {result.get('message')}")
+                        
+                        text = result.get("text")
+                        detected_lang = result.get("language", self.language1)
+                        person = self.get_person(detected_lang)
+                        
+                        print(f"Selected Language: {detected_lang}")
+                        print(f"Transcribed Text: {text}")
+                        print("=================================")
+                        
+                        return text, detected_lang, person
+                except aiohttp.ClientError as e:
+                    # Fall back to local processing if API is unavailable
+                    print(f"API call failed: {str(e)}. Falling back to local processing.")
+                    return await self._local_process_audio(audio_data, audio_format)
+                    
+        except Exception as e:
+            raise Exception(f"Error processing audio: {str(e)}")
 
+    async def _local_process_audio(self, audio_data, audio_format="wav"):
+        """Legacy method for local audio processing as fallback"""
+        try:
+            print(f"Processing {audio_format} audio data locally...")
+            audio_bytes = base64.b64decode(audio_data)
+            
+            # Handle different audio formats
+            if (audio_format.lower() == "aac"):
+                if not hasattr(pydub, "AudioSegment"):
+                    raise RuntimeError("pydub not installed properly")
+                wav_io, metadata = convert_aac_to_wav(audio_bytes)
+            else:  # Assume WAV format
+                wav_io = io.BytesIO(audio_bytes)
+                wav_io.seek(0)
+            
+            with sr.AudioFile(wav_io) as source:
+                self.recognizer.adjust_for_ambient_noise(source)
+                audio = self.recognizer.record(source)
+                detected_lang, text, person = self.detect_language(audio)
+                
+                if not text:
+                    raise ValueError("No speech detected in audio")
+                    
+                print(f"Selected Language: {detected_lang}")
+                print(f"Transcribed Text: {text}")
+                print("=================================")
+                return text, detected_lang, person
+                
+        except Exception as e:
+            raise Exception(f"Error in local audio processing: {str(e)}")
+        
     async def translate_text(self, text, from_lang, person):
-        """Translate text between the configured languages using Translator.translate directly"""
+        """Translate text between the configured languages using API directly to avoid coroutine issues"""
         try:
             if not self.language1 or not self.language2:
                 raise ValueError("Languages not configured")
@@ -459,16 +478,27 @@ class SpeechTranslationService:
             if cache_key in self.translation_cache:
                 translation_text = self.translation_cache[cache_key]
             else:
-                # Call the translation synchronously.
-                translation = self.translator.translate(text, src=from_lang, dest=to_lang)
-                # If the result is a coroutine, await it.
-                if asyncio.iscoroutine(translation):
-                    translation = await translation
-                if not hasattr(translation, 'text'):
-                    raise ValueError("Invalid translation response")
-                translation_text = translation.text
-                translation_text = translation_text.replace('\x00', '').strip()
-                self.translation_cache[cache_key] = translation_text
+                # Use Google Translate API directly
+                url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl={from_lang}&tl={to_lang}&dt=t&q={text}"
+                
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url) as response:
+                        if response.status != 200:
+                            raise ValueError(f"Translation API error: {response.status}")
+                        
+                        data = await response.json()
+                        translation_text = ''
+                        
+                        # Extract translation from response
+                        for sentence in data[0]:
+                            if sentence[0]:
+                                translation_text += sentence[0]
+                        
+                        if not translation_text:
+                            raise ValueError("Empty translation response")
+                        
+                        translation_text = translation_text.replace('\x00', '').strip()
+                        self.translation_cache[cache_key] = translation_text
             
             return {
                 "type": "translation",
@@ -598,10 +628,8 @@ async def handle_websocket(websocket):
                         continue
                     
                     try:
-                        # Process audio to get text and language using Whisper
-                        text, detected_lang, person = await asyncio.to_thread(
-                            speech_service.process_audio, audio_data, audio_format
-                        )
+                        # Process audio to get text and language
+                        text, detected_lang, person = await speech_service.process_audio(audio_data, audio_format)
                         print(f"Detected {detected_lang} text: {text[:30]}... ")
                         
                         # Translate text
@@ -662,6 +690,7 @@ async def start_speech_server(host='0.0.0.0', port=8766):
             max_queue=32,           # Increase queue size
             ping_interval=30,       # Send ping every 30 seconds
             ping_timeout=10,        # Wait 10 seconds for pong
+            # Add origins for CORS
         )
         print(f"Speech WebSocket server started on ws://{host}:{port}")
         await server.wait_closed()
