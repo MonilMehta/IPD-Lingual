@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Object Detection WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .panel {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #cccccc;
+        }
+        button:hover:not(:disabled) {
+            background-color: #45a049;
+        }
+        .result-box {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .log {
+            font-family: monospace;
+            font-size: 14px;
+            background-color: #f5f5f5;
+        }
+        #videoContainer {
+            position: relative;
+            width: 640px;
+            height: 480px;
+            background-color: #000;
+            margin: 0 auto;
+        }
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #uploadedImage {
+            max-width: 100%;
+            max-height: 400px;
+            display: none;
+        }
+        .detection {
+            margin: 4px 0;
+            padding: 4px 8px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 4px;
+        }
+        .fps {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .tab {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            background-color: #f1f1f1;
+        }
+        .tab.active {
+            background-color: #fff;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 0 5px 5px 5px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>IPD-Lingual: Object Detection WebSocket Test</h1>
+    <div class="container">
+        <div class="panel">
+            <h2>Connection Status</h2>
+            <div class="controls">
+                <button id="connectBtn">Connect</button>
+                <button id="disconnectBtn" disabled>Disconnect</button>
+                <span id="connectionStatus">Not connected</span>
+            </div>
+            <div>
+                <label for="serverUrl">WebSocket URL:</label>
+                <input type="text" id="serverUrl" value="ws://localhost:8765" style="width: 250px;">
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Language Settings</h2>
+            <div class="controls">
+                <div>
+                    <label for="language">Detection Label Language:</label>
+                    <select id="language">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="ja">Japanese</option>
+                        <option value="zh">Chinese</option>
+                        <option value="ru">Russian</option>
+                    </select>
+                </div>
+                <button id="setLanguageBtn" disabled>Set Language</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="webcam">Webcam</div>
+            <div class="tab" data-tab="upload">Upload Image</div>
+        </div>
+
+        <div id="webcamTab" class="tab-content active">
+            <div class="panel">
+                <h2>Camera Feed</h2>
+                <div class="controls">
+                    <button id="startCameraBtn" disabled>Start Camera</button>
+                    <button id="stopCameraBtn" disabled>Stop Camera</button>
+                    <button id="startDetectionBtn" disabled>Start Detection</button>
+                    <button id="pauseDetectionBtn" disabled>Pause Detection</button>
+                </div>
+                <div id="videoContainer">
+                    <video id="video" autoplay muted playsinline></video>
+                    <canvas id="canvas"></canvas>
+                    <div class="fps" id="fps">0 FPS</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="uploadTab" class="tab-content">
+            <div class="panel">
+                <h2>Image Upload</h2>
+                <div class="controls">
+                    <input type="file" id="imageFileInput" accept="image/*" disabled>
+                    <button id="uploadImageBtn" disabled>Upload & Detect</button>
+                </div>
+                <div id="uploadedImageContainer">
+                    <img id="uploadedImage" src="">
+                    <canvas id="uploadCanvas" style="display:none;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Detection Results</h2>
+            <div class="result-box" id="resultsContainer"></div>
+        </div>
+
+        <div class="panel">
+            <h2>Log</h2>
+            <div class="result-box log" id="logContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Variables
+        let socket = null;
+        let videoStream = null;
+        let isDetecting = false;
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+        let uploadCanvas = document.getElementById('uploadCanvas');
+        let uploadCtx = uploadCanvas.getContext('2d');
+        let fpsDisplay = document.getElementById('fps');
+        let lastFrameTime = 0;
+        let frameCount = 0;
+        let fpsUpdateInterval = null;
+
+        // DOM elements
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const startCameraBtn = document.getElementById('startCameraBtn');
+        const stopCameraBtn = document.getElementById('stopCameraBtn');
+        const startDetectionBtn = document.getElementById('startDetectionBtn');
+        const pauseDetectionBtn = document.getElementById('pauseDetectionBtn');
+        const setLanguageBtn = document.getElementById('setLanguageBtn');
+        const uploadImageBtn = document.getElementById('uploadImageBtn');
+        const imageFileInput = document.getElementById('imageFileInput');
+        const uploadedImage = document.getElementById('uploadedImage');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const logContainer = document.getElementById('logContainer');
+        const serverUrlInput = document.getElementById('serverUrl');
+        const languageSelect = document.getElementById('language');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Initialize canvas dimensions
+        canvas.width = 640;
+        canvas.height = 480;
+        uploadCanvas.width = 640;
+        uploadCanvas.height = 480;
+
+        // Tab handling
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.dataset.tab;
+                
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update active content
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabId + 'Tab').classList.add('active');
+            });
+        });
+
+        // Helper functions
+        function log(message) {
+            const logEntry = document.createElement('div');
+            logEntry.innerText = new Date().toLocaleTimeString() + ': ' + message;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function displayResult(detection) {
+            const resultElement = document.createElement('div');
+            resultElement.classList.add('detection');
+            
+            // Create result display
+            const label = detection.translated || detection.label;
+            const confidence = Math.round(detection.confidence * 100);
+            resultElement.innerText = `${label} (${confidence}%)`;
+            
+            // Only keep the last 20 results to prevent overflow
+            if (resultsContainer.childElementCount > 20) {
+                resultsContainer.removeChild(resultsContainer.firstChild);
+            }
+            
+            resultsContainer.appendChild(resultElement);
+            resultsContainer.scrollTop = resultsContainer.scrollHeight;
+        }
+
+        function drawDetections(detections, context, scale = 1) {
+            // Draw bounding boxes
+            for (const detection of detections) {
+                const [x1, y1, x2, y2] = detection.box;
+                const label = detection.translated || detection.label;
+                const confidence = Math.round(detection.confidence * 100);
+                
+                // Scale coordinates if needed
+                const sx1 = x1 * scale;
+                const sy1 = y1 * scale;
+                const sx2 = x2 * scale;
+                const sy2 = y2 * scale;
+                
+                // Draw rectangle
+                context.strokeStyle = '#00FFFF';
+                context.lineWidth = 2;
+                context.strokeRect(sx1, sy1, sx2 - sx1, sy2 - sy1);
+                
+                // Draw background for text
+                context.fillStyle = 'rgba(0, 255, 255, 0.3)';
+                const textWidth = context.measureText(`${label} (${confidence}%)`).width;
+                context.fillRect(sx1, sy1 - 25, textWidth + 10, 25);
+                
+                // Draw text
+                context.fillStyle = '#000000';
+                context.font = '16px Arial';
+                context.fillText(`${label} (${confidence}%)`, sx1 + 5, sy1 - 7);
+            }
+        }
+
+        // WebSocket connection handling
+        function connectWebSocket() {
+            const url = serverUrlInput.value;
+            log(`Connecting to ${url}...`);
+            
+            try {
+                socket = new WebSocket(url);
+                
+                socket.onopen = () => {
+                    log('Connected to detection service');
+                    connectionStatus.textContent = 'Connected';
+                    connectionStatus.style.color = 'green';
+                    
+                    // Enable buttons
+                    disconnectBtn.disabled = false;
+                    startCameraBtn.disabled = false;
+                    setLanguageBtn.disabled = false;
+                    imageFileInput.disabled = false;
+                    uploadImageBtn.disabled = false;
+                    
+                    // Disable connect button
+                    connectBtn.disabled = true;
+                    
+                    // Send start message to initialize detection
+                    socket.send(JSON.stringify({
+                        type: 'start'
+                    }));
+                };
+                
+                socket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'detection') {
+                        // Handle detection results
+                        const results = data.results;
+                        log(`Received ${results.length} detections`);
+                        
+                        // Draw on appropriate canvas based on active tab
+                        if (document.getElementById('webcamTab').classList.contains('active')) {
+                            // Clear previous drawings
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            
+                            // Draw video frame
+                            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            }
+                            
+                            // Draw detections
+                            drawDetections(results, ctx);
+                        } else {
+                            // For uploaded image
+                            const img = uploadedImage;
+                            const scale = Math.min(
+                                uploadCanvas.width / img.naturalWidth,
+                                uploadCanvas.height / img.naturalHeight
+                            );
+                            
+                            // Clear canvas
+                            uploadCtx.clearRect(0, 0, uploadCanvas.width, uploadCanvas.height);
+                            
+                            // Draw image
+                            const imgWidth = img.naturalWidth * scale;
+                            const imgHeight = img.naturalHeight * scale;
+                            uploadCtx.drawImage(img, 0, 0, imgWidth, imgHeight);
+                            
+                            // Draw detections on uploaded image
+                            drawDetections(results, uploadCtx, scale);
+                            
+                            // Show the canvas
+                            uploadCanvas.style.display = 'block';
+                            uploadCanvas.style.width = imgWidth + 'px';
+                            uploadCanvas.style.height = imgHeight + 'px';
+                        }
+                        
+                        // Display results in the list
+                        for (const detection of results) {
+                            displayResult(detection);
+                        }
+                        
+                        // Send next frame if still detecting
+                        if (isDetecting && videoStream) {
+                            requestAnimationFrame(sendVideoFrame);
+                        }
+                    } else if (data.type === 'status') {
+                        log(`Status: ${data.message}`);
+                    } else if (data.type === 'error') {
+                        log(`Error: ${data.message}`);
+                    }
+                };
+                
+                socket.onclose = () => {
+                    log('Connection closed');
+                    connectionStatus.textContent = 'Disconnected';
+                    connectionStatus.style.color = 'red';
+                    resetUI();
+                };
+                
+                socket.onerror = (error) => {
+                    log(`WebSocket error: ${error.message || 'Unknown error'}`);
+                    connectionStatus.textContent = 'Error';
+                    connectionStatus.style.color = 'red';
+                };
+            } catch (error) {
+                log(`Connection error: ${error.message}`);
+                alert(`Failed to connect: ${error.message}`);
+            }
+        }
+
+        function disconnectWebSocket() {
+            if (socket) {
+                // Send stop message
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        type: 'stop'
+                    }));
+                }
+                
+                socket.close();
+                socket = null;
+                log('Disconnected from server');
+            }
+            resetUI();
+        }
+
+        function resetUI() {
+            // Reset button states
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+            startCameraBtn.disabled = true;
+            stopCameraBtn.disabled = true;
+            startDetectionBtn.disabled = true;
+            pauseDetectionBtn.disabled = true;
+            setLanguageBtn.disabled = true;
+            uploadImageBtn.disabled = true;
+            imageFileInput.disabled = true;
+            
+            // Stop detection
+            isDetecting = false;
+            
+            // Stop camera if active
+            stopCamera();
+            
+            // Clear canvases
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            uploadCtx.clearRect(0, 0, uploadCanvas.width, uploadCanvas.height);
+            
+            // Reset FPS counter
+            if (fpsUpdateInterval) {
+                clearInterval(fpsUpdateInterval);
+                fpsUpdateInterval = null;
+            }
+            fpsDisplay.textContent = '0 FPS';
+        }
+
+        // Camera functions
+        async function startCamera() {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'environment' // Use back camera if available
+                    }
+                });
+                
+                video.srcObject = videoStream;
+                await video.play();
+                
+                log('Camera started');
+                startCameraBtn.disabled = true;
+                stopCameraBtn.disabled = false;
+                startDetectionBtn.disabled = false;
+                
+                // Set canvas dimensions to match video
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                // Start FPS counter
+                frameCount = 0;
+                lastFrameTime = performance.now();
+                fpsUpdateInterval = setInterval(() => {
+                    const now = performance.now();
+                    const elapsed = now - lastFrameTime;
+                    const fps = Math.round((frameCount * 1000) / elapsed);
+                    fpsDisplay.textContent = `${fps} FPS`;
+                    frameCount = 0;
+                    lastFrameTime = now;
+                }, 1000);
+                
+            } catch (error) {
+                log(`Error accessing camera: ${error.message}`);
+                alert(`Error accessing camera: ${error.message}`);
+            }
+        }
+
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+                video.srcObject = null;
+                log('Camera stopped');
+                
+                // Reset UI
+                startCameraBtn.disabled = false;
+                stopCameraBtn.disabled = true;
+                startDetectionBtn.disabled = true;
+                pauseDetectionBtn.disabled = true;
+                
+                // Stop detection
+                isDetecting = false;
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Stop FPS counter
+                if (fpsUpdateInterval) {
+                    clearInterval(fpsUpdateInterval);
+                    fpsUpdateInterval = null;
+                }
+                fpsDisplay.textContent = '0 FPS';
+            }
+        }
+
+        // Start object detection
+        function startDetection() {
+            if (videoStream && socket && socket.readyState === WebSocket.OPEN) {
+                isDetecting = true;
+                log('Starting object detection');
+                startDetectionBtn.disabled = true;
+                pauseDetectionBtn.disabled = false;
+                
+                // Send first frame
+                sendVideoFrame();
+            }
+        }
+
+        function pauseDetection() {
+            isDetecting = false;
+            log('Paused object detection');
+            startDetectionBtn.disabled = false;
+            pauseDetectionBtn.disabled = true;
+        }
+
+        // Send video frame for detection
+        function sendVideoFrame() {
+            if (!isDetecting || !socket || socket.readyState !== WebSocket.OPEN || !videoStream) return;
+            
+            try {
+                // Check if video is ready
+                if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+                    requestAnimationFrame(sendVideoFrame);
+                    return;
+                }
+                
+                // Draw video frame to canvas to get image data
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // Convert canvas to base64
+                const imageData = canvas.toDataURL('image/jpeg', 0.7);
+                
+                // Send to WebSocket
+                socket.send(JSON.stringify({
+                    type: 'frame',
+                    data: imageData
+                }));
+                
+                // Update frame counter for FPS calculation
+                frameCount++;
+                
+                // No need to request next frame here - we'll wait for the response
+                
+            } catch (error) {
+                log(`Error sending frame: ${error.message}`);
+                pauseDetection();
+            }
+        }
+
+        // Set language for detection labels
+        function setLanguage() {
+            const language = languageSelect.value;
+            
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: 'set_language',
+                    language: language
+                }));
+                log(`Setting language to ${language}`);
+            } else {
+                log('WebSocket not connected');
+            }
+        }
+
+        // Process uploaded image
+        function handleImageUpload() {
+            const file = imageFileInput.files[0];
+            if (!file) {
+                alert('Please select an image file');
+                return;
+            }
+            
+            log(`Processing file: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImage.src = e.target.result;
+                uploadedImage.style.display = 'block';
+                
+                // When image is loaded, send it for detection
+                uploadedImage.onload = () => {
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        // Draw image to canvas to resize if needed
+                        const maxDimension = 1280; // Max dimension to prevent oversized messages
+                        let imgWidth = uploadedImage.naturalWidth;
+                        let imgHeight = uploadedImage.naturalHeight;
+                        
+                        // Calculate scaling if image is too large
+                        if (imgWidth > maxDimension || imgHeight > maxDimension) {
+                            const scale = Math.min(maxDimension / imgWidth, maxDimension / imgHeight);
+                            imgWidth *= scale;
+                            imgHeight *= scale;
+                        }
+                        
+                        // Resize canvas and draw image
+                        uploadCanvas.width = imgWidth;
+                        uploadCanvas.height = imgHeight;
+                        uploadCtx.drawImage(uploadedImage, 0, 0, imgWidth, imgHeight);
+                        
+                        // Get resized image data
+                        const imageData = uploadCanvas.toDataURL('image/jpeg', 0.85);
+                        
+                        // Send to WebSocket
+                        socket.send(JSON.stringify({
+                            type: 'frame',
+                            data: imageData
+                        }));
+                        
+                        log(`Sent image for detection (${(imageData.length / 1024).toFixed(1)} KB)`);
+                    } else {
+                        log('WebSocket not connected');
+                    }
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Event listeners
+        connectBtn.addEventListener('click', connectWebSocket);
+        disconnectBtn.addEventListener('click', disconnectWebSocket);
+        startCameraBtn.addEventListener('click', startCamera);
+        stopCameraBtn.addEventListener('click', stopCamera);
+        startDetectionBtn.addEventListener('click', startDetection);
+        pauseDetectionBtn.addEventListener('click', pauseDetection);
+        setLanguageBtn.addEventListener('click', setLanguage);
+        uploadImageBtn.addEventListener('click', handleImageUpload);
+        
+        // Initialize
+        window.addEventListener('load', () => {
+            log('Page loaded. Connect to start testing object detection.');
+        });
+        
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+            // Stop camera if active
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Close WebSocket if open
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.close();
+            }
+        });
+    </script>
+</body>
+</html>

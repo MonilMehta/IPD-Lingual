@@ -1,6 +1,6 @@
 from flask import Flask
 from pymongo import MongoClient
-from flask import Flask, jsonify, session, request, redirect, url_for
+from flask import Flask, jsonify, session, request, redirect, url_for, render_template
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, get_jwt
 import datetime
 import hashlib
@@ -8,8 +8,8 @@ from bson import ObjectId
 from flasgger import Swagger, swag_from
 from decouple import config
 from flask_cors import CORS
-from ultralytics import YOLO
-from utils.model_manager import load_model
+# from ultralytics import YOLO  # Commented out local model import
+# from utils.model_manager import load_model  # Commented out local model loader
 import asyncio
 import threading
 from utils.speech_service import start_speech_server
@@ -240,12 +240,12 @@ def start_model():
         return jsonify({"status": "Error", "message":"Model is already running"}),400
     
     try:
-        # Use the model_manager to load the model - use the existing YOLOv12l.pt
-        model = load_model("yolov12l.pt")
+        # Using Hugging Face API instead of local model
+        # model = load_model("yolov12l.pt")  # Commented out local model loading
         model_active = True
-        return jsonify({"status":"Success","message":"Model is successfully running"}),200
+        return jsonify({"status":"Success","message":"Model is successfully running via Hugging Face API"}),200
     except Exception as e:
-        return jsonify({"status":"Error","message":f"Failed to load model: {str(e)}"}),500
+        return jsonify({"status":"Error","message":f"Failed to start model: {str(e)}"}),500
 
 #this api to store the detections of yolov8
 @app.route("/store_detection", methods=["POST"])
