@@ -8,7 +8,7 @@ import base64
 import websockets
 import os
 
-async def send_test_frame(ws_url="ws://localhost:8765", username="monil"):
+async def send_test_frame(ws_url="wss://lingual-yn5c.onrender.com/ws/detection", username="monil"):
     """Send a test frame to the WebSocket server"""
     try:
         async with websockets.connect(ws_url) as websocket:
