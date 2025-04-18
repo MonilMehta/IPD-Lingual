@@ -1,11 +1,16 @@
 services:
+  # Service for the web application
   - type: web
-    name: ipd-lingual-app
+    name: ipd-lingual
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn main:app
+    startCommand: python render_server.py
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.9.0
+      - key: PORT
+        value: 10000
       - key: RENDER
-        value: true
+        value: "True"
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+      - key: MONGODB_URL
+        sync: false  # This will be set manually in the Render dashboard for security
