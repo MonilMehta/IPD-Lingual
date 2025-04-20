@@ -14,6 +14,7 @@ from skimage.metrics import structural_similarity as ssim
 from googletrans import Translator
 from PIL import Image, ImageDraw, ImageFont
 import io
+from fastapi import WebSocketDisconnect # Import WebSocketDisconnect
 
 # MongoDB connection
 client = MongoClient(config('MONGODB_URL'))
@@ -257,80 +258,96 @@ class DetectionService:
         # Assign a unique ID to this client
         client_id = self.client_id_counter
         self.client_id_counter += 1
-        
+
         # Initialize client data
         self.clients[client_id] = {
-            'websocket': websocket,
+            'websocket': websocket, # This will be the WebSocketAdapter
             'queue': deque(maxlen=MAX_QUEUE_SIZE),
             'processing': False,
             'last_frame_time': 0
         }
         self.current_language[client_id] = 'en'  # Default language
-        
-        print(f"New client {client_id} connected. Total clients: {len(self.clients)}")
-        
-        # Accept the connection (required for ASGI WebSockets)
-        await websocket.accept() 
-        
+
+        print(f"New client {client_id} connected via adapter. Total clients: {len(self.clients)}")
+
+        # REMOVED: await websocket.accept() - This is done in asgi.py before calling the handler
+
         queue_processor = None # Initialize queue_processor to None
         try:
             # Start the queue processor for this client
+            # Pass the adapter to the queue processor as well
             queue_processor = asyncio.create_task(self.process_queue(websocket, client_id))
-            
-            # Use a while loop and receive_text/receive_bytes for ASGI compatibility
-            while True: 
+
+            # Use a while loop and adapter's send/recv methods
+            while True:
                 try:
-                    # Receive message (use receive_text for JSON, handle potential bytes later if needed)
-                    message = await websocket.receive_text() 
-                    
+                    # Receive message using the adapter's recv method
+                    # Note: The adapter's recv currently returns text or bytes.
+                    # We assume text for JSON here. Need robust handling if bytes are expected.
+                    message = await websocket.recv() # Use adapter's recv
+
+                    if message is None: # Handle potential None return from adapter
+                        print(f"Client {client_id}: Received None message, possibly closing.")
+                        break
+
+                    # Ensure message is string before checking length or decoding JSON
+                    if not isinstance(message, str):
+                         print(f"Client {client_id}: Received non-string message type: {type(message)}. Skipping.")
+                         # Optionally handle bytes if expected:
+                         # if isinstance(message, bytes):
+                         #     message = message.decode('utf-8') # Or appropriate encoding
+                         # else:
+                         #     continue
+                         continue
+
+
+                    # ... rest of the message handling logic ...
                     # Make sure we don't process extremely large messages (check before JSON parsing)
-                    # Note: ASGI frameworks might have their own limits. This is an app-level check.
                     if len(message) > MAX_MESSAGE_SIZE:
                         print(f"Warning: Received oversized message ({len(message)/1024/1024:.2f} MB)")
-                        await websocket.send_text(json.dumps({ # Use send_text for ASGI
+                        await websocket.send(json.dumps({ # Use adapter's send
                             'type': 'error',
                             'message': f'Message too large. Maximum allowed: {MAX_MESSAGE_SIZE/1024/1024}MB'
                         }))
                         continue
-                        
+
                     data = json.loads(message)
-                    
+
                     # Handle different message types
                     if data['type'] == 'start':
                         # API-only mode: Initialize the model (which sets up API mode)
                         await self.initialize_model()
-                        
+
                         # Set user's preferred language
                         if 'username' in data:
                             user_language = await self.get_user_language(data['username'])
                             self.current_language[client_id] = user_language
                             print(f"Client {client_id}: Set language to {user_language}")
-                        
-                        await websocket.send_text(json.dumps({ # Use send_text for ASGI
+
+                        await websocket.send(json.dumps({ # Use adapter's send
                             'type': 'status',
                             'message': 'Detection started',
                             'status': 'success'
                         }))
-                    
+
                     elif data['type'] == 'frame':
-                        # ... (rest of the frame handling logic remains the same) ...
-                        # Check if we're ready to process another frame
+                        # ... (frame handling logic - check if adapter's send is used inside) ...
                         now = time.time()
                         client_info = self.clients[client_id]
-                        
+
                         # Rate limit check
                         if not self.rate_limiter.can_process(client_id):
                             print(f"Client {client_id}: Rate limited, skipping frame")
                             continue
-                            
+
                         # Queue limit check
                         if len(client_info['queue']) >= MAX_QUEUE_SIZE:
                             print(f"Client {client_id}: Queue full, dropping oldest frame")
                             client_info['queue'].popleft()  # Remove oldest frame
-                            
+
                         try:
                             base64_data = data.get('data', '')
-                            
+
                             # Decode base64 image
                             try:
                                 if ',' in base64_data:
@@ -342,33 +359,33 @@ class DetectionService:
                                 else:
                                     img_data = base64.b64decode(base64_data)
                             except Exception as e:
-                                await websocket.send_text(json.dumps({ # Use send_text for ASGI
+                                await websocket.send(json.dumps({ # Use adapter's send
                                     'type': 'error',
                                     'message': f'Error decoding image: {str(e)}'
                                 }))
                                 continue
-                                
+
                             np_arr = np.frombuffer(img_data, np.uint8)
                             frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-                            
+
                             if frame is None:
-                                await websocket.send_text(json.dumps({ # Use send_text for ASGI
+                                await websocket.send(json.dumps({ # Use adapter's send
                                     'type': 'error',
                                     'message': 'Invalid image data'
                                 }))
                                 continue
-                                
+
                             # Add frame to queue for processing
                             client_info['queue'].append({
                                 'frame': frame,
                                 'time': now
                             })
-                            
-                            print(f"Client {client_id}: Added frame to queue. Queue size: {len(client_info['queue'])}")
-                            
+
+                            print(f"Client {client_id}: Added frame to queue. Queue size: {len(client_info['queue'])}\"")
+
                         except Exception as e:
                             print(f"Client {client_id}: Error handling frame: {e}")
-                            await websocket.send_text(json.dumps({ # Use send_text for ASGI
+                            await websocket.send(json.dumps({ # Use adapter's send
                                 'type': 'error',
                                 'message': f'Error handling frame: {str(e)}'
                             }))
@@ -376,7 +393,7 @@ class DetectionService:
                     elif data['type'] == 'set_language':
                         old_language = self.current_language.get(client_id, 'en')
                         new_language = data['language']
-                        
+
                         # Only update if language actually changed
                         if old_language != new_language:
                             self.current_language[client_id] = new_language
@@ -384,44 +401,43 @@ class DetectionService:
                             if client_id in self.client_translation_cache:
                                 self.client_translation_cache[client_id] = {}
                             print(f"Client {client_id}: Language changed from {old_language} to {new_language}")
-                        
-                        await websocket.send_text(json.dumps({ # Use send_text for ASGI
+
+                        await websocket.send(json.dumps({ # Use adapter's send
                             'type': 'status',
                             'message': f'Language set to {new_language}',
                             'status': 'success'
                         }))
-                    
+
                     elif data['type'] == 'stop':
-                        await websocket.send_text(json.dumps({ # Use send_text for ASGI
+                        await websocket.send(json.dumps({ # Use adapter's send
                             'type': 'status',
                             'message': 'Detection stopped',
                             'status': 'success'
                         }))
                         break # Exit the while loop on 'stop' message
-                
+
                 except json.JSONDecodeError:
                     print("Error: Invalid JSON message received")
-                    await websocket.send_text(json.dumps({ # Use send_text for ASGI
+                    await websocket.send(json.dumps({ # Use adapter's send
                         'type': 'error',
                         'message': 'Invalid JSON format'
                     }))
                 except KeyError as e:
                     print(f"Error: Missing key in message: {e}")
-                    await websocket.send_text(json.dumps({ # Use send_text for ASGI
+                    await websocket.send(json.dumps({ # Use adapter's send
                         'type': 'error',
                         'message': f'Missing required field: {e}'
                     }))
                 # Handle WebSocket disconnect specifically for ASGI frameworks (e.g., Starlette)
-                except websockets.exceptions.ConnectionClosedOK: # Or the specific exception from your ASGI framework
-                    print(f"Client {client_id} disconnected gracefully.")
-                    break 
-                except websockets.exceptions.ConnectionClosedError as e: # Or the specific exception
-                    print(f"Client {client_id} disconnected with error: {e}")
-                    break
+                # The adapter might raise specific exceptions or the underlying websocket might
+                # Need to adjust exception handling based on adapter behavior / FastAPI specifics
+                except WebSocketDisconnect:
+                    print(f"Client {client_id} disconnected (FastAPI signal).")
+                    break # Exit loop on disconnect
                 except Exception as e: # Catch other potential errors during message processing
                     print(f"Error processing message for client {client_id}: {e}")
                     try:
-                        await websocket.send_text(json.dumps({ # Use send_text for ASGI
+                        await websocket.send(json.dumps({ # Use adapter's send
                             'type': 'error',
                             'message': f'Error: {str(e)}'
                         }))
@@ -429,16 +445,17 @@ class DetectionService:
                         pass
 
         # Handle potential exceptions during initial connection or loop setup
-        except websockets.exceptions.ConnectionClosed as e: # Catch disconnects that happen before the loop
-             print(f"Client {client_id} disconnected before loop start with code {e.code}, reason: {e.reason}")
+        except WebSocketDisconnect: # Catch disconnects that happen before the loop
+             print(f"Client {client_id} disconnected before loop start (FastAPI signal).")
         except Exception as e:
             print(f"Unhandled exception in handler for client {client_id}: {e}")
-            # Try to close the websocket gracefully if possible
+            # Try to close the websocket gracefully using the adapter
             try:
-                await websocket.close(code=1011) # Internal server error code
+                await websocket.close(code=1011) # Use adapter's close
             except Exception:
                 pass # Ignore errors during close
         finally:
+            # ... (rest of the finally block remains the same, using client_id) ...
             # Clean up client resources
             if queue_processor and not queue_processor.done():
                 queue_processor.cancel()
@@ -456,13 +473,11 @@ class DetectionService:
                 del self.last_results[client_id]
             if client_id in self.client_translation_cache:
                 del self.client_translation_cache[client_id]
-                
+
             print(f"Client {client_id} removed. Total clients: {len(self.clients)}")
-            # Ensure websocket is closed from server-side if not already
+            # Ensure websocket is closed from server-side if not already, using adapter
             try:
-                # Check state before closing if possible (depends on ASGI framework)
-                # Example for Starlette: if websocket.client_state != WebSocketState.DISCONNECTED:
-                await websocket.close()
+                await websocket.close() # Use adapter's close
             except Exception:
                  pass # Ignore errors if already closed
 

@@ -525,10 +525,10 @@ class SpeechTranslationService:
 speech_service = SpeechTranslationService()
 
 async def handle_websocket(websocket):
-    """Handle WebSocket connections for the speech translation service"""
-    # Use the global service instance instead of creating a new one
+    """Handle WebSocket connections for the speech translation service using the adapter"""
+    # Use the global service instance
     try:
-        # Send initialization message
+        # Send initialization message using adapter
         init_message = {
             "type": "initialization",
             "status": "connected",
@@ -540,21 +540,33 @@ async def handle_websocket(websocket):
                 "language2": speech_service.language2
             }
         }
-        await websocket.send(json.dumps(init_message))
-        
-        async for message in websocket:
+        await websocket.send(json.dumps(init_message)) # Use adapter's send
+
+        # Use a while loop and adapter's recv method
+        while True:
             try:
+                message = await websocket.recv() # Use adapter's recv
+
+                if message is None: # Handle potential None return from adapter
+                    print("Speech Service: Received None message, possibly closing.")
+                    break
+
+                # Ensure message is string before decoding JSON
+                if not isinstance(message, str):
+                    print(f"Speech Service: Received non-string message type: {type(message)}. Skipping.")
+                    continue
+
                 data = json.loads(message)
-                #print(f"Received message: {json.dumps(data)[:100]}...")  # Print just the start of the message to avoid huge logs
-                
+                #print(f"Received message: {json.dumps(data)[:100]}...")
+
                 # Handle language setting
                 if "setLanguages" in data:
                     lang1 = data["setLanguages"]["language1"]
                     lang2 = data["setLanguages"]["language2"]
-                    
+
                     try:
                         speech_service.set_languages(lang1, lang2)
-                        await websocket.send(json.dumps({
+                        await websocket.send(json.dumps({ # Use adapter's send
                             "type": "languageSettings",
                             "status": "success",
                             "message": f"Languages set to {speech_service.supported_languages[lang1]['name']} and {speech_service.supported_languages[lang2]['name']}",
@@ -564,119 +576,133 @@ async def handle_websocket(websocket):
                             }
                         }))
                     except ValueError as e:
-                        await websocket.send(json.dumps({
+                        await websocket.send(json.dumps({ # Use adapter's send
                             "type": "error",
                             "status": "failed",
                             "message": str(e)
                         }))
-                
+
                 # Handle text input (for direct text translation)
                 elif "text" in data and "language" in data:
                     if not speech_service.language1 or not speech_service.language2:
-                        await websocket.send(json.dumps({
+                        await websocket.send(json.dumps({ # Use adapter's send
                             "type": "error",
                             "status": "failed",
                             "message": "Languages must be set before sending text"
                         }))
                         continue
-                    
+
                     text = data["text"]
                     source_lang = data["language"]
                     person = "1" if source_lang == speech_service.language1 else "2"
-                    
+
                     if not text:
-                        await websocket.send(json.dumps({
+                        await websocket.send(json.dumps({ # Use adapter's send
                             "type": "error",
                             "status": "failed",
                             "message": "Empty text data"
                         }))
                         continue
-                    
+
                     try:
                         # Translate text directly
                         translation = await speech_service.translate_text(text, source_lang, person)
-                        await websocket.send(json.dumps(translation))
-                        
+                        await websocket.send(json.dumps(translation)) # Use adapter's send
+
                     except Exception as e:
                         error_message = f"Error translating text: {str(e)}"
                         print(error_message)
-                        await websocket.send(json.dumps({
+                        await websocket.send(json.dumps({ # Use adapter's send
                             "type": "error",
                             "status": "failed",
                             "message": error_message
                         }))
-                
+
                 # Handle audio processing
                 elif "audio" in data:
                     if not speech_service.language1 or not speech_service.language2:
-                        await websocket.send(json.dumps({
+                        await websocket.send(json.dumps({ # Use adapter's send
                             "type": "error",
                             "status": "failed",
                             "message": "Languages must be set before sending audio"
                         }))
                         continue
-                    
+
                     audio_format = data.get("format", "aac")
                     audio_data = data["audio"]
-                    
+
                     if not audio_data:
-                        await websocket.send(json.dumps({
+                        await websocket.send(json.dumps({ # Use adapter's send
                             "type": "error",
                             "status": "failed",
                             "message": "Empty audio data"
                         }))
                         continue
-                    
+
                     try:
                         # Process audio to get text and language
                         text, detected_lang, person = await speech_service.process_audio(audio_data, audio_format)
                         print(f"Detected {detected_lang} text: {text[:30]}... ")
-                        
+
                         # Translate text
                         translation = await speech_service.translate_text(text, detected_lang, person)
-                        await websocket.send(json.dumps(translation))
+                        await websocket.send(json.dumps(translation)) # Use adapter's send
                         print("Translation sent")
-                        
+
                     except Exception as e:
                         error_message = f"Error processing audio: {str(e)}"
                         print(error_message)
-                        await websocket.send(json.dumps({
+                        await websocket.send(json.dumps({ # Use adapter's send
                             "type": "error",
                             "status": "failed",
                             "message": error_message
                         }))
                 else:
-                    await websocket.send(json.dumps({
+                    await websocket.send(json.dumps({ # Use adapter's send
                         "type": "error",
                         "status": "failed",
                         "message": "Invalid request format. Expected 'setLanguages', 'text', or 'audio' in the message."
                     }))
-                    
+
             except json.JSONDecodeError:
-                await websocket.send(json.dumps({
+                await websocket.send(json.dumps({ # Use adapter's send
                     "type": "error",
                     "status": "failed",
                     "message": "Invalid JSON format in request"
                 }))
+            # Handle potential disconnects or other errors during recv/processing
+            except websockets.exceptions.ConnectionClosedOK: # Or appropriate exception from adapter/FastAPI
+                print("Speech Service: Client disconnected gracefully (via adapter).")
+                break
+            except websockets.exceptions.ConnectionClosedError as e: # Or appropriate exception
+                print(f"Speech Service: Client disconnected with error (via adapter): {e}")
+                break
             except Exception as e:
                 print(f"Error processing request: {str(e)}")
-                await websocket.send(json.dumps({
-                    "type": "error",
-                    "status": "failed",
-                    "message": f"Error processing request: {str(e)}"
-                }))
-                
-    except websockets.exceptions.ConnectionClosed:
-        print("WebSocket connection closed")
+                try:
+                    await websocket.send(json.dumps({ # Use adapter's send
+                        "type": "error",
+                        "status": "failed",
+                        "message": f"Error processing request: {str(e)}"
+                    }))
+                except Exception: # Ignore send errors if connection is already closed
+                    pass
+
+    except websockets.exceptions.ConnectionClosed as e: # Catch disconnects before the loop
+        print(f"Speech Service: WebSocket connection closed before loop start (via adapter) with code {e.code}, reason: {e.reason}")
     except Exception as e:
-        print(f"WebSocket error: {str(e)}")
+        print(f"Speech Service: Unhandled WebSocket error: {str(e)}")
         try:
-            await websocket.send(json.dumps({
-                "type": "error",
-                "status": "failed",
-                "message": f"WebSocket error: {str(e)}"
-            }))
-        except:
+            # Try closing via adapter
+            await websocket.close(code=1011)
+        except Exception:
+            pass
+    finally:
+        print("Speech Service: WebSocket handler finished.")
+        # Ensure adapter/websocket is closed if possible
+        try:
+            await websocket.close()
+        except Exception:
             pass
 
 async def start_speech_server(host='0.0.0.0', port=8766):

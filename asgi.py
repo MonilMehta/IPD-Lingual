@@ -75,35 +75,87 @@ async def health_check():
 # WebSocket adapter class to bridge FastAPI WebSocket with our existing handlers
 class WebSocketAdapter:
     """Adapter to make FastAPI WebSockets compatible with websockets library interface"""
-    
+
     def __init__(self, websocket: WebSocket):
         self.websocket = websocket
         self._closed = False
-    
+
     async def send(self, message):
         """Send a message through the WebSocket"""
-        if isinstance(message, str):
-            await self.websocket.send_text(message)
-        elif isinstance(message, bytes):
-            await self.websocket.send_bytes(message)
-        else:
-            # Assume it's JSON serializable
-            await self.websocket.send_json(message)
-    
+        if self._closed:
+            # Optionally log or raise an error if trying to send on closed socket
+            # print("Adapter: Attempted to send on closed socket")
+            return
+        try:
+            if isinstance(message, str):
+                await self.websocket.send_text(message)
+            elif isinstance(message, bytes):
+                await self.websocket.send_bytes(message)
+            else:
+                # Assume it's JSON serializable
+                await self.websocket.send_json(message)
+        except WebSocketDisconnect:
+            self._closed = True
+            # Re-raise or handle as needed
+            raise
+        except Exception as e:
+            # Handle other potential send errors (e.g., connection issues)
+            self._closed = True
+            print(f"Adapter send error: {e}")
+            # Raise a disconnect or connection error if appropriate
+            raise WebSocketDisconnect(code=1011) # Internal server error
+
     async def recv(self):
-        """Receive a message from the WebSocket"""
-        message_type = await self.websocket.receive()
-        if 'text' in message_type:
-            return message_type['text']
-        elif 'bytes' in message_type:
-            return message_type['bytes']
-        return None
-    
+        """Receive a message from the WebSocket, handling disconnects"""
+        if self._closed:
+            # Raise disconnect if already marked as closed
+            raise WebSocketDisconnect(code=1001) # Going away
+        try:
+            message_data = await self.websocket.receive() # FastAPI's receive
+            if message_data['type'] == 'websocket.disconnect':
+                self._closed = True
+                raise WebSocketDisconnect(message_data.get('code', 1000))
+            elif 'text' in message_data:
+                return message_data['text']
+            elif 'bytes' in message_data:
+                return message_data['bytes']
+            # Handle other message types if necessary
+            return None
+        except WebSocketDisconnect as e: # Catch disconnect signal from FastAPI
+            self._closed = True
+            raise e # Re-raise the disconnect exception
+        except Exception as e:
+            # Handle other potential receive errors
+            self._closed = True
+            print(f"Adapter recv error: {e}")
+            raise WebSocketDisconnect(code=1011) # Internal server error
+
     async def close(self, code=1000, reason=""):
         """Close the WebSocket connection"""
         if not self._closed:
-            await self.websocket.close(code=code, reason=reason)
-            self._closed = True
+            try:
+                await self.websocket.close(code=code, reason=reason)
+            except Exception as e:
+                 # Ignore errors during close if already disconnected
+                 print(f"Adapter close error: {e}")
+            finally:
+                 self._closed = True
+
+    # Add __aiter__ and __anext__ for compatibility, using the refined recv
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        try:
+            message = await self.recv()
+            # recv will raise WebSocketDisconnect if closed or disconnect message received
+            if message is None and self._closed:
+                 # Should be caught by recv, but as a safeguard
+                 raise StopAsyncIteration
+            return message
+        except WebSocketDisconnect:
+             self._closed = True
+             raise StopAsyncIteration
 
 # WebSocket endpoints
 @app.websocket("/ws/detection")
