@@ -269,18 +269,27 @@ class DetectionService:
         
         print(f"New client {client_id} connected. Total clients: {len(self.clients)}")
         
+        # Accept the connection (required for ASGI WebSockets)
+        await websocket.accept() 
+        
+        queue_processor = None # Initialize queue_processor to None
         try:
             # Start the queue processor for this client
             queue_processor = asyncio.create_task(self.process_queue(websocket, client_id))
             
-            async for message in websocket:
+            # Use a while loop and receive_text/receive_bytes for ASGI compatibility
+            while True: 
                 try:
-                    # Make sure we don't process extremely large messages
+                    # Receive message (use receive_text for JSON, handle potential bytes later if needed)
+                    message = await websocket.receive_text() 
+                    
+                    # Make sure we don't process extremely large messages (check before JSON parsing)
+                    # Note: ASGI frameworks might have their own limits. This is an app-level check.
                     if len(message) > MAX_MESSAGE_SIZE:
                         print(f"Warning: Received oversized message ({len(message)/1024/1024:.2f} MB)")
-                        await websocket.send(json.dumps({
+                        await websocket.send_text(json.dumps({ # Use send_text for ASGI
                             'type': 'error',
-                            'message': f'Image too large, please resize. Maximum allowed: {MAX_MESSAGE_SIZE/1024/1024}MB'
+                            'message': f'Message too large. Maximum allowed: {MAX_MESSAGE_SIZE/1024/1024}MB'
                         }))
                         continue
                         
@@ -297,13 +306,14 @@ class DetectionService:
                             self.current_language[client_id] = user_language
                             print(f"Client {client_id}: Set language to {user_language}")
                         
-                        await websocket.send(json.dumps({
+                        await websocket.send_text(json.dumps({ # Use send_text for ASGI
                             'type': 'status',
                             'message': 'Detection started',
                             'status': 'success'
                         }))
                     
                     elif data['type'] == 'frame':
+                        # ... (rest of the frame handling logic remains the same) ...
                         # Check if we're ready to process another frame
                         now = time.time()
                         client_info = self.clients[client_id]
@@ -332,7 +342,7 @@ class DetectionService:
                                 else:
                                     img_data = base64.b64decode(base64_data)
                             except Exception as e:
-                                await websocket.send(json.dumps({
+                                await websocket.send_text(json.dumps({ # Use send_text for ASGI
                                     'type': 'error',
                                     'message': f'Error decoding image: {str(e)}'
                                 }))
@@ -342,7 +352,7 @@ class DetectionService:
                             frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
                             
                             if frame is None:
-                                await websocket.send(json.dumps({
+                                await websocket.send_text(json.dumps({ # Use send_text for ASGI
                                     'type': 'error',
                                     'message': 'Invalid image data'
                                 }))
@@ -358,11 +368,11 @@ class DetectionService:
                             
                         except Exception as e:
                             print(f"Client {client_id}: Error handling frame: {e}")
-                            await websocket.send(json.dumps({
+                            await websocket.send_text(json.dumps({ # Use send_text for ASGI
                                 'type': 'error',
                                 'message': f'Error handling frame: {str(e)}'
                             }))
-                    
+
                     elif data['type'] == 'set_language':
                         old_language = self.current_language.get(client_id, 'en')
                         new_language = data['language']
@@ -375,45 +385,67 @@ class DetectionService:
                                 self.client_translation_cache[client_id] = {}
                             print(f"Client {client_id}: Language changed from {old_language} to {new_language}")
                         
-                        await websocket.send(json.dumps({
+                        await websocket.send_text(json.dumps({ # Use send_text for ASGI
                             'type': 'status',
                             'message': f'Language set to {new_language}',
                             'status': 'success'
                         }))
                     
                     elif data['type'] == 'stop':
-                        await websocket.send(json.dumps({
+                        await websocket.send_text(json.dumps({ # Use send_text for ASGI
                             'type': 'status',
                             'message': 'Detection stopped',
                             'status': 'success'
                         }))
-                        break
+                        break # Exit the while loop on 'stop' message
                 
                 except json.JSONDecodeError:
                     print("Error: Invalid JSON message received")
-                    await websocket.send(json.dumps({
+                    await websocket.send_text(json.dumps({ # Use send_text for ASGI
                         'type': 'error',
                         'message': 'Invalid JSON format'
                     }))
                 except KeyError as e:
                     print(f"Error: Missing key in message: {e}")
-                    await websocket.send(json.dumps({
+                    await websocket.send_text(json.dumps({ # Use send_text for ASGI
                         'type': 'error',
                         'message': f'Missing required field: {e}'
                     }))
-                except Exception as e:
-                    print(f"Error processing message: {e}")
-                    await websocket.send(json.dumps({
-                        'type': 'error',
-                        'message': f'Error: {str(e)}'
-                    }))
-        
-        except websockets.exceptions.ConnectionClosed as e:
-            print(f"Client {client_id} disconnected with code {e.code}, reason: {e.reason}")
+                # Handle WebSocket disconnect specifically for ASGI frameworks (e.g., Starlette)
+                except websockets.exceptions.ConnectionClosedOK: # Or the specific exception from your ASGI framework
+                    print(f"Client {client_id} disconnected gracefully.")
+                    break 
+                except websockets.exceptions.ConnectionClosedError as e: # Or the specific exception
+                    print(f"Client {client_id} disconnected with error: {e}")
+                    break
+                except Exception as e: # Catch other potential errors during message processing
+                    print(f"Error processing message for client {client_id}: {e}")
+                    try:
+                        await websocket.send_text(json.dumps({ # Use send_text for ASGI
+                            'type': 'error',
+                            'message': f'Error: {str(e)}'
+                        }))
+                    except Exception: # Ignore errors sending error message if connection is already closed
+                        pass
+
+        # Handle potential exceptions during initial connection or loop setup
+        except websockets.exceptions.ConnectionClosed as e: # Catch disconnects that happen before the loop
+             print(f"Client {client_id} disconnected before loop start with code {e.code}, reason: {e.reason}")
+        except Exception as e:
+            print(f"Unhandled exception in handler for client {client_id}: {e}")
+            # Try to close the websocket gracefully if possible
+            try:
+                await websocket.close(code=1011) # Internal server error code
+            except Exception:
+                pass # Ignore errors during close
         finally:
             # Clean up client resources
-            if 'queue_processor' in locals():
+            if queue_processor and not queue_processor.done():
                 queue_processor.cancel()
+                try:
+                    await queue_processor # Allow cancellation to complete
+                except asyncio.CancelledError:
+                    pass # Expected exception on cancellation
             if client_id in self.clients:
                 del self.clients[client_id]
             if client_id in self.current_language:
@@ -426,7 +458,14 @@ class DetectionService:
                 del self.client_translation_cache[client_id]
                 
             print(f"Client {client_id} removed. Total clients: {len(self.clients)}")
-    
+            # Ensure websocket is closed from server-side if not already
+            try:
+                # Check state before closing if possible (depends on ASGI framework)
+                # Example for Starlette: if websocket.client_state != WebSocketState.DISCONNECTED:
+                await websocket.close()
+            except Exception:
+                 pass # Ignore errors if already closed
+
     async def get_user_language(self, username):
         """Fetch user's preferred language from database"""
         language_data = language_collection.find_one({"username": username})
