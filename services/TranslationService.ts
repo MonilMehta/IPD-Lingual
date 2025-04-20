@@ -1,4 +1,4 @@
-// import { WebSocket } from 'ws';
+import { SPEECH_WS_URL } from '../config/constants';
 
 interface LanguageInfo {
   name: string;
@@ -87,7 +87,7 @@ class TranslationService {
     // Create a new connection promise
     this.connectionPromise = new Promise<boolean>((resolve) => {
       try {
-        this.ws = new WebSocket('wss://02b2-2405-201-28-1847-cdc9-b943-2ea-57b8.ngrok-free.app');
+        this.ws = new WebSocket(SPEECH_WS_URL); // Use imported constant
         
         // Don't disconnect WebSocket when stopping recording
         let isClosingIntentionally = false;

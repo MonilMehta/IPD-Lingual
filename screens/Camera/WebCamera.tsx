@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { ChevronLeft, Languages, Settings, X, Save, Camera as CameraIcon } from 'lucide-react-native';
 import { Marker } from './marker';
+import { CAMERA_WS_URL } from '../../config/constants'; // Import the constant
 
 const THEME_COLOR = '#FF6B00';
 const ACCENT_COLOR = '#6366F1';
-const WS_URL = 'wss://abdd-49-36-113-134.ngrok-free.app';
 
 export function WebCamera({ navigation }: any) {
   const [isConnected, setIsConnected] = useState(false);
@@ -118,7 +118,8 @@ export function WebCamera({ navigation }: any) {
   const connectWebSocket = () => {
     try {
       addMessage('Connecting to WebSocket server...');
-      socketRef.current = new WebSocket(WS_URL);
+      console.log(`Attempting to connect to WebSocket at ${CAMERA_WS_URL}`); // Use constant
+      socketRef.current = new WebSocket(CAMERA_WS_URL); // Use constant
       
       socketRef.current.onopen = () => {
         addMessage('✅ Connected to server');

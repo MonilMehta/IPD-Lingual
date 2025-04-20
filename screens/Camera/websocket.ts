@@ -1,7 +1,8 @@
 import { Platform } from 'react-native';
+import { SPEECH_WS_URL } from '../../config/constants'; // Import CAMERA_WS_URL
 
 // Configuration constants
-export const WS_URL = 'wss://580e-2405-201-28-1847-cdc9-b943-2ea-57b8.ngrok-free.app';
+// export const WS_URL = 'ws://0.0.0.0:8765'; // Removed hardcoded URL
 
 export interface Detection {
   box: number[];
@@ -34,10 +35,10 @@ export function setupWebSocket(
 ): WebSocket {
   try {
     callbacks.onStatusChange?.('connecting');
-    console.log(`Attempting to connect to: ${WS_URL}`);
+    console.log(`Attempting to connect to: ${SPEECH_WS_URL}`); // Use imported constant
       
     // Create new WebSocket connection
-    const ws = new WebSocket(WS_URL);
+    const ws = new WebSocket(SPEECH_WS_URL); // Use imported constant
       
     ws.onopen = () => {
       console.log('WebSocket connection established');
