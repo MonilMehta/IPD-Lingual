@@ -737,6 +737,38 @@ def api_speech(): # Changed back to sync def
         print(f"Error in /api/speech: {e}\n{traceback.format_exc()}")
         return jsonify({"status": "error", "message": f"Speech processing failed: {str(e)}"}), 500
 
+# New endpoint for speech configuration
+@app.route("/api/speech/config", methods=["GET"])
+@jwt_required()
+@swag_from({
+    'tags': ['API', 'Speech'],
+    'description': 'Get supported languages and configuration for the speech API.',
+    'responses': {
+        '200': {
+            'description': 'Speech configuration retrieved successfully',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'supported_languages': {
+                        'type': 'array',
+                        'items': {'type': 'string'},
+                        'description': 'List of supported language codes (e.g., en, hi, es).'
+                    },
+                    # Add other relevant config details here if needed
+                }
+            }
+        }
+    }
+})
+def api_speech_config():
+    # Define supported languages (this could be dynamic later)
+    supported_languages = ['en', 'hi', 'es', 'fr', 'de', 'it', 'pt', 'ru'] # Example list
+    return jsonify({
+        "supported_languages": supported_languages
+        # Add other config details as necessary
+    }), 200
+
+
 # --- End New API Routes ---
 
 
