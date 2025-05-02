@@ -12,7 +12,12 @@ from flask_cors import CORS
 # from utils.model_manager import load_model  # Commented out local model loader
 import asyncio
 import threading
-from utils.speech_service import start_speech_server
+import cv2 # Added import
+import numpy as np # Added import
+import base64 # Added import
+from utils.detection_service import DetectionService # Added import
+from utils.speech_service import handle_speech_api_request # Added import
+from googletrans import Translator # Add translator import if not already present
 
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -546,6 +551,195 @@ def get_current_language():
         "language_name": language_name
     }), 200
 
+# --- New API Routes ---
+
+detection_service = DetectionService() # Instantiate detection service
+
+# Define allowed languages for detection translation
+ALLOWED_LANGUAGES = ['en', 'hi', 'gu', 'mr', 'kn']
+
+# Helper async function for detection logic
+async def _run_detection(file, profile, confidence, iou, target_language, username): # Add target_language and username
+    image_bytes = await asyncio.to_thread(file.read)
+    nparr = np.frombuffer(image_bytes, np.uint8)
+    frame = await asyncio.to_thread(cv2.imdecode, nparr, cv2.IMREAD_COLOR)
+    if frame is None:
+        raise ValueError("Could not decode image")
+    # Pass target_language and username to the service
+    return await detection_service.detect_objects_api(
+        frame,
+        profile=profile,
+        confidence=confidence,
+        iou=iou,
+        target_language=target_language,
+        username=username
+    )
+
+@app.route("/api/detect", methods=["POST"])
+@jwt_required()
+@swag_from({
+    'tags': ['API'],
+    'description': 'Detect objects in an uploaded image using the backend API. Optionally translate labels.',
+    'consumes': ['multipart/form-data'],
+    'parameters': [
+        # ... existing parameters (image, profile, confidence, iou) ...
+        {
+            'name': 'image',
+            'in': 'formData',
+            'type': 'file',
+            'required': True,
+            'description': 'Image file to process.'
+        },
+        {
+            'name': 'profile',
+            'in': 'formData',
+            'type': 'string',
+            'required': False,
+            'default': 'general',
+            'description': 'Detection profile (e.g., general, kids).'
+        },
+        {
+            'name': 'confidence',
+            'in': 'formData',
+            'type': 'string',
+            'required': False,
+            'default': '0.3',
+            'description': 'Confidence threshold for detection (0.0 to 1.0).'
+        },
+        {
+            'name': 'iou',
+            'in': 'formData',
+            'type': 'string',
+            'required': False,
+            'default': '0.6',
+            'description': 'Intersection over Union (IoU) threshold for NMS (0.0 to 1.0).'
+        },
+        { # Add target_language parameter
+            'name': 'target_language',
+            'in': 'formData',
+            'type': 'string',
+            'required': False,
+            'enum': ALLOWED_LANGUAGES,
+            'description': f'Optional target language for labels ({", ".join(ALLOWED_LANGUAGES)}). Defaults to user preference or English.'
+        }
+    ],
+    'responses': {
+        '200': {'description': 'Detection successful', 'schema': {'type': 'object'}},
+        '400': {'description': 'Bad request (e.g., missing image, invalid parameters, invalid language)'},
+        '500': {'description': 'Internal server error during detection'}
+    }
+})
+def api_detect(): # Changed back to sync def
+    if 'image' not in request.files:
+        return jsonify({"status": "error", "message": "No image file provided"}), 400
+
+    file = request.files['image']
+    profile = request.form.get('profile', 'general')
+    confidence = request.form.get('confidence', '0.3')
+    iou = request.form.get('iou', '0.6')
+    target_language_param = request.form.get('target_language') # Get optional language param
+
+    current_user = get_jwt_identity() # Get user identity
+
+    final_target_language = None
+    if target_language_param:
+        if target_language_param in ALLOWED_LANGUAGES:
+            final_target_language = target_language_param
+        else:
+            return jsonify({"status": "error", "message": f"Invalid target_language. Must be one of: {', '.join(ALLOWED_LANGUAGES)}"}), 400
+    else:
+        # Fetch user's preferred language from DB
+        language_data = language_collection.find_one({"username": current_user})
+        if language_data and 'language' in language_data and language_data['language'] in ALLOWED_LANGUAGES:
+             final_target_language = language_data['language']
+        else:
+            final_target_language = 'en' # Default to English
+
+    try:
+        # Pass determined language and username to the async helper
+        results = asyncio.run(_run_detection(file, profile, confidence, iou, final_target_language, current_user))
+        return jsonify(results), 200
+    except ValueError as ve:
+         return jsonify({"status": "error", "message": str(ve)}), 400
+    except Exception as e:
+        # Log the full exception for debugging
+        import traceback
+        print(f"Error in /api/detect: {e}\n{traceback.format_exc()}")
+        return jsonify({"status": "error", "message": f"Detection failed: {str(e)}"}), 500
+
+# Helper async function for speech logic
+async def _run_speech(file, audio_format, lang1, lang2):
+    audio_bytes = await asyncio.to_thread(file.read)
+    audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
+    return await handle_speech_api_request(audio_base64, audio_format, lang1, lang2)
+
+@app.route("/api/speech", methods=["POST"])
+@jwt_required()
+@swag_from({
+    'tags': ['API'],
+    'description': 'Transcribe and translate speech from an uploaded audio file.',
+    'consumes': ['multipart/form-data'],
+    'parameters': [
+        {
+            'name': 'audio',
+            'in': 'formData',
+            'type': 'file',
+            'required': True,
+            'description': 'Audio file to process.'
+        },
+        {
+            'name': 'format',
+            'in': 'formData',
+            'type': 'string',
+            'required': True,
+            'description': 'Format of the audio file (e.g., wav, mp3, aac).'
+        },
+        {
+            'name': 'lang1',
+            'in': 'formData',
+            'type': 'string',
+            'required': True,
+            'description': 'Source language code (e.g., en, hi, es).'
+        },
+        {
+            'name': 'lang2',
+            'in': 'formData',
+            'type': 'string',
+            'required': True,
+            'description': 'Target language code (e.g., en, hi, es).'
+        }
+    ],
+    'responses': {
+        '200': {'description': 'Speech processing successful', 'schema': {'type': 'object'}},
+        '400': {'description': 'Bad request (e.g., missing audio, invalid parameters)'},
+        '500': {'description': 'Internal server error during speech processing'}
+    }
+})
+def api_speech(): # Changed back to sync def
+    if 'audio' not in request.files:
+        return jsonify({"status": "error", "message": "No audio file provided"}), 400
+
+    file = request.files['audio']
+    audio_format = request.form.get('format')
+    lang1 = request.form.get('lang1')
+    lang2 = request.form.get('lang2')
+
+    if not audio_format or not lang1 or not lang2:
+        return jsonify({"status": "error", "message": "Missing required parameters: format, lang1, lang2"}), 400
+
+    try:
+        # Run the async helper function using asyncio.run()
+        result = asyncio.run(_run_speech(file, audio_format, lang1, lang2))
+        return jsonify(result), 200
+    except Exception as e:
+        # Log the full exception for debugging
+        import traceback
+        print(f"Error in /api/speech: {e}\n{traceback.format_exc()}")
+        return jsonify({"status": "error", "message": f"Speech processing failed: {str(e)}"}), 500
+
+# --- End New API Routes ---
+
+
 @app.route("/speech_test")
 @swag_from({
     'tags': ['Speech'],
@@ -561,13 +755,3 @@ def speech_test():
     host = request.host.split(':')[0]  # Extract host without port
     speech_websocket_url = f"ws://{host}:8766"  # Speech service runs on port 8766
     return render_template('speech_test.html', speech_websocket_url=speech_websocket_url)
-
-if __name__ == "__main__":
-    # Start speech WebSocket server in a separate thread
-    speech_thread = threading.Thread(target=lambda: asyncio.run(start_speech_server()))
-    speech_thread.daemon = True
-    speech_thread.start()
-    print("Speech WebSocket server started on port 8766")
-    
-    # Start the Flask server
-    app.run(host="0.0.0.0", port=5000)
