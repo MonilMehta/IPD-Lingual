@@ -54,14 +54,17 @@ class DetectionService:
             print("[DEBUG] Found in cache.") # DEBUG
             return translation_cache[cache_key]
         try:
-            # Use asyncio.to_thread for the blocking translation call
-            translated = await asyncio.to_thread(translator.translate, text, dest=target_language)
+            # Directly await the translate coroutine
+            translated = await translator.translate(text, dest=target_language)
             translated_text = translated.text
             print(f"[DEBUG] Translation result: '{translated_text}'") # DEBUG
             translation_cache[cache_key] = translated_text # Cache the result
             return translated_text
         except Exception as e:
             print(f"[DEBUG] Translation error for '{text}' to {target_language}: {e}") # DEBUG
+            # Optionally log the full traceback for better error diagnosis
+            import traceback
+            traceback.print_exc()
             return text # Return original text on error
 
     async def detect_objects_api(self, frame, profile='kids', confidence='0.3', iou='0.6', target_language='en', username=None): # Add target_language and username
