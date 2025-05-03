@@ -1,0 +1,652 @@
+[
+  {
+    "quiz_id": "1",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい現在形の文を選んでください。",
+    "options": [
+      "私は映画を見た。",
+      "私は映画を見ています。",
+      "私は映画を見ます。",
+      "私は映画を見ていた。"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "2",
+    "level": "A1",
+    "type": "antonym",
+    "question": "「暑い」の反対語を選んでください。",
+    "options": [
+      "温かい",
+      "冷たい",
+      "熱い",
+      "辛い"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "3",
+    "level": "A1",
+    "type": "expression",
+    "question": "誰かに会ったときに何と言いますか？",
+    "options": [
+      "はじめまして",
+      "お腹が空きました",
+      "今日は暑いです",
+      "また明日"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "4",
+    "level": "A1",
+    "type": "expression",
+    "question": "「おやすみなさい」を丁寧に言うと？",
+    "options": [
+      "バイバイ",
+      "じゃあね",
+      "良い夢を",
+      "おやすみなさい"
+    ],
+    "answer_index": 3
+  },
+  {
+    "quiz_id": "5",
+    "level": "A1",
+    "type": "synonym",
+    "question": "「うれしい」の同義語を選んでください。",
+    "options": [
+      "悲しい",
+      "楽しい",
+      "怒っている",
+      "疲れた"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "6",
+    "level": "A1",
+    "type": "synonym",
+    "question": "「速い」の同義語を選んでください。",
+    "options": [
+      "遅い",
+      "素早い",
+      "怠け者",
+      "弱い"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "7",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "私は金曜日にピザを___。",
+    "options": [
+      "食べる",
+      "食べた",
+      "食べます",
+      "食べて"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "8",
+    "level": "A1",
+    "type": "antonym",
+    "question": "「暑い」の反対語を選んでください。",
+    "options": [
+      "温かい",
+      "冷たい",
+      "熱い",
+      "辛い"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "9",
+    "level": "A1",
+    "type": "synonym",
+    "question": "「速い」の同義語を選んでください。",
+    "options": [
+      "遅い",
+      "素早い",
+      "怠け者",
+      "弱い"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "10",
+    "level": "A1",
+    "type": "antonym",
+    "question": "「うれしい」の反対語を選んでください。",
+    "options": [
+      "怒っている",
+      "悲しい",
+      "楽しい",
+      "嬉しい"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "11",
+    "level": "A1",
+    "type": "synonym",
+    "question": "「速い」の同義語を選んでください。",
+    "options": [
+      "遅い",
+      "素早い",
+      "怠け者",
+      "弱い"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "12",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい過去形の文を選んでください。",
+    "options": [
+      "彼はご飯を食べる。",
+      "彼はご飯を食べました。",
+      "彼はご飯を食べている。",
+      "彼はご飯を食べます。"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "13",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "彼女は毎日学校に___。",
+    "options": [
+      "行きます",
+      "行く",
+      "行った",
+      "行って"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "14",
+    "level": "A1",
+    "type": "expression",
+    "question": "「おやすみなさい」を丁寧に言うと？",
+    "options": [
+      "バイバイ",
+      "じゃあね",
+      "良い夢を",
+      "おやすみなさい"
+    ],
+    "answer_index": 3
+  },
+  {
+    "quiz_id": "15",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい過去形の文を選んでください。",
+    "options": [
+      "彼はご飯を食べる。",
+      "彼はご飯を食べました。",
+      "彼はご飯を食べている。",
+      "彼はご飯を食べます。"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "16",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい現在形の文を選んでください。",
+    "options": [
+      "私は映画を見た。",
+      "私は映画を見ています。",
+      "私は映画を見ます。",
+      "私は映画を見ていた。"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "17",
+    "level": "A1",
+    "type": "synonym",
+    "question": "「うれしい」の同義語を選んでください。",
+    "options": [
+      "悲しい",
+      "楽しい",
+      "怒っている",
+      "疲れた"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "18",
+    "level": "A1",
+    "type": "synonym",
+    "question": "「うれしい」の同義語を選んでください。",
+    "options": [
+      "悲しい",
+      "楽しい",
+      "怒っている",
+      "疲れた"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "19",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "彼女は毎日学校に___。",
+    "options": [
+      "行きます",
+      "行く",
+      "行った",
+      "行って"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "20",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい過去形の文を選んでください。",
+    "options": [
+      "彼はご飯を食べる。",
+      "彼はご飯を食べました。",
+      "彼はご飯を食べている。",
+      "彼はご飯を食べます。"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "21",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい現在形の文を選んでください。",
+    "options": [
+      "私は映画を見た。",
+      "私は映画を見ています。",
+      "私は映画を見ます。",
+      "私は映画を見ていた。"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "22",
+    "level": "A1",
+    "type": "synonym",
+    "question": "「うれしい」の同義語を選んでください。",
+    "options": [
+      "悲しい",
+      "楽しい",
+      "怒っている",
+      "疲れた"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "23",
+    "level": "A1",
+    "type": "antonym",
+    "question": "「暑い」の反対語を選んでください。",
+    "options": [
+      "温かい",
+      "冷たい",
+      "熱い",
+      "辛い"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "24",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい現在形の文を選んでください。",
+    "options": [
+      "私は映画を見た。",
+      "私は映画を見ています。",
+      "私は映画を見ます。",
+      "私は映画を見ていた。"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "25",
+    "level": "A1",
+    "type": "expression",
+    "question": "誰かに会ったときに何と言いますか？",
+    "options": [
+      "はじめまして",
+      "お腹が空きました",
+      "今日は暑いです",
+      "また明日"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "26",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "私は金曜日にピザを___。",
+    "options": [
+      "食べる",
+      "食べた",
+      "食べます",
+      "食べて"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "27",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい過去形の文を選んでください。",
+    "options": [
+      "彼はご飯を食べる。",
+      "彼はご飯を食べました。",
+      "彼はご飯を食べている。",
+      "彼はご飯を食べます。"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "28",
+    "level": "A1",
+    "type": "synonym",
+    "question": "「うれしい」の同義語を選んでください。",
+    "options": [
+      "悲しい",
+      "楽しい",
+      "怒っている",
+      "疲れた"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "29",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい過去形の文を選んでください。",
+    "options": [
+      "彼はご飯を食べる。",
+      "彼はご飯を食べました。",
+      "彼はご飯を食べている。",
+      "彼はご飯を食べます。"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "30",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "私は金曜日にピザを___。",
+    "options": [
+      "食べる",
+      "食べた",
+      "食べます",
+      "食べて"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "31",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "私は金曜日にピザを___。",
+    "options": [
+      "食べる",
+      "食べた",
+      "食べます",
+      "食べて"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "32",
+    "level": "A1",
+    "type": "expression",
+    "question": "誰かに会ったときに何と言いますか？",
+    "options": [
+      "はじめまして",
+      "お腹が空きました",
+      "今日は暑いです",
+      "また明日"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "33",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "彼女は毎日学校に___。",
+    "options": [
+      "行きます",
+      "行く",
+      "行った",
+      "行って"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "34",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい過去形の文を選んでください。",
+    "options": [
+      "彼はご飯を食べる。",
+      "彼はご飯を食べました。",
+      "彼はご飯を食べている。",
+      "彼はご飯を食べます。"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "35",
+    "level": "A1",
+    "type": "synonym",
+    "question": "「速い」の同義語を選んでください。",
+    "options": [
+      "遅い",
+      "素早い",
+      "怠け者",
+      "弱い"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "36",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい過去形の文を選んでください。",
+    "options": [
+      "彼はご飯を食べる。",
+      "彼はご飯を食べました。",
+      "彼はご飯を食べている。",
+      "彼はご飯を食べます。"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "37",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい現在形の文を選んでください。",
+    "options": [
+      "私は映画を見た。",
+      "私は映画を見ています。",
+      "私は映画を見ます。",
+      "私は映画を見ていた。"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "38",
+    "level": "A1",
+    "type": "antonym",
+    "question": "「暑い」の反対語を選んでください。",
+    "options": [
+      "温かい",
+      "冷たい",
+      "熱い",
+      "辛い"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "39",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "私は金曜日にピザを___。",
+    "options": [
+      "食べる",
+      "食べた",
+      "食べます",
+      "食べて"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "40",
+    "level": "A1",
+    "type": "antonym",
+    "question": "「暑い」の反対語を選んでください。",
+    "options": [
+      "温かい",
+      "冷たい",
+      "熱い",
+      "辛い"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "41",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "私は金曜日にピザを___。",
+    "options": [
+      "食べる",
+      "食べた",
+      "食べます",
+      "食べて"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "42",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい現在形の文を選んでください。",
+    "options": [
+      "私は映画を見た。",
+      "私は映画を見ています。",
+      "私は映画を見ます。",
+      "私は映画を見ていた。"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "43",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい現在形の文を選んでください。",
+    "options": [
+      "私は映画を見た。",
+      "私は映画を見ています。",
+      "私は映画を見ます。",
+      "私は映画を見ていた。"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "44",
+    "level": "A1",
+    "type": "expression",
+    "question": "誰かに会ったときに何と言いますか？",
+    "options": [
+      "はじめまして",
+      "お腹が空きました",
+      "今日は暑いです",
+      "また明日"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "45",
+    "level": "A1",
+    "type": "grammar",
+    "question": "正しい現在形の文を選んでください。",
+    "options": [
+      "私は映画を見た。",
+      "私は映画を見ています。",
+      "私は映画を見ます。",
+      "私は映画を見ていた。"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "46",
+    "level": "A1",
+    "type": "synonym",
+    "question": "「速い」の同義語を選んでください。",
+    "options": [
+      "遅い",
+      "素早い",
+      "怠け者",
+      "弱い"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "47",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "彼女は毎日学校に___。",
+    "options": [
+      "行きます",
+      "行く",
+      "行った",
+      "行って"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "48",
+    "level": "A1",
+    "type": "synonym",
+    "question": "「うれしい」の同義語を選んでください。",
+    "options": [
+      "悲しい",
+      "楽しい",
+      "怒っている",
+      "疲れた"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "49",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "彼女は毎日学校に___。",
+    "options": [
+      "行きます",
+      "行く",
+      "行った",
+      "行って"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "50",
+    "level": "A1",
+    "type": "antonym",
+    "question": "「うれしい」の反対語を選んでください。",
+    "options": [
+      "怒っている",
+      "悲しい",
+      "楽しい",
+      "嬉しい"
+    ],
+    "answer_index": 1
+  }
+]

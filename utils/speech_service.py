@@ -1,10 +1,7 @@
 import asyncio
 import json
-import base64
-import io
 import aiohttp
-
-# Removed translation_cache as translation is now handled by the external API
+import io
 
 class SpeechTranslationService:
     def __init__(self):
@@ -47,65 +44,58 @@ class SpeechTranslationService:
         # Assume person 1 speaks language1, person 2 speaks language2
         return "1" if detected_lang == self.language1 else "2"
 
-    async def process_speech_via_api(self, audio_data_base64, audio_format, lang1, lang2):
-        """Process audio using a single Hugging Face API call for transcription and translation."""
+    async def process_speech_via_api(self, audio_binary, audio_format, lang1, lang2):
+        """Process audio using the HuggingFace API call for transcription and translation."""
         try:
             print(f"Processing {audio_format} audio data via Hugging Face API ({lang1} -> {lang2})...")
 
-            # Define the Hugging Face Space endpoint (adjust if different)
-            space_url = "https://monilm-lingual.hf.space/api/process_speech" # New assumed endpoint
+            # Use the actual Hugging Face Space endpoint
+            space_url = "https://monilm-lingual.hf.space/api/speech" 
 
-            payload = {
-                "audio": audio_data_base64, # Base64 encoded audio string
-                "format": audio_format,
-                "lang1": lang1, # Source language hint
-                "lang2": lang2  # Target language for translation
-            }
+            # Prepare the form data for the API request
+            form_data = aiohttp.FormData()
+            
+            # Add the audio binary directly to the form
+            form_data.add_field('audio', 
+                               audio_binary,
+                               filename=f'audio.{audio_format}',
+                               content_type=f'audio/{audio_format}')
+            
+            form_data.add_field('lang1', lang1)
+            form_data.add_field('lang2', lang2)
+            form_data.add_field('format', audio_format)
 
+            # Make the API request
             async with aiohttp.ClientSession() as session:
-                async with session.post(space_url, json=payload, timeout=90) as response: # Increased timeout
+                async with session.post(space_url, data=form_data, timeout=90) as response:
                     if response.status != 200:
                         error_text = await response.text()
                         raise Exception(f"Speech Processing API Error {response.status}: {error_text}")
 
                     result = await response.json()
 
-                    if result.get("status") == "error":
-                        raise Exception(f"Speech Processing error from API: {result.get('message')}")
-
-                    # --- Expected response structure from Hugging Face --- #
-                    original_text = result.get("original_text")
-                    detected_lang = result.get("detected_language") # Language code (e.g., 'en', 'hi')
-                    translated_text = result.get("translated_text")
-                    # ----------------------------------------------------- #
+                    # Process the actual response format from the API
+                    detected_lang = result.get("detected_language")
+                    transcribed_text = result.get("transcribed_text", "")
+                    translated_text = result.get("translated_text", "")
 
                     if not detected_lang:
                         print("Warning: API did not return detected_language. Falling back to lang1.")
-                        detected_lang = lang1 # Fallback if API doesn't provide it
+                        detected_lang = lang1
 
-                    # Validate detected language against the expected ones for this conversation
-                    if detected_lang not in [self.language1, self.language2]:
-                        print(f"Warning: API detected language '{detected_lang}' which is not language1 ('{self.language1}') or language2 ('{self.language2}'). Using it anyway.")
-                        # Decide if you want to force it to lang1 or trust the API
-                        # For now, we trust the API's detection for the 'original' field
-
+                    # Get the person identifier based on the detected language
                     person = self.get_person(detected_lang)
 
-                    if original_text is None or translated_text is None:
-                        # Handle cases where transcription or translation might be missing (e.g., silence)
-                        print(f"API returned partial result: Original: '{original_text}', Translated: '{translated_text}'")
-                        # Ensure we return empty strings instead of None
-                        original_text = original_text or ""
-                        translated_text = translated_text or ""
-
-                    print(f"API Result -> Detected: {detected_lang}, Person: {person}, Original: {original_text[:50]}..., Translated: {translated_text[:50]}...")
+                    print(f"API Result -> Detected: {detected_lang}, Person: {person}")
+                    print(f"Transcribed: {transcribed_text[:50]}...")
+                    print(f"Translated: {translated_text[:50]}...")
                     print("=================================")
 
-                    # Return the structured data expected by the frontend/caller
+                    # Return the response structure expected by frontend
                     return {
-                        "type": "translation", # Keep type consistent if frontend expects it
+                        "type": "translation",
                         "person": person,
-                        "original": {"text": original_text, "language": detected_lang},
+                        "original": {"text": transcribed_text, "language": detected_lang},
                         "translated": {"text": translated_text, "language": lang2 if detected_lang == lang1 else lang1},
                         "languageSettings": {
                             "language1": self.language1,
@@ -121,25 +111,22 @@ class SpeechTranslationService:
             print(f"Error processing speech via API: {str(e)}\n{traceback.format_exc()}")
             raise Exception(f"Error processing speech via API: {str(e)}")
 
-    # Removed translate_text_api method as it's now handled by process_speech_via_api
-
 # Create global service instance
 speech_service = SpeechTranslationService()
 
-# Updated function to use the single API call
-async def handle_speech_api_request(audio_data_base64, audio_format, lang1, lang2):
+# Main entry point for handling speech API requests - modified to accept file binary directly
+async def handle_speech_api_request(audio_binary, audio_format, lang1, lang2):
     """
-    Handles a single speech processing request using the consolidated API call.
+    Handles a single speech processing request using the HuggingFace API.
+    Accepts the audio binary directly rather than base64 encoded string.
     """
     try:
         # Set languages for this specific request context
-        if not speech_service.set_languages(lang1, lang2):
-             # This path might not be reachable if validation happens earlier
-             return {"type": "error", "message": "Failed to set languages."}
-
-        # Call the single API endpoint that handles both transcription and translation
-        result = await speech_service.process_speech_via_api(audio_data_base64, audio_format, lang1, lang2)
-
+        speech_service.set_languages(lang1, lang2)
+        
+        # Call the API endpoint with binary data directly
+        result = await speech_service.process_speech_via_api(audio_binary, audio_format, lang1, lang2)
+        
         return result
 
     except ValueError as e:

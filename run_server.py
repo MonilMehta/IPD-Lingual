@@ -1,7 +1,7 @@
 import threading
 import asyncio
 # from flask import Flask # No longer needed directly here
-from utils.user_auth import app # Import the Flask app instance
+from utils.api_handler import app # Import the Flask app instance
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
 # from hypercorn.middleware import AsyncioWSGIMiddleware # No longer needed

@@ -1,0 +1,602 @@
+[
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  },
+  {
+    "level": "B1",
+    "question": "ಕೆಳಗಿನ ವಾಕ್ಯಗಳಲ್ಲಿ ಯಾವದು ಸರಿಯಾಗಿರುತ್ತದೆ?",
+    "translation": "Which of the following sentences is correct?",
+    "options": [
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಿದ್ದಾನೆ.",
+      "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡುತ್ತಾಳೆ."
+    ],
+    "answer": "ಅವನು ನಿನ್ನೆ ಊಟ ಮಾಡಿದ."
+  },
+  {
+    "level": "A1",
+    "question": "ಅವಳು ಪ್ರತಿದಿನ ಶಾಲೆಗೆ ___ ಹೋಗುತ್ತಾಳೆ.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "ಹೋಗುತ್ತಾಳೆ",
+      "ಹೋಗುತ್ತಾನೆ",
+      "ಹೋಗು",
+      "ಹೋಗಿದೆ"
+    ],
+    "answer": "ಹೋಗುತ್ತಾಳೆ"
+  },
+  {
+    "level": "A2",
+    "question": "'ಖುಷಿ' ಗೆ ಸಮಾನಾರ್ಥಕ ಪದ ಯಾವದು?",
+    "translation": "What is the synonym of 'happy'?",
+    "options": [
+      "ದುಃಖ",
+      "ಸಂತೋಷ",
+      "ಕೋಪ",
+      "ಆಲಸ್ಯ"
+    ],
+    "answer": "ಸಂತೋಷ"
+  }
+]

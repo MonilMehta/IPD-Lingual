@@ -18,6 +18,7 @@ import base64 # Added import
 from utils.detection_service import DetectionService # Added import
 from utils.speech_service import handle_speech_api_request # Added import
 from googletrans import Translator # Add translator import if not already present
+from groq import Groq
 
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -768,8 +769,144 @@ def api_speech_config():
         # Add other config details as necessary
     }), 200
 
+@app.route("/phrase", methods=["POST"])
+@jwt_required()
+@swag_from({
+    'tags': ['Context'],
+    'description': 'Generate easy and medium example sentences for a given word, optionally translated.',
+    'parameters': [
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'word': {'type': 'string', 'description': 'The word detected that the user wants context for.'},
+                    'target_language': {'type': 'string', 'description': 'The target language code (e.g., "en", "hi", "es"). If omitted, uses user preference or defaults to English.'}
+                },
+                'required': ['word']
+            }
+        }
+    ],
+    'responses': {
+        '200': {
+            'description': 'Sentences generated successfully.',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'word': {'type': 'string'},
+                    'target_lang_code': {'type': 'string'},
+                    'target_lang_name': {'type': 'string'},
+                    'easy': {'type': 'string'},
+                    'medium': {'type': 'string'}
+                }
+            }
+        },
+        '400': {'description': 'Bad request (e.g., missing word, invalid language)'},
+        '500': {'description': 'Internal server error during generation or translation'}
+    }
+})
+async def generate_phrase():
+    data = request.get_json()
+    word = data.get('word')
+    target_language_param = data.get('target_language')
 
-# --- End New API Routes ---
+    if not word:
+        return jsonify({"status": "error", "message": "Missing required parameter: word"}), 400
+
+    current_user = get_jwt_identity()
+
+    # Determine target language
+    final_target_language_code = None
+    if target_language_param:
+        # Validate if the provided language code is in our mapping
+        if target_language_param in language_mapping.values():
+            final_target_language_code = target_language_param
+        else:
+            return jsonify({"status": "error", "message": f"Invalid target_language code provided. Supported codes: {list(language_mapping.values())}"}), 400
+    else:
+        # Fetch user's preferred language from DB
+        language_data = language_collection.find_one({"username": current_user})
+        if language_data and 'language' in language_data:
+            final_target_language_code = language_data['language']
+        else:
+            final_target_language_code = 'en' # Default to English
+
+    try:
+        # 1. Generate sentences in English using Groq
+        groq_client = Groq(api_key=config('GROQ_API_KEY')) # Assumes GROQ_API_KEY is in .env
+        chat_completion = groq_client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant. Generate two simple sentences using the provided word. The first sentence should be very easy (A1 level), and the second should be slightly more complex (A2/B1 level). Output ONLY the two sentences, separated by a newline. Do not add any other text, explanation, or labels like 'Easy:' or 'Medium:'."
+                },
+                {
+                    "role": "user",
+                    "content": f"Word: {word}"
+                }
+            ],
+            model="gemma2-9b-it",
+            temperature=0.7,
+            max_tokens=100,
+        )
+
+        generated_text = chat_completion.choices[0].message.content.strip()
+        sentences = generated_text.split('\n')
+        if len(sentences) < 2:
+             # Fallback or error handling if Gemma didn't return two sentences
+             print(f"Warning: Groq did not return two sentences for word '{word}'. Response: {generated_text}")
+             # You might want to retry or return a specific error
+             easy_sentence_en = f"This is a {word}." # Simple fallback
+             medium_sentence_en = f"I see a {word}." # Simple fallback
+        else:
+            easy_sentence_en = sentences[0].strip()
+            medium_sentence_en = sentences[1].strip()
+
+        # 2. Translate if necessary
+        easy_sentence_final = easy_sentence_en
+        medium_sentence_final = medium_sentence_en
+
+        if final_target_language_code != 'en':
+            translator = Translator()
+            try:
+                # Use await for the async translate method
+                easy_translation_task = translator.translate(easy_sentence_en, dest=final_target_language_code)
+                medium_translation_task = translator.translate(medium_sentence_en, dest=final_target_language_code)
+
+                # Await both translation tasks concurrently
+                easy_translation, medium_translation = await asyncio.gather(
+                    easy_translation_task,
+                    medium_translation_task
+                )
+
+                easy_sentence_final = easy_translation.text
+                medium_sentence_final = medium_translation.text
+            except Exception as trans_error:
+                 print(f"Translation error for language '{final_target_language_code}': {trans_error}")
+                 # Decide how to handle: return English, return error, etc.
+                 # For now, we'll return English with a note in the log
+                 pass # Keep English sentences
+
+        # Get target language display name
+        target_language_name = next((name for name, code in language_mapping.items()
+                                     if code == final_target_language_code), 'Unknown')
+
+        return jsonify({
+            "word": word,
+            "target_lang_code": final_target_language_code,
+            "target_lang_name": target_language_name,
+            "easy": easy_sentence_final,
+            "medium": medium_sentence_final
+        }), 200
+
+    except Exception as e:
+        import traceback
+        print(f"Error in /phrase: {e}\n{traceback.format_exc()}")
+        return jsonify({"status": "error", "message": f"Failed to generate phrase: {str(e)}"}), 500
+
+# --- End Phrase Generation Endpoint ---
 
 
 @app.route("/speech_test")

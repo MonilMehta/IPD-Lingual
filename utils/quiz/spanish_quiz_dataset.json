@@ -1,0 +1,652 @@
+[
+  {
+    "quiz_id": "1",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Elige el sinónimo de 'feliz'.",
+    "options": [
+      "triste",
+      "alegre",
+      "enojado",
+      "cansado"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "2",
+    "level": "A1",
+    "type": "grammar",
+    "question": "¿Cuál oración está en pasado correcto?",
+    "options": [
+      "Ella come anoche.",
+      "Ella comió anoche.",
+      "Ella comiendo anoche.",
+      "Ella come ayer."
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "3",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Elige el sinónimo de 'feliz'.",
+    "options": [
+      "triste",
+      "alegre",
+      "enojado",
+      "cansado"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "4",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "Yo ___ pizza los viernes.",
+    "options": [
+      "como",
+      "comes",
+      "comí",
+      "comiendo"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "5",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "Yo ___ pizza los viernes.",
+    "options": [
+      "como",
+      "comes",
+      "comí",
+      "comiendo"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "6",
+    "level": "A1",
+    "type": "expression",
+    "question": "¿Cómo dices 'Buenas noches' de manera educada?",
+    "options": [
+      "Adiós",
+      "Hasta luego",
+      "Duerme bien",
+      "Que tengas buenas noches"
+    ],
+    "answer_index": 3
+  },
+  {
+    "quiz_id": "7",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'feliz'.",
+    "options": [
+      "enojado",
+      "contento",
+      "triste",
+      "alegre"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "8",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'feliz'.",
+    "options": [
+      "enojado",
+      "contento",
+      "triste",
+      "alegre"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "9",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'caliente'.",
+    "options": [
+      "tibio",
+      "hervido",
+      "frío",
+      "picante"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "10",
+    "level": "A1",
+    "type": "grammar",
+    "question": "¿Cuál oración está en presente?",
+    "options": [
+      "Yo comí pizza.",
+      "Yo comeré pizza.",
+      "Yo como pizza.",
+      "Yo comiendo pizza."
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "11",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "Yo ___ pizza los viernes.",
+    "options": [
+      "como",
+      "comes",
+      "comí",
+      "comiendo"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "12",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'caliente'.",
+    "options": [
+      "tibio",
+      "hervido",
+      "frío",
+      "picante"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "13",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "Ella ___ a la escuela todos los días.",
+    "options": [
+      "va",
+      "voy",
+      "ir",
+      "fue"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "14",
+    "level": "A1",
+    "type": "expression",
+    "question": "¿Cómo dices 'Buenas noches' de manera educada?",
+    "options": [
+      "Adiós",
+      "Hasta luego",
+      "Duerme bien",
+      "Que tengas buenas noches"
+    ],
+    "answer_index": 3
+  },
+  {
+    "quiz_id": "15",
+    "level": "A1",
+    "type": "expression",
+    "question": "¿Qué dices al conocer a alguien?",
+    "options": [
+      "Mucho gusto",
+      "Tengo hambre",
+      "Hace calor",
+      "Hasta mañana"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "16",
+    "level": "A1",
+    "type": "grammar",
+    "question": "¿Cuál oración está en presente?",
+    "options": [
+      "Yo comí pizza.",
+      "Yo comeré pizza.",
+      "Yo como pizza.",
+      "Yo comiendo pizza."
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "17",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Elige el sinónimo de 'feliz'.",
+    "options": [
+      "triste",
+      "alegre",
+      "enojado",
+      "cansado"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "18",
+    "level": "A1",
+    "type": "expression",
+    "question": "¿Cómo dices 'Buenas noches' de manera educada?",
+    "options": [
+      "Adiós",
+      "Hasta luego",
+      "Duerme bien",
+      "Que tengas buenas noches"
+    ],
+    "answer_index": 3
+  },
+  {
+    "quiz_id": "19",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "Yo ___ pizza los viernes.",
+    "options": [
+      "como",
+      "comes",
+      "comí",
+      "comiendo"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "20",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Elige el sinónimo de 'rápido'.",
+    "options": [
+      "lento",
+      "veloz",
+      "flojo",
+      "débil"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "21",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "Ella ___ a la escuela todos los días.",
+    "options": [
+      "va",
+      "voy",
+      "ir",
+      "fue"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "22",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Elige el sinónimo de 'feliz'.",
+    "options": [
+      "triste",
+      "alegre",
+      "enojado",
+      "cansado"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "23",
+    "level": "A1",
+    "type": "expression",
+    "question": "¿Qué dices al conocer a alguien?",
+    "options": [
+      "Mucho gusto",
+      "Tengo hambre",
+      "Hace calor",
+      "Hasta mañana"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "24",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'caliente'.",
+    "options": [
+      "tibio",
+      "hervido",
+      "frío",
+      "picante"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "25",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'caliente'.",
+    "options": [
+      "tibio",
+      "hervido",
+      "frío",
+      "picante"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "26",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Elige el sinónimo de 'feliz'.",
+    "options": [
+      "triste",
+      "alegre",
+      "enojado",
+      "cansado"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "27",
+    "level": "A1",
+    "type": "expression",
+    "question": "¿Cómo dices 'Buenas noches' de manera educada?",
+    "options": [
+      "Adiós",
+      "Hasta luego",
+      "Duerme bien",
+      "Que tengas buenas noches"
+    ],
+    "answer_index": 3
+  },
+  {
+    "quiz_id": "28",
+    "level": "A1",
+    "type": "grammar",
+    "question": "¿Cuál oración está en pasado correcto?",
+    "options": [
+      "Ella come anoche.",
+      "Ella comió anoche.",
+      "Ella comiendo anoche.",
+      "Ella come ayer."
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "29",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'feliz'.",
+    "options": [
+      "enojado",
+      "contento",
+      "triste",
+      "alegre"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "30",
+    "level": "A1",
+    "type": "expression",
+    "question": "¿Qué dices al conocer a alguien?",
+    "options": [
+      "Mucho gusto",
+      "Tengo hambre",
+      "Hace calor",
+      "Hasta mañana"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "31",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'caliente'.",
+    "options": [
+      "tibio",
+      "hervido",
+      "frío",
+      "picante"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "32",
+    "level": "A1",
+    "type": "grammar",
+    "question": "¿Cuál oración está en pasado correcto?",
+    "options": [
+      "Ella come anoche.",
+      "Ella comió anoche.",
+      "Ella comiendo anoche.",
+      "Ella come ayer."
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "33",
+    "level": "A1",
+    "type": "expression",
+    "question": "¿Qué dices al conocer a alguien?",
+    "options": [
+      "Mucho gusto",
+      "Tengo hambre",
+      "Hace calor",
+      "Hasta mañana"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "34",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Elige el sinónimo de 'feliz'.",
+    "options": [
+      "triste",
+      "alegre",
+      "enojado",
+      "cansado"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "35",
+    "level": "A1",
+    "type": "expression",
+    "question": "¿Cómo dices 'Buenas noches' de manera educada?",
+    "options": [
+      "Adiós",
+      "Hasta luego",
+      "Duerme bien",
+      "Que tengas buenas noches"
+    ],
+    "answer_index": 3
+  },
+  {
+    "quiz_id": "36",
+    "level": "A1",
+    "type": "expression",
+    "question": "¿Qué dices al conocer a alguien?",
+    "options": [
+      "Mucho gusto",
+      "Tengo hambre",
+      "Hace calor",
+      "Hasta mañana"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "37",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "Yo ___ pizza los viernes.",
+    "options": [
+      "como",
+      "comes",
+      "comí",
+      "comiendo"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "38",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'feliz'.",
+    "options": [
+      "enojado",
+      "contento",
+      "triste",
+      "alegre"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "39",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "Ella ___ a la escuela todos los días.",
+    "options": [
+      "va",
+      "voy",
+      "ir",
+      "fue"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "40",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'caliente'.",
+    "options": [
+      "tibio",
+      "hervido",
+      "frío",
+      "picante"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "41",
+    "level": "A1",
+    "type": "grammar",
+    "question": "¿Cuál oración está en presente?",
+    "options": [
+      "Yo comí pizza.",
+      "Yo comeré pizza.",
+      "Yo como pizza.",
+      "Yo comiendo pizza."
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "42",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Elige el sinónimo de 'feliz'.",
+    "options": [
+      "triste",
+      "alegre",
+      "enojado",
+      "cansado"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "43",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Elige el sinónimo de 'feliz'.",
+    "options": [
+      "triste",
+      "alegre",
+      "enojado",
+      "cansado"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "44",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Elige el sinónimo de 'rápido'.",
+    "options": [
+      "lento",
+      "veloz",
+      "flojo",
+      "débil"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "45",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "Yo ___ pizza los viernes.",
+    "options": [
+      "como",
+      "comes",
+      "comí",
+      "comiendo"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "46",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'feliz'.",
+    "options": [
+      "enojado",
+      "contento",
+      "triste",
+      "alegre"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "47",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'caliente'.",
+    "options": [
+      "tibio",
+      "hervido",
+      "frío",
+      "picante"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "48",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Elige el sinónimo de 'feliz'.",
+    "options": [
+      "triste",
+      "alegre",
+      "enojado",
+      "cansado"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "49",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Elige el antónimo de 'caliente'.",
+    "options": [
+      "tibio",
+      "hervido",
+      "frío",
+      "picante"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "50",
+    "level": "A1",
+    "type": "grammar",
+    "question": "¿Cuál oración está en presente?",
+    "options": [
+      "Yo comí pizza.",
+      "Yo comeré pizza.",
+      "Yo como pizza.",
+      "Yo comiendo pizza."
+    ],
+    "answer_index": 2
+  }
+]

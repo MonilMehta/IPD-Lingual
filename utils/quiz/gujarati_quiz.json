@@ -1,0 +1,602 @@
+[
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  },
+  {
+    "level": "B1",
+    "question": "નીચેનું ક્યું વાક્ય વ્યાકરણ મુજબ યોગ્ય છે?",
+    "translation": "Which of the following sentences is grammatically correct?",
+    "options": [
+      "હું કાલે બઝારમાં ગયો.",
+      "હું ગઈ કાલે બજાર જાય છે.",
+      "હું કાલે બજાર જતી.",
+      "હું ગઈ કાલે બજાર ગયા."
+    ],
+    "answer": "હું કાલે બઝારમાં ગયો."
+  },
+  {
+    "level": "A1",
+    "question": "તે દરરોજ શાળાએ ___ છે.",
+    "translation": "He/She ___ to school every day.",
+    "options": [
+      "જાય છે",
+      "જતો છે",
+      "જઈ",
+      "જવાની"
+    ],
+    "answer": "જાય છે"
+  },
+  {
+    "level": "A2",
+    "question": "‘ખુશ’ માટે યોગ્ય સમાનાર્થક શબ્દ પસંદ કરો.",
+    "translation": "Choose the correct synonym for 'happy'.",
+    "options": [
+      "દુઃખી",
+      "મોજીલો",
+      "ગમગીન",
+      "ઉદાસ"
+    ],
+    "answer": "મોજીલો"
+  }
+]
