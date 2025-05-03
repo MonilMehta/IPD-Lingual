@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   TouchableOpacity,
@@ -11,122 +10,152 @@ import {
   StatusBar,
   Animated
 } from 'react-native';
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera"
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import * as SecureStore from 'expo-secure-store';
 import { useIsFocused, useFocusEffect } from '@react-navigation/native';
-import { Camera as CameraIcon, Settings, Languages, ChevronLeft, X, Save } from 'lucide-react-native';
+import { Camera as CameraIcon, Settings, Languages, ChevronLeft, X, Save, BookOpen } from 'lucide-react-native';
+import axios from 'axios';
+import { Badge, Modal, Portal, Switch, Card, Paragraph, Snackbar } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Import from our separated file
-import { WS_URL, setupWebSocket, Detection, CameraDimensions } from './websocket';
-import styles from './styles';
+// Import API_URL from constants
+import { API_URL } from '../../config/constants';
+// Import styles and THEME_COLOR from styles.ts
+import styles, { THEME_COLOR } from './styles';
+import { Marker } from './marker';
 
-const FRAME_INTERVAL = 2000; // Capture frame every 2 seconds
-const MAX_QUEUE_SIZE = 1; // Maximum number of frames in queue
+// Define the structure for API detection results
+interface ApiDetectionObject {
+  box: number[];
+  class: number;
+  confidence: number;
+  label: string; // Translated label
+  label_en: string; // English label
+  center?: number[]; // Keep center for marker positioning
+}
+
+interface DetectionApiResponse {
+  completed_challenge: boolean;
+  count: number;
+  message: string | null;
+  objects: ApiDetectionObject[];
+  profile_used: string;
+  status: string;
+  target_language: string;
+}
+
+// Update Detection type to match API response structure
+interface Detection extends ApiDetectionObject {}
+
+// Define the structure for Phrase API response
+interface PhraseApiResponse {
+    original_word: string;
+    sentence1: string;
+    sentence2: string;
+}
+
+
+const POLLING_INTERVAL = 18000; // Poll every 10 seconds
+const MAX_QUEUE_SIZE =2; // Keep this for managing concurrent requests
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-// Orange theme color from the login screen
-const THEME_COLOR = '#FF6B00';
+// Fallback token provided by the user
+const FALLBACK_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjI3NjgxMiwianRpIjoiNzZkYzA5OTItZjRkMS00NWRjLWIxOWUtZTA2ZWMyZTc2NDA1IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im1vbmlsIiwibmJmIjoxNzQ2Mjc2ODEyLCJjc3JmIjoiMmViYjJlNTItZTBlMS00NTFiLWJmYmYtZDFjYzI2OWVlNDFmIiwiZXhwIjoxNzQ2MzYzMjEyfQ.0nBVYytIMbGE6fa3P14TRQ6hLUFcjeqKVRQSjmZPhqg';
 
 export default function CameraScreen({ navigation }: any) {
   const [permission, requestPermission] = useCameraPermissions();
-  const [isConnected, setIsConnected] = useState(false);
+  // Removed WebSocket related state: isConnected, connectionStatus, webSocketRef, reconnectAttempts
   const [username, setUsername] = useState('');
   const [detections, setDetections] = useState<Detection[]>([]);
-  const [language, setLanguage] = useState('hi');
+  const [language, setLanguage] = useState('hi'); // Default language
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDetecting, setIsDetecting] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'connecting' | 'disconnected' | 'error'>('disconnected');
   const [cameraFacing, setCameraFacing] = useState<CameraType>('back');
   const [debugMode, setDebugMode] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
-  const [showGrid, setShowGrid] = useState(true);
+  const [showGrid, setShowGrid] = useState(true); // Keep this for UI toggle if needed
   const [cameraReady, setCameraReady] = useState(false);
-  
+  const [authToken, setAuthToken] = useState<string | null>(null); // State to hold the token
+  const [showSettings, setShowSettings] = useState(false);
+  const [flashEnabled, setFlashEnabled] = useState(false);
+  const [challengeNotified, setChallengeNotified] = useState(false);
+  const [showChallengeSnackbar, setShowChallengeSnackbar] = useState(false);
+  const [learnMoreData, setLearnMoreData] = useState<PhraseApiResponse | null>(null);
+
   const cameraRef = useRef<CameraView | null>(null);
-  const frameInterval = useRef<NodeJS.Timeout | null>(null);
-  const webSocketRef = useRef<WebSocket | null>(null);
-  const reconnectAttempts = useRef<number>(0);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null); // Changed from frameInterval
   const isFocused = useIsFocused();
-  const [queueSize, setQueueSize] = useState(0);
-  const lastCaptureTime = useRef(0);
+  const [queueSize, setQueueSize] = useState(0); // Keep for request management
+  const lastCaptureTime = useRef(0); // Keep for timing requests
   const bottomSheetAnim = useRef(new Animated.Value(0)).current;
   const [selectedDetection, setSelectedDetection] = useState<Detection | null>(null);
 
-  // Camera ratio for proper marker positioning
-  const [cameraDimensions, setCameraDimensions] = useState<CameraDimensions>({ 
+  const [cameraDimensions, setCameraDimensions] = useState<CameraDimensions>({
     width: Dimensions.get('window').width,
     height: Dimensions.get('window').height * 0.85
   });
 
-  // Add state for previous image data
-  const [previousImageData, setPreviousImageData] = useState<string | null>(null);
-  const [imageDiffThreshold] = useState(0.15); // 15% difference threshold
+  // Interface for CameraDimensions (if not already defined elsewhere)
+  interface CameraDimensions {
+    width: number;
+    height: number;
+  }
 
   useEffect(() => {
     (async () => {
       if (!permission?.granted) {
         await requestPermission();
       }
-      
-      // Get username from secure storage
+
       try {
         const userData = await SecureStore.getItemAsync('userData');
         if (userData) {
           const parsedData = JSON.parse(userData);
           setUsername(parsedData.username || 'monil');
+          // Optionally load saved language preference here
+          // const savedLang = await SecureStore.getItemAsync('language');
+          // if (savedLang) setLanguage(savedLang);
         } else {
-          setUsername('monil');
+          setUsername('monil'); // Default username
         }
+        setAuthToken(FALLBACK_TOKEN); 
+        // Retrieve the auth token
+        // const token = await SecureStore.getItemAsync('jwtToken'); // Assuming 'jwtToken' is the key used during login
+        // if (token) {
+        //   setAuthToken(token);
+        //   console.log('Auth token loaded from SecureStore.');
+        // } else {
+        //   console.log('No auth token found in SecureStore, using fallback.');
+        //   setAuthToken(FALLBACK_TOKEN); // Use fallback if no token found
+        // }
+        // Check if challenge notification was already shown
+        const notified = await AsyncStorage.getItem('challengeNotified');
+        setChallengeNotified(!!notified);
       } catch (err) {
-        console.error('Error retrieving username:', err);
+        console.error('Error retrieving user data or token:', err);
         setUsername('monil');
+        console.log('Using fallback token due to error.');
+        setAuthToken(FALLBACK_TOKEN); // Use fallback on error too
       }
     })();
   }, [permission]);
 
-  // Fix for black screen issue - "pre-recording" when screen comes into focus
-  useFocusEffect(
-    useCallback(() => {
-      const prepareCamera = async () => {
-        if (cameraRef.current && Platform.OS === "ios" && cameraReady) {
-          try {
-            console.log("Starting pre-recording to prevent black screens");
-            // Take a photo with minimal settings to initialize camera properly
-            await cameraRef.current.takePictureAsync({
-              quality: 0.2,
-              skipProcessing: true,
-              exif: false,
-              pause: false,
-              flash: 'off',
-              shutterSound: false,  // Explicitly disable shutter sound
-              ...(Platform.OS === 'android' && {
-                disableShutterSound: true, // Android-specific fallback
-                skipProcessing: false       // Crucial for Android
-              })
-            });
-          } catch (error) {
-            console.log("Pre-recording error:", error);
-          }
-        }
-      };
-      prepareCamera();
-    }, [cameraRef.current, cameraReady])
-  );
-
   useEffect(() => {
-    // Connect to WebSocket when screen is focused
-    if (isFocused) {
-      connectWebSocket();
+    // Start/Stop detection polling based on focus and isDetecting state
+    if (isFocused && isDetecting) {
+      startPollingDetection();
     } else {
-      // Cleanup when screen is not focused
-      cleanupResources();
+      stopPollingDetection();
     }
-    
-    return cleanupResources;
-  }, [isFocused]);
+
+    // Cleanup function
+    return () => {
+      stopPollingDetection();
+    };
+  }, [isFocused, isDetecting]); // Rerun effect when focus or detection state changes
 
   useEffect(() => {
     // Update device dimensions on layout change
@@ -137,275 +166,280 @@ export default function CameraScreen({ navigation }: any) {
       });
     };
 
-    Dimensions.addEventListener('change', updateDimensions);
-    
+    const dimensionsSubscription = Dimensions.addEventListener('change', updateDimensions);
+
     return () => {
-      // Clean up event listener
-      const dimensionsHandler = Dimensions.addEventListener('change', () => {});
-      dimensionsHandler.remove();
+      dimensionsSubscription.remove();
     };
   }, []);
 
-  const cleanupResources = () => {
-    // Stop detection
-    if (frameInterval.current) {
-      clearInterval(frameInterval.current);
-      frameInterval.current = null;
-      setIsDetecting(false);
+  // Removed cleanupResources as WebSocket is gone. Cleanup is handled in useEffect.
+
+  // Removed connectWebSocket function
+
+  const toggleDetection = () => {
+    setIsDetecting(prevState => !prevState); // Toggle detection state
+    if (!isDetecting) {
+      console.log('Starting detection polling...');
+      // Polling will start via useEffect
+    } else {
+      console.log('Stopping detection polling...');
+      // Polling will stop via useEffect
+      setDetections([]); // Clear detections when stopping
     }
-    
-    // Close WebSocket connection
-    if (webSocketRef.current) {
-      try {
-        webSocketRef.current.close();
-      } catch (e) {
-        console.log("Error closing WebSocket:", e);
-      }
-      webSocketRef.current = null;
-      setConnectionStatus('disconnected');
-      setIsConnected(false);
-    }
-    
-    // Clear detections
-    setDetections([]);
-    
-    // Reset reconnect attempts
-    reconnectAttempts.current = 0;
   };
 
-  const connectWebSocket = () => {
-    try {
-      // Close existing connection if any
-      if (webSocketRef.current) {
-        webSocketRef.current.close();
-      }
-      console.log('Connecting to WebSocket with lan:', language);
-      // Use the setupWebSocket function imported from WebSocketService
-      webSocketRef.current = setupWebSocket(
-        username,
-        language,
-        cameraDimensions,
-        {
-          onOpen: (ws) => {
-            setIsConnected(true);
-            reconnectAttempts.current = 0;
-          },
-          onMessage: (data) => {
-            // Handle other messages that aren't detections
-            if (data.type === 'error') {
-              console.error('Server error:', data.message);
-              setLastError(`Server: ${data.message}`);
-              setIsProcessing(false);
-              setQueueSize(prev => Math.max(0, prev - 1));
-            } else if (data.type === 'status') {
-              console.log('Status message:', data.message);
-              setIsProcessing(false);
-              setQueueSize(prev => Math.max(0, prev - 1));
-            }
-          },
-          onDetections: (adjustedDetections) => {
-            setDetections(adjustedDetections);
-            setIsProcessing(false);
-            setQueueSize(prev => Math.max(0, prev - 1));
-          },
-          onError: (error) => {
-            setLastError(`WS Error: ${error || 'Unknown error'}`);
-            setIsConnected(false);
-          },
-          onClose: (event) => {
-            // Auto reconnect if detection is active or if this wasn't a normal closure
-            if ((isDetecting && isFocused) || (event.code !== 1000 && isFocused)) {
-              // Exponential backoff for reconnection attempts (max 30 seconds)
-              const delay = Math.min(1000 * Math.pow(3, reconnectAttempts.current), 30000);
-              reconnectAttempts.current++;
-              
-              console.log(`Attempting to reconnect in ${delay/1000} seconds...`);
-              setTimeout(() => {
-                if (isFocused) { // Check if still focused before reconnecting
-                  connectWebSocket();
-                }
-              }, delay);
-            }
-          },
-          onStatusChange: (status) => {
-            setConnectionStatus(status);
-          }
-        },
-        debugMode
-      );
-    } catch (error) {
-      console.error('Error setting up WebSocket:', error);
-      if (error instanceof Error) {
-        console.error('Error name:', error.name);
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-        setLastError(`Setup error: ${error.message}`);
-      }
-      setConnectionStatus('error');
-      Alert.alert(
-        'Connection Error',
-        'Failed to connect to detection service. Please check your connection and try again.'
-      );
-    }
-  };
-  
-  const toggleDetection = () => {
-    if (!isDetecting) {
-      if (isConnected) {
-        console.log('Starting detection...');
-        startContinuousDetection();
-        setIsDetecting(true);
-      } else {
-        // Try to reconnect first
-        Alert.alert(
-          'Not Connected',
-          'Trying to connect to the detection service...',
-          [{ text: 'OK' }]
-        );
-        connectWebSocket();
-      }
-    } else {
-      console.log('Stopping detection...');
-      stopContinuousDetection();
-      setIsDetecting(false);
-    }
-  };
-  
-  const captureAndProcessFrame = async () => {
-    if (!cameraRef.current || !isConnected || isProcessing || !cameraReady) {
-      console.log('Skipping capture:', { 
-        hasCamera: !!cameraRef.current, 
-        isConnected, 
+  const captureAndSendFrame = async () => {
+    if (!cameraRef.current || isProcessing || !cameraReady) {
+      console.log('Skipping capture:', {
+        hasCamera: !!cameraRef.current,
         isProcessing,
         cameraReady
       });
       return;
     }
-    
+
+    // --- New: Test GET request to /api/current_language with auth ---
+    // try {
+    //   const testResponse = await fetch(`${API_URL}/api/current_language`, {
+    //     method: 'GET',
+    //     headers: {
+    //       'Authorization': `Bearer ${authToken}`,
+    //     },
+    //   });
+    //   if (!testResponse.ok) {
+    //     const errorText = await testResponse.text();
+    //     console.error('GET /api/current_language failed:', testResponse.status, errorText);
+    //     setLastError(`GET /api/current_language failed: ${testResponse.status}`);
+    //     return;
+    //   } else {
+    //     const testData = await testResponse.json();
+    //     console.log('GET /api/current_language success:', testData);
+    //   }
+    // } catch (err) {
+    //   console.error('Network or fetch error on /api/current_language:', err);
+    //   setLastError('Network error on /api/current_language');
+    //   return;
+    // }
+
+    // Basic check to prevent rapid firing if interval logic fails
     const currentTime = Date.now();
-    if (currentTime - lastCaptureTime.current < FRAME_INTERVAL) {
+    if (currentTime - lastCaptureTime.current < POLLING_INTERVAL / 2) { // Allow slightly faster than interval
       console.log('Too soon for next capture');
       return;
     }
-    
+
     if (queueSize >= MAX_QUEUE_SIZE) {
-      console.log('Queue full, skipping frame');
+      console.log('Request queue full, skipping frame');
       return;
     }
-    
+
+    if (!authToken) {
+        console.warn('Auth token not available, skipping detection.');
+        setLastError('Authentication token is missing.');
+        setIsProcessing(false);
+        setQueueSize(prev => Math.max(0, prev - 1)); // Decrement queue size even if skipped
+        return;
+    }
+
     try {
-      console.log('Starting frame capture...');
+      console.log('Starting frame capture for API...');
       setIsProcessing(true);
+      setQueueSize(prev => prev + 1);
       lastCaptureTime.current = currentTime;
-      
+      setLastError(null); // Clear previous error
+
       if (!cameraRef.current) {
         console.error('Camera ref is null');
-        setIsProcessing(false);
-        return;
+        throw new Error('Camera reference not available.');
       }
-      
-      // Use takePictureAsync with modified settings to prevent screen flashing
+
       const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.5,
-        base64: true,
+        quality: 0.5, // Moderate quality
         skipProcessing: true,
-        exif: false,
         scale: 0.5,
-        pause: false,      // Crucial: Don't pause the preview during capture
-        flash: 'off',      // Ensure flash is off
-        shutterSound: false // Explicitly disable shutter sound
+        base64: false, // No need for base64
       });
-      
+
       console.log('Photo captured:', photo.uri);
-      
-      // Use a lower quality compress to improve speed
+
+      // Resize image before sending
       const resized = await manipulateAsync(
         photo.uri,
-        [{ resize: { width: 640 } }],
-        { compress: 0.4, format: SaveFormat.JPEG, base64: true }
+        [{ resize: { width: 640 } }], // Standard processing size
+        { compress: 0.6, format: SaveFormat.JPEG } // No base64
       );
-      
-      // Check if the image is significantly different from the previous one
-    
-      
-      console.log('Photo resized, preparing to send');
-      
-      if (webSocketRef.current?.readyState === WebSocket.OPEN) {
-        setQueueSize(prev => prev + 1);
-        const frameData = {
-          type: 'frame',
-          data: `data:image/jpeg;base64,${resized.base64}`
-        };
-        
-        console.log('Sending frame to server');
-        webSocketRef.current.send(JSON.stringify(frameData));
-      } else {
-        console.log('WebSocket not connected');
-        setIsProcessing(false);
-        if (isDetecting) {
-          setLastError('WebSocket connection lost while detecting');
-          Alert.alert('Connection Lost', 'Reconnecting to detection service...');
-          connectWebSocket();
+
+      console.log('Photo resized, preparing FormData...');
+
+      // Get a filename from the resized image URI or use a default
+      const filename = resized.uri.split('/').pop() || 'photo.jpg';
+
+      // --- Create FormData payload ---
+      const formData = new FormData();
+
+      // Append the image file with the key 'image' using uri, name, type (React Native style)
+      formData.append('image', {
+        uri: resized.uri,
+        name: filename,
+        type: 'image/jpeg',
+      });
+
+      // Append other data as fields based on user request
+      formData.append('profile', 'casual'); // Keep profile
+      formData.append('target_language', language);
+      formData.append('iou', '0.5'); // Placeholder value, adjust if needed
+      formData.append('confidence', '0.4'); // Placeholder value, adjust if needed
+
+      // Log FormData keys to verify fields are added
+      try {
+        console.log('FormData keys:', [...(formData as any)._parts.map((part: any[]) => part[0])]);
+      } catch (logError) {
+        console.warn('Could not log FormData keys directly.');
+      }
+      console.log('Sending FormData to API via fetch...');
+
+      // --- Send FormData using fetch instead of Axios ---
+      try {
+        const response = await fetch(`${API_URL}/api/detect`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            // Do NOT set 'Content-Type' for FormData in fetch; let fetch set it automatically
+          },
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`API Error (${response.status}): ${errorText}`);
         }
+  
+        const data: DetectionApiResponse = await response.json();
+        console.log('API Response received (fetch):', data.status, 'Count:', data.count);
+  
+        if (data.status === 'success' && Array.isArray(data.objects)) {
+          // Validate and process detections
+          console.log("Data : ", data);
+          const validDetections = data.objects.filter((det: ApiDetectionObject) => {
+            return (
+              Array.isArray(det.box) &&
+              det.box.length === 4 &&
+              !det.box.some((coord: number) => isNaN(coord)) &&
+              det.box[2] > det.box[0] && // width > 0
+              det.box[3] > det.box[1]    // height > 0
+            );
+          });
+  
+          // Adjust coordinates and add center points
+          const adjustedDetections = validDetections.map((det: ApiDetectionObject) => {
+            // Calculate center of the box, add a small offset to the right
+            const scaleX = cameraDimensions.width / 1280; // Your API's image width
+            const scaleY = cameraDimensions.height / 960; // Your API's image height
+            const x1 = det.box[0];
+            const y1 = det.box[1];
+            const x2 = det.box[2];
+            const y2 = det.box[3];
+            let centerX = ((x1 + x2) / 2) * scaleX;
+            let centerY = ((y1 + y2) / 2) * scaleY;
+            centerX += 18; // Move marker a bit to the right for better alignment
+            return {
+              ...det,
+              markerPosition: [centerX, centerY]
+            };
+          });
+  
+          console.log('Processed detections:', adjustedDetections.length);
+          if (debugMode) {
+            console.log('Detection details:', JSON.stringify(adjustedDetections));
+          }
+  
+          setDetections(adjustedDetections);
+  
+          // Handle challenge completion if needed
+          if (data.completed_challenge && !challengeNotified) {
+            setShowChallengeSnackbar(true);
+            setChallengeNotified(true);
+            await AsyncStorage.setItem('challengeNotified', 'true');
+          }
+  
+        } else if (data.status !== 'success') {
+          console.warn('API returned non-success status:', data.message || data.status);
+          setLastError(`API Status: ${data.message || data.status}`);
+          setDetections([]); // Clear detections on non-success
+        } else {
+           setDetections([]); // Clear detections if objects array is missing or not an array
+        }
+  
+      } catch (err) {
+        console.error('Error capturing or processing frame (fetch):', err);
+        setLastError(`Detection Error: ${err instanceof Error ? err.message : String(err)}`);
+        setDetections([]);
+      } finally {
+        setIsProcessing(false);
+        setQueueSize(prev => Math.max(0, prev - 1));
       }
     } catch (err) {
-      console.error('Error capturing frame:', err instanceof Error ? err.message : 'Unknown error');
-      setLastError(`Frame capture: ${err instanceof Error ? err.message : 'Unknown error'}`);
-      setIsProcessing(false);
-    }
-  };
-  
- 
+      // Log the entire error object for more details
+      console.error('Error capturing or processing frame (fetch):', err);
 
-  const startContinuousDetection = async () => {
-    if (!isConnected || !cameraRef.current) {
-      console.log('Cannot start detection:', { isConnected, hasCamera: !!cameraRef.current });
-      return;
-    }
-    
-    console.log('Starting continuous detection');
-    
-    // Clear any existing interval first
-    if (frameInterval.current) {
-      clearInterval(frameInterval.current);
-    }
-    
-    // Call once immediately to start faster
-    captureAndProcessFrame();
-    
-    // Set up interval for continuous capture
-    frameInterval.current = setInterval(captureAndProcessFrame, FRAME_INTERVAL / 2); // Use half the interval for more reliable capture
-    console.log('Detection interval started with interval', FRAME_INTERVAL / 2, 'ms');
-  };
-  
-  const stopContinuousDetection = () => {
-    if (frameInterval.current) {
-      clearInterval(frameInterval.current);
-      frameInterval.current = null;
-      
-      // Send stop message if connected
-      if (webSocketRef.current?.readyState === WebSocket.OPEN) {
-        webSocketRef.current.send(JSON.stringify({
-          type: 'stop'
-        }));
+      // Axios error handling
+      let errorMessage = 'Unknown error during detection';
+      if (axios.isAxiosError(err)) {
+        console.error('Axios error details:', {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status,
+          headers: err.response?.headers,
+          config: err.config,
+        });
+        if (err.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          errorMessage = `API Error (${err.response.status}): ${JSON.stringify(err.response.data) || err.message}`;
+        } else if (err.request) {
+          // The request was made but no response was received
+          errorMessage = 'Network request failed: No response received from server.';
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          errorMessage = `Request setup error: ${err.message}`;
+        }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
       }
-      
-      // Clear detections
-      setDetections([]);
+
+      setLastError(`Detection Error: ${errorMessage}`);
+      setDetections([]); // Clear detections on error
+    } finally {
+      setIsProcessing(false);
+      setQueueSize(prev => Math.max(0, prev - 1));
     }
   };
 
-  // Update language preference
-  useEffect(() => {
-    if (webSocketRef.current?.readyState === WebSocket.OPEN) {
-      webSocketRef.current.send(JSON.stringify({
-        type: 'set_language',
-        language:'hi'
-      }));
+  const startPollingDetection = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current); // Clear existing interval
     }
-  }, [language]);
+    console.log(`Starting polling every ${POLLING_INTERVAL / 1000} seconds`);
+    // Call immediately first time
+    captureAndSendFrame();
+    // Set up interval
+    pollIntervalRef.current = setInterval(captureAndSendFrame, POLLING_INTERVAL);
+  };
 
-  // Show bottom sheet when a detection is selected
+  const stopPollingDetection = () => {
+    if (pollIntervalRef.current) {
+      console.log('Stopping polling detection');
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+    setIsProcessing(false); // Ensure processing state is reset
+    setQueueSize(0); // Reset queue
+  };
+
+  // Removed useEffect for language update via WebSocket
+
+  // Bottom Sheet Animation Logic (Keep as is)
   const showBottomSheet = () => {
     Animated.spring(bottomSheetAnim, {
       toValue: 1,
@@ -413,7 +447,6 @@ export default function CameraScreen({ navigation }: any) {
     }).start();
   };
 
-  // Hide bottom sheet
   const hideBottomSheet = () => {
     Animated.spring(bottomSheetAnim, {
       toValue: 0,
@@ -422,27 +455,141 @@ export default function CameraScreen({ navigation }: any) {
     setSelectedDetection(null);
   };
 
-  // Handle detection press
   const handleDetectionPress = (detection: Detection) => {
     setSelectedDetection(detection);
     showBottomSheet();
   };
 
+  // --- New API Call Functions ---
+
+  const handleSaveDetection = async (detection: Detection) => {
+    if (!detection || !authToken) {
+        if (!authToken) console.warn('Auth token not available for saving detection.');
+        return;
+    }
+    console.log('Saving detection:', detection.label_en);
+    try {
+      const response = await fetch(`${API_URL}/api/store_detection`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`, // Add Authorization header
+        },
+        body: JSON.stringify({
+          username: username,
+          label_en: detection.label_en,
+          label_translated: detection.label, // Assuming 'label' is the translated one
+          confidence: detection.confidence,
+          box: detection.box, // Send original box coordinates
+          target_language: language,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Save Error (${response.status}): ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log('Save result:', result);
+      Alert.alert('Saved', `${detection.label_en} (${detection.label}) saved successfully.`);
+      hideBottomSheet();
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error saving detection';
+      console.error('Error saving detection:', errorMessage);
+      Alert.alert('Save Failed', `Could not save detection: ${errorMessage}`);
+    }
+  };
+
+  const handleLearnMore = async (word: string) => {
+    if (!word || !authToken) {
+        if (!authToken) console.warn('Auth token not available for fetching phrases.');
+        return;
+    }
+    console.log(`Fetching phrases for: ${word} in ${language}`);
+    try {
+      const response = await fetch(`${API_URL}/api/phrase`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`, // Add Authorization header
+        },
+        body: JSON.stringify({
+          word: word,
+          target_language: language,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Phrase Error (${response.status}): ${errorText}`);
+      }
+
+      const data: PhraseApiResponse = await response.json();
+      console.log('Phrase API response:', data);
+
+      // Display the phrases in an alert
+      setLearnMoreData(data); // Show in popup
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error fetching phrases';
+      console.error('Error fetching phrases:', errorMessage);
+      Alert.alert('Learn More Failed', `Could not fetch phrases: ${errorMessage}`);
+    }
+  };
+
+  // Helper: Render grid overlay
+  const renderGrid = () => {
+    if (!showGrid) return null;
+    const lines = [];
+    const numLines = 2; // 2 vertical, 2 horizontal (rule of thirds)
+    const w = cameraDimensions.width;
+    const h = cameraDimensions.height;
+    for (let i = 1; i <= numLines; i++) {
+      // Vertical lines
+      lines.push(
+        <View key={`v-${i}`} style={{ position: 'absolute', left: (w * i) / (numLines + 1), top: 0, width: 1, height: h, backgroundColor: 'rgba(255,255,255,0.2)' }} />
+      );
+      // Horizontal lines
+      lines.push(
+        <View key={`h-${i}`} style={{ position: 'absolute', top: (h * i) / (numLines + 1), left: 0, width: w, height: 1, backgroundColor: 'rgba(255,255,255,0.2)' }} />
+      );
+    }
+    return <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, width: w, height: h }}>{lines}</View>;
+  };
+
+  // --- Render Logic ---
+
   if (!permission) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={THEME_COLOR} />
-        <Text style={styles.statusText}>Loading camera permissions...</Text>
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#181818' }]}> 
+        <View style={{ alignItems: 'center', marginBottom: 30 }}>
+          <CameraIcon size={60} color="#FF6B00" />
+        </View>
+        <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>Camera Permission Needed</Text>
+        <Text style={{ color: '#bbb', fontSize: 15, textAlign: 'center', marginBottom: 30, maxWidth: 280 }}>
+          To use the camera features, please grant camera access to the app.
+        </Text>
+        <TouchableOpacity style={{ backgroundColor: '#FF6B00', borderRadius: 25, paddingVertical: 14, paddingHorizontal: 40 }} onPress={requestPermission}>
+          <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Grant Permission</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
   if (!permission.granted) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.message}>We need your permission to show the camera</Text>
-        <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
-          <Text style={styles.permissionButtonText}>Grant Permission</Text>
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#181818' }]}> 
+        <View style={{ alignItems: 'center', marginBottom: 30 }}>
+          <CameraIcon size={60} color="#FF6B00" />
+        </View>
+        <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>Camera Permission Needed</Text>
+        <Text style={{ color: '#bbb', fontSize: 15, textAlign: 'center', marginBottom: 30, maxWidth: 280 }}>
+          To use the camera features, please grant camera access to the app.
+        </Text>
+        <TouchableOpacity style={{ backgroundColor: '#FF6B00', borderRadius: 25, paddingVertical: 14, paddingHorizontal: 40 }} onPress={requestPermission}>
+          <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Grant Permission</Text>
         </TouchableOpacity>
       </View>
     );
@@ -450,7 +597,7 @@ export default function CameraScreen({ navigation }: any) {
 
   const bottomSheetTranslateY = bottomSheetAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [200, 0],
+    outputRange: [300, 0], // Adjusted output range for potentially taller content
   });
 
   return (
@@ -459,11 +606,9 @@ export default function CameraScreen({ navigation }: any) {
       <CameraView
         ref={cameraRef}
         style={styles.camera}
-        animateShutter={false}  // Explicitly set to false to disable shutter animation
+        animateShutter={false} // Ensure shutter animation is off
         facing={cameraFacing}
-        // Add these important props to prevent screen flashing
-        useCamera2Api={Platform.OS === 'android'} // Use Camera2 API on Android
-        videoStabilizationMode="auto" // Enable stabilization if available
+        flash={flashEnabled ? 'torch' : 'off'}
         onCameraReady={() => {
           console.log('Camera ready');
           setCameraReady(true);
@@ -473,102 +618,75 @@ export default function CameraScreen({ navigation }: any) {
           setLastError(`Camera mount error: ${error.message}`);
         }}
       >
-        {/* Top Bar */}
+        {/* Top Bar with Status Chip on Right */}
         <View style={styles.topBar}>
-          <TouchableOpacity 
-            style={styles.topBarButton} 
+          <TouchableOpacity
+            style={styles.topBarButton}
             onPress={() => navigation?.goBack?.()}
           >
             <ChevronLeft size={24} color="white" />
           </TouchableOpacity>
-          
-          <View style={styles.topBarRight}>
-            <TouchableOpacity 
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 8 }}>
+              <Badge
+                style={{ backgroundColor: isDetecting ? '#4CD964' : '#888', marginRight: 6 }}
+                size={22}
+              >
+                {isDetecting ? 'ON' : 'OFF'}
+              </Badge>
+            </View>
+            <TouchableOpacity
               style={styles.topBarButton}
-              onPress={() => setShowGrid(!showGrid)}
-            >
-              <Languages size={24} color="white" />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.topBarButton}
-              onPress={() => setDebugMode(!debugMode)}
+              onPress={() => setShowSettings(true)}
             >
               <Settings size={24} color="white" />
             </TouchableOpacity>
           </View>
         </View>
-        
-        {/* Connection Status Indicator */}
-        <View style={[
-          styles.statusBar, 
-          {backgroundColor: connectionStatus === 'connected' ? 'rgba(76, 217, 100, 0.7)' : 
-                          connectionStatus === 'connecting' ? 'rgba(255, 204, 0, 0.7)' : 
-                          'rgba(255, 59, 48, 0.7)'}
-        ]}>
-          <Text style={styles.statusText}>
-            {connectionStatus === 'connected' ? 'Connected' : 
-             connectionStatus === 'connecting' ? 'Connecting...' : 'Disconnected'}
-          </Text>
-        </View>
-        
+
+        {/* Grid Overlay */}
+        {renderGrid()}
+
         {/* Debug Information */}
         {debugMode && (
-          <View style={styles.debugInfo}>
-            <Text style={styles.debugText}>Status: {connectionStatus}</Text>
-            <Text style={styles.debugText}>Connected: {isConnected ? 'Yes' : 'No'}</Text>
-            <Text style={styles.debugText}>Detections: {detections.length}</Text>
+          <View style={[styles.debugInfo, { maxWidth: 220, top: 120, left: 20 }]}> 
+            <Text style={styles.debugText}>Status: {isDetecting ? 'Detecting' : 'Idle'}</Text>
             <Text style={styles.debugText}>Processing: {isProcessing ? 'Yes' : 'No'}</Text>
-            <Text style={styles.debugText}>Language: {language}</Text>
-            <Text style={styles.debugText}>Username: {username || 'Not set'}</Text>
-            <Text style={styles.debugText}>WebSocket URL: {WS_URL}</Text>
+            <Text style={styles.debugText}>Detections: {detections.length}</Text>
+            <Text style={styles.debugText}>Lang: {language}</Text>
+            <Text style={styles.debugText}>User: {username || 'Not set'}</Text>
             {lastError && <Text style={styles.debugErrorText}>Error: {lastError}</Text>}
           </View>
         )}
-        
-        {/* Processing Indicator */}
-        {isProcessing && (
+
+        {/* Processing Indicator (corner only) */}
+        {isProcessing && queueSize > 0 && (
           <View style={styles.processingContainer}>
-            <ActivityIndicator 
-              size="small" 
-              color="#ffffff" 
-            />
+            <ActivityIndicator size="small" color="#ffffff" />
           </View>
         )}
-        
-        {/* Render detection markers instead of boxes */}
+
+        {/* Render detection markers using Marker component */}
         {detections.map((detection, index) => {
-          // Ensure center coordinates are valid
-          if (!detection.center || 
-              isNaN(detection.center[0]) || 
-              isNaN(detection.center[1])) {
-            return null;
-          }
-          
+          if (!detection.markerPosition) return null;
           return (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.detectionMarker,
-                {
-                  left: detection.center[0] - 12, // Center the marker
-                  top: detection.center[1] - 12,  // Center the marker
-                }
-              ]}
+            <Marker
+              key={`${index}-${detection.label_en}`}
+              position={{ x: detection.markerPosition[0] - 16, y: detection.markerPosition[1] - 16 }}
+              isSelected={selectedDetection?.label_en === detection.label_en}
+              label={detection.label_en}
               onPress={() => handleDetectionPress(detection)}
-            >
-              <View style={styles.markerDot} />
-            </TouchableOpacity>
+            />
           );
         })}
       </CameraView>
-      
-      {/* Bottom Controls Bar */}
+
+      {/* Bottom Controls Bar (Keep as is) */}
       <View style={styles.controls}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.controlButton}
           onPress={() => setCameraFacing(
-            currentType => currentType === 'back' ? 'front' : 'back'
+            (currentType: CameraType) => currentType === 'back' ? 'front' : 'back' // Added type annotation
           )}
         >
           <CameraIcon size={24} color="white" />
@@ -578,52 +696,96 @@ export default function CameraScreen({ navigation }: any) {
         <TouchableOpacity
           style={[styles.detectionButton, isDetecting && styles.stopButton]}
           onPress={toggleDetection}
+          disabled={!cameraReady} // Disable button until camera is ready
         >
           <Text style={styles.detectionButtonText}>
             {isDetecting ? 'Stop' : 'Start'} Detection
           </Text>
         </TouchableOpacity>
       </View>
-      
+
+      {/* Settings Modal */}
+      <Portal>
+        <Modal visible={showSettings} onDismiss={() => setShowSettings(false)} contentContainerStyle={{ backgroundColor: 'white', margin: 30, borderRadius: 16, padding: 20 }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 16 }}>Camera Settings</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+            <Text style={{ flex: 1 }}>Show Grid</Text>
+            <Switch value={showGrid} onValueChange={setShowGrid} />
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+            <Text style={{ flex: 1 }}>Flashlight</Text>
+            <Switch value={flashEnabled} onValueChange={setFlashEnabled} />
+          </View>
+          <TouchableOpacity onPress={() => setShowSettings(false)} style={{ marginTop: 20, alignSelf: 'flex-end' }}>
+            <Text style={{ color: '#FF6B00', fontWeight: 'bold' }}>Close</Text>
+          </TouchableOpacity>
+        </Modal>
+      </Portal>
+
+      {/* Challenge Complete Snackbar */}
+      <Snackbar
+        visible={showChallengeSnackbar}
+        onDismiss={() => setShowChallengeSnackbar(false)}
+        duration={3500}
+        style={{ backgroundColor: '#4CD964', borderRadius: 12, margin: 16 }}
+      >
+        🎉 Challenge Complete! You've completed a detection challenge.
+      </Snackbar>
+
       {/* Bottom Sheet for Selected Detection */}
       {selectedDetection && (
         <Animated.View
           style={[
             styles.bottomSheet,
-            { transform: [{ translateY: bottomSheetTranslateY }] }
+            { transform: [{ translateY: bottomSheetTranslateY }], padding: 0, backgroundColor: '#f8f8f8' }
           ]}
         >
-          <View style={styles.bottomSheetHandle} />
-          <View style={styles.bottomSheetHeader}>
-            <Text style={styles.bottomSheetTitle}>{selectedDetection.label}</Text>
-            <TouchableOpacity onPress={hideBottomSheet}>
-              <X size={24} color="#333" />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.bottomSheetContent}>
-            <View style={styles.translationItem}>
-              <Text style={styles.translationLabel}>Original:</Text>
-              <Text style={styles.translationText}>{selectedDetection.label}</Text>
+          <Card style={{ borderTopLeftRadius: 20, borderTopRightRadius: 20, elevation: 0, backgroundColor: '#fff' }}>
+            <View style={styles.bottomSheetHandle} />
+            <View style={[styles.bottomSheetHeader, { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 }]}> 
+              <Text style={[styles.bottomSheetTitle, { fontSize: 20 }]}>{selectedDetection.label_en}</Text>
+              <TouchableOpacity onPress={hideBottomSheet}>
+                <X size={24} color="#333" />
+              </TouchableOpacity>
             </View>
-            <View style={styles.translationItem}>
-              <Text style={styles.translationLabel}>Translation:</Text>
-              <Text style={styles.translationText}>{selectedDetection.translated}</Text>
-            </View>
-            <View style={styles.translationItem}>
-              <Text style={styles.translationLabel}>Confidence:</Text>
-              <Text style={styles.translationText}>{(selectedDetection.confidence * 100).toFixed(1)}%</Text>
-            </View>
-            
-            {/* Add save button */}
-            <TouchableOpacity style={styles.saveButton} onPress={() => {
-              // Handle save functionality here
-              Alert.alert('Saved', 'Detection saved successfully');
-              hideBottomSheet();
-            }}>
-              <Save size={20} color="white" />
-              <Text style={styles.saveButtonText}>Save Detection</Text>
-            </TouchableOpacity>
-          </View>
+            <Card.Content style={{ paddingTop: 0 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                <Badge style={{ backgroundColor: '#FF6B00', marginRight: 12, width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' }} size={32}>
+                  {selectedDetection.label_en[0]}
+                </Badge>
+                <View>
+                  <Text style={{ color: '#888', fontSize: 15, marginTop: 2 }}>Translation:</Text>
+                  <Text style={{ color: '#333', fontSize: 17, fontWeight: '600' }}>{selectedDetection.label}</Text>
+                </View>
+              </View>
+              {/* Divider */}
+              <View style={{ height: 1, backgroundColor: '#eee', marginVertical: 10 }} />
+              {/* Learn More Section */}
+              {learnMoreData && learnMoreData.original_word === selectedDetection.label_en && (
+                <View style={{ backgroundColor: '#eaf6ff', borderRadius: 8, padding: 14, marginBottom: 8 }}>
+                  <Text style={{ color: '#007AFF', fontWeight: 'bold', marginBottom: 8, fontSize: 16 }}>Learn More</Text>
+                  <Text style={{ color: '#333', fontSize: 15, marginBottom: 6 }}>{learnMoreData.sentence1}</Text>
+                  <Text style={{ color: '#333', fontSize: 15 }}>{learnMoreData.sentence2}</Text>
+                </View>
+              )}
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 18 }}>
+                <TouchableOpacity
+                  style={[styles.actionButton, styles.learnMoreButton, { flex: 1, justifyContent: 'center' }]}
+                  onPress={() => handleLearnMore(selectedDetection.label_en)}
+                >
+                  <BookOpen size={20} color="white" />
+                  <Text style={styles.actionButtonText}>Learn More</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.actionButton, styles.saveButton, { flex: 1, justifyContent: 'center' }]}
+                  onPress={() => handleSaveDetection(selectedDetection)}
+                >
+                  <Save size={20} color="white" />
+                  <Text style={styles.actionButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </Card.Content>
+          </Card>
         </Animated.View>
       )}
     </View>

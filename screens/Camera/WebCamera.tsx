@@ -1,64 +1,160 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
-import { ChevronLeft, Languages, Settings, X, Save, Camera as CameraIcon } from 'lucide-react-native';
-import { Marker } from './marker';
-import { CAMERA_WS_URL } from '../../config/constants'; // Import the constant
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Platform,
+  ActivityIndicator,
+  Alert // Added Alert
+} from 'react-native';
+import { ChevronLeft, Languages, Settings, X, Save, Camera as CameraIcon, BookOpen } from 'lucide-react-native'; // Added BookOpen
+import { API_URL } from '../../config/constants'; // Import API_URL
+import * as SecureStore from 'expo-secure-store'; // Needed for username
+
+// Interfaces from index.tsx (should be moved to a shared types file ideally)
+interface ApiDetectionObject {
+  box: number[];
+  class: number;
+  confidence: number;
+  label: string; // Translated label
+  label_en: string; // English label
+  center?: number[];
+}
+
+interface DetectionApiResponse {
+  completed_challenge: boolean;
+  count: number;
+  message: string | null;
+  objects: ApiDetectionObject[];
+  profile_used: string;
+  status: string;
+  target_language: string;
+}
+
+interface Detection extends ApiDetectionObject {}
+
+interface PhraseApiResponse {
+    original_word: string;
+    sentence1: string;
+    sentence2: string;
+}
+
+// --- Inline Marker Component for Web ---
+interface WebMarkerProps {
+  position: { x: number; y: number };
+  isSelected: boolean;
+  label: string; // Translated label
+  label_en: string; // English label
+  onPress: () => void;
+}
+
+const WebMarker: React.FC<WebMarkerProps> = ({ position, isSelected, label, label_en, onPress }) => {
+  // Basic marker styling, adjust as needed
+  const markerStyle: React.CSSProperties = {
+    position: 'absolute',
+    left: position.x - 8, // Center the dot
+    top: position.y - 8,
+    width: 16,
+    height: 16,
+    borderRadius: '50%',
+    backgroundColor: isSelected ? 'rgba(255, 107, 0, 0.9)' : 'rgba(255, 255, 255, 0.7)',
+    border: '2px solid white',
+    cursor: 'pointer',
+    transform: isSelected ? 'scale(1.2)' : 'scale(1)',
+    transition: 'transform 0.1s ease-in-out, background-color 0.1s ease-in-out',
+    zIndex: isSelected ? 10 : 1,
+  };
+
+  const labelStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: '100%', // Position below the marker
+    left: '50%',
+    transform: 'translateX(-50%)',
+    marginTop: '5px',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    color: 'white',
+    padding: '4px 8px',
+    borderRadius: '4px',
+    fontSize: '12px',
+    whiteSpace: 'nowrap', // Prevent wrapping
+    zIndex: 11,
+  };
+
+  return (
+    // Use div for web elements
+    <div style={markerStyle} onClick={onPress} title={label_en}>
+      {isSelected && (
+        <div style={labelStyle}>
+          {label} ({label_en})
+        </div>
+      )}
+    </div>
+  );
+};
+// --- End Inline Marker Component ---
 
 const THEME_COLOR = '#FF6B00';
-const ACCENT_COLOR = '#6366F1';
+const POLLING_INTERVAL = 10000; // Poll every 10 seconds
+const MAX_QUEUE_SIZE = 1; // Manage concurrent requests
 
 export function WebCamera({ navigation }: any) {
-  const [isConnected, setIsConnected] = useState(false);
-  const [isStreaming, setIsStreaming] = useState(false);
+  // Removed WebSocket state: isConnected, socketRef
+  // Removed streaming state: isStreaming, streamIntervalRef
+  const [isDetecting, setIsDetecting] = useState(false); // Replaces isStreaming
   const [isProcessing, setIsProcessing] = useState(false);
-  const [messages, setMessages] = useState<string[]>([]);
-  const [detections, setDetections] = useState<any[]>([]);
-  const [selectedDetection, setSelectedDetection] = useState<any | null>(null);
+  const [messages, setMessages] = useState<string[]>([]); // Keep for debug
+  const [detections, setDetections] = useState<Detection[]>([]); // Use Detection type
+  const [selectedDetection, setSelectedDetection] = useState<Detection | null>(null);
   const [showDebug, setShowDebug] = useState(false);
   const [permissionState, setPermissionState] = useState<'prompt'|'granted'|'denied'>('prompt');
-  
-  const socketRef = useRef<WebSocket | null>(null);
+  const [username, setUsername] = useState('web-user'); // Default username for web
+  const [language, setLanguage] = useState('hi'); // Default language
+  const [lastError, setLastError] = useState<string | null>(null);
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const streamIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [queueSize, setQueueSize] = useState(0);
+  const lastCaptureTime = useRef(0);
 
-  // Check for camera permissions on component mount
+  // Check permissions and load username on mount
   useEffect(() => {
     checkCameraPermissions();
-    return () => {
-      stopStreaming();
-      if (socketRef.current) {
-        socketRef.current.close();
+    // Load username (similar to native, maybe abstract this)
+    (async () => {
+      try {
+        // SecureStore might not work reliably on web, consider alternatives if needed
+        const userData = await SecureStore.getItemAsync('userData');
+        if (userData) {
+          const parsedData = JSON.parse(userData);
+          setUsername(parsedData.username || 'web-user');
+        } else {
+          setUsername('web-user');
+        }
+      } catch (err) {
+        console.error('Error retrieving user data on web:', err);
+        setUsername('web-user');
       }
+    })();
+
+    return () => {
+      stopPollingDetection(); // Cleanup polling on unmount
+      stopVideoStream(); // Stop video stream
     };
   }, []);
 
-  // Add animation for spinner in web
+  // Start/Stop polling based on isDetecting state
   useEffect(() => {
-    if (Platform.OS === 'web') {
-      const existingStyle = document.getElementById('spinner-animation');
-      if (!existingStyle) {
-        const styleSheet = document.createElement('style');
-        styleSheet.id = 'spinner-animation';
-        styleSheet.textContent = `
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `;
-        document.head.appendChild(styleSheet);
-      }
-      
-      // Cleanup on unmount
-      return () => {
-        const styleElement = document.getElementById('spinner-animation');
-        if (styleElement) {
-          styleElement.remove();
-        }
-      };
+    if (isDetecting && permissionState === 'granted') {
+      startPollingDetection();
+    } else {
+      stopPollingDetection();
     }
-  }, []);
+    // No return cleanup needed here as it's handled in the main unmount effect
+  }, [isDetecting, permissionState]);
 
+  // ... (keep checkCameraPermissions, requestCameraPermission) ...
   const checkCameraPermissions = async () => {
     try {
       // Check if we can access permission state
@@ -92,169 +188,206 @@ export function WebCamera({ navigation }: any) {
   };
 
   const requestCameraPermission = async () => {
+    // ... existing implementation ...
+    // Ensure startVideoStream is called after permission is granted
     try {
       if (!navigator?.mediaDevices?.getUserMedia) {
         addMessage("❌ Camera API not supported in this browser");
         return;
       }
-      
-      await navigator.mediaDevices.getUserMedia({ video: true })
-        .then(() => {
-          setPermissionState('granted');
-          addMessage("✅ Camera permission granted");
-        })
-        .catch((err) => {
-          console.error("Camera permission error:", err);
-          setPermissionState('denied');
-          addMessage("❌ Camera permission denied");
-        });
-    } catch (error) {
-      console.error("Error requesting camera permission:", error);
-      setPermissionState('denied');
-      addMessage(`❌ Error requesting permission: ${error}`);
-    }
-  };
 
-  const connectWebSocket = () => {
-    try {
-      addMessage('Connecting to WebSocket server...');
-      console.log(`Attempting to connect to WebSocket at ${CAMERA_WS_URL}`); // Use constant
-      socketRef.current = new WebSocket(CAMERA_WS_URL); // Use constant
-      
-      socketRef.current.onopen = () => {
-        addMessage('✅ Connected to server');
-        setIsConnected(true);
-        socketRef.current?.send(JSON.stringify({
-          type: 'start',
-          username: 'web-user'
-        }));
-      };
-
-      socketRef.current.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === 'detection' && Array.isArray(data.results)) {
-            addMessage(`Detected ${data.results.length} objects`);
-            
-            // Convert server coordinates to center points for markers
-            const validDetections = data.results.filter((det: any) => {
-              return (
-                Array.isArray(det.box) && 
-                det.box.length === 4 &&
-                !det.box.some((coord: number) => isNaN(coord)) &&
-                det.box[2] > det.box[0] && 
-                det.box[3] > det.box[1]
-              );
-            });
-            
-            const adjustedDetections = validDetections.map((det: any) => {
-              // Calculate center point of detection
-              const centerX = (det.box[0] + det.box[2]) / 2;
-              const centerY = (det.box[1] + det.box[3]) / 2;
-              
-              return {
-                ...det,
-                center: [centerX, centerY]
-              };
-            });
-            
-            setDetections(adjustedDetections);
-            setIsProcessing(false);
-          }
-        } catch (e) {
-          addMessage(`Error processing message: ${e}`);
-          setIsProcessing(false);
-        }
-      };
-
-      socketRef.current.onclose = () => {
-        addMessage('❌ Disconnected from server');
-        setIsConnected(false);
-        setIsStreaming(false);
-        setDetections([]);
-      };
-
-      socketRef.current.onerror = (error) => {
-        addMessage(`WebSocket error: ${error}`);
-      };
-
-    } catch (error) {
-      addMessage(`Connection error: ${error}`);
-    }
-  };
-
-  const startStreaming = async () => {
-    try {
-      // Always request permission before starting stream
-      if (permissionState !== 'granted') {
-        await requestCameraPermission();
-        // Exit if permission not granted after request
-        if (permissionState === 'denied') return;
-      }
-      
-      // Double-check permission state
-      if (!navigator?.mediaDevices?.getUserMedia) {
-        addMessage('❌ Camera access not available');
-        return;
-      }
-      
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480 }
-      });
-      
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        setPermissionState('granted'); // Set permission state directly since we got a stream
+        setPermissionState('granted');
+        addMessage("✅ Camera permission granted and stream started");
+        // Don't automatically start detection polling here, let the button handle it
+      } else {
+         addMessage("❌ Video element not ready");
+         stream.getTracks().forEach(track => track.stop()); // Stop stream if video element isn't ready
       }
-      
-      setIsStreaming(true);
-      streamIntervalRef.current = setInterval(() => {
-        sendFrame();
-      }, 1000); // Send frame every second
-      
     } catch (error) {
-      addMessage(`Camera error: ${error}`);
+      console.error("Camera permission/stream error:", error);
+      setPermissionState('denied');
+      addMessage(`❌ Camera error: ${error}`);
     }
   };
 
-  const stopStreaming = () => {
-    if (streamIntervalRef.current) {
-      clearInterval(streamIntervalRef.current);
-      streamIntervalRef.current = null;
+  // Renamed from startStreaming
+  const startVideoStream = async () => {
+    if (permissionState !== 'granted') {
+      await requestCameraPermission();
     }
-    
+    // If permission is now granted, the video stream should already be active
+    // from the requestCameraPermission function.
+    // If it failed, permissionState will be 'denied' and polling won't start.
+  };
+
+  // Renamed from stopStreaming
+  const stopVideoStream = () => {
     if (videoRef.current?.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach(track => track.stop());
       videoRef.current.srcObject = null;
+      addMessage("⏹️ Video stream stopped");
     }
-    
-    setIsStreaming(false);
-    setDetections([]);
   };
 
-  const sendFrame = () => {
-    if (!canvasRef.current || !videoRef.current || !socketRef.current) return;
-    
-    const context = canvasRef.current.getContext('2d');
-    if (!context) return;
+  // Removed connectWebSocket function
 
-    setIsProcessing(true);
-    
+  // Replaces sendFrame - captures and sends via API
+  const captureAndSendFrame = async () => {
+    if (!canvasRef.current || !videoRef.current || isProcessing || permissionState !== 'granted') {
+       console.log('Skipping capture:', { hasCanvas: !!canvasRef.current, hasVideo: !!videoRef.current, isProcessing, permissionState });
+      return;
+    }
+
+    const currentTime = Date.now();
+    if (currentTime - lastCaptureTime.current < POLLING_INTERVAL / 2) {
+      console.log('Too soon for next capture');
+      return;
+    }
+
+    if (queueSize >= MAX_QUEUE_SIZE) {
+      console.log('Request queue full, skipping frame');
+      return;
+    }
+
+    const context = canvasRef.current.getContext('2d');
+    if (!context) {
+      addMessage('❌ Canvas context not available');
+      return;
+    }
+
     try {
-      // Draw video frame to canvas without interrupting the video stream
+      addMessage('Capturing frame for API...');
+      setIsProcessing(true);
+      setQueueSize(prev => prev + 1);
+      lastCaptureTime.current = currentTime;
+      setLastError(null);
+
       context.drawImage(videoRef.current, 0, 0, 640, 480);
-      const dataURL = canvasRef.current.toDataURL('image/jpeg', 0.6);
-      
-      // Compare with previous frame if implemented
-      // For now, always send the frame
-      socketRef.current.send(JSON.stringify({
-        type: 'frame',
-        data: dataURL
-      }));
+      // Get base64 data URL
+      const dataURL = canvasRef.current.toDataURL('image/jpeg', 0.6); // Moderate quality/compression
+
+      const requestBody = {
+        image_data: dataURL,
+        username: username,
+        target_language: language,
+        profile: "tourist" // Assuming 'tourist' profile
+      };
+
+      addMessage('Sending frame to API...');
+      const response = await fetch(`${API_URL}/api/detect`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API Error (${response.status}): ${errorText}`);
+      }
+
+      const data: DetectionApiResponse = await response.json();
+      addMessage(`API Response: ${data.status}, Count: ${data.count}`);
+
+      if (data.status === 'success' && Array.isArray(data.objects)) {
+        const validDetections = data.objects.filter((det: ApiDetectionObject) => {
+          return (
+            Array.isArray(det.box) &&
+            det.box.length === 4 &&
+            !det.box.some((coord: number) => isNaN(coord)) &&
+            det.box[2] > det.box[0] &&
+            det.box[3] > det.box[1]
+          );
+        });
+
+        // Adjust coordinates for display (relative to 640x480 video)
+        const adjustedDetections = validDetections.map((det: ApiDetectionObject) => {
+          // API coordinates seem to be based on the processed image size (e.g., 640x480)
+          // Center calculation remains the same relative to that size.
+          const centerX = (det.box[0] + det.box[2]) / 2;
+          const centerY = (det.box[1] + det.box[3]) / 2;
+
+          return {
+            ...det,
+            center: [centerX, centerY]
+          };
+        });
+
+        if (showDebug) {
+          addMessage(`Processed Detections: ${JSON.stringify(adjustedDetections)}`);
+        }
+        setDetections(adjustedDetections);
+
+        if (data.completed_challenge) {
+          // Use Alert for consistency with native
+          Alert.alert("Challenge Complete!", "You've completed a detection challenge.");
+        }
+
+      } else if (data.status !== 'success') {
+        addMessage(`API Status: ${data.message || data.status}`);
+        setLastError(`API Status: ${data.message || data.status}`);
+        setDetections([]);
+      } else {
+        setDetections([]);
+      }
+
     } catch (err) {
-      console.error('Error capturing frame:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error during detection';
+      addMessage(`❌ Error: ${errorMessage}`);
+      console.error('Error capturing or processing frame:', errorMessage);
+      setLastError(`Detection Error: ${errorMessage}`);
+      setDetections([]);
+    } finally {
       setIsProcessing(false);
+      setQueueSize(prev => Math.max(0, prev - 1));
+    }
+  };
+
+  const startPollingDetection = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+    }
+    addMessage(`Starting polling every ${POLLING_INTERVAL / 1000} seconds`);
+    captureAndSendFrame(); // Initial call
+    pollIntervalRef.current = setInterval(captureAndSendFrame, POLLING_INTERVAL);
+  };
+
+  const stopPollingDetection = () => {
+    if (pollIntervalRef.current) {
+      addMessage('Stopping polling detection');
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+    setIsProcessing(false);
+    setQueueSize(0);
+    setDetections([]); // Clear detections when stopping polling
+  };
+
+  const toggleDetection = async () => {
+    if (!isDetecting) {
+      // Ensure video stream is running before starting detection
+      if (!videoRef.current?.srcObject) {
+        await startVideoStream();
+        // If permission was denied or stream failed, startVideoStream handles it,
+        // and the useEffect for isDetecting won't start polling.
+      }
+      // Only set isDetecting if permission is granted
+      if (permissionState === 'granted') {
+         addMessage('▶️ Starting detection...');
+         setIsDetecting(true); // This will trigger the useEffect to start polling
+      } else {
+          addMessage('⚠️ Cannot start detection without camera permission.');
+      }
+    } else {
+      addMessage('⏹️ Stopping detection...');
+      setIsDetecting(false); // This will trigger the useEffect to stop polling
+      // Optionally stop the video stream as well, or keep it running
+      // stopVideoStream();
     }
   };
 
@@ -262,7 +395,7 @@ export function WebCamera({ navigation }: any) {
     setMessages(prev => [`[${new Date().toLocaleTimeString()}] ${message}`, ...prev.slice(0, 19)]);
   };
 
-  const handleDetectionPress = (detection: any) => {
+  const handleDetectionPress = (detection: Detection) => {
     setSelectedDetection(detection);
   };
 
@@ -270,32 +403,95 @@ export function WebCamera({ navigation }: any) {
     setSelectedDetection(null);
   };
 
-  // Render camera permission UI if permission is not yet granted
+  // --- New API Call Functions (similar to native) ---
+
+  const handleSaveDetection = async (detection: Detection) => {
+    if (!detection) return;
+    addMessage(`Saving detection: ${detection.label_en}`);
+    try {
+      const response = await fetch(`${API_URL}/api/store_detection`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          label_en: detection.label_en,
+          label_translated: detection.label,
+          confidence: detection.confidence,
+          box: detection.box,
+          target_language: language,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Save Error (${response.status}): ${errorText}`);
+      }
+
+      const result = await response.json();
+      addMessage(`Save result: ${JSON.stringify(result)}`);
+      Alert.alert('Saved', `${detection.label_en} (${detection.label}) saved successfully.`);
+      closeSelectedDetection();
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error saving detection';
+      addMessage(`❌ Save Failed: ${errorMessage}`);
+      console.error('Error saving detection:', errorMessage);
+      Alert.alert('Save Failed', `Could not save detection: ${errorMessage}`);
+    }
+  };
+
+  const handleLearnMore = async (word: string) => {
+    if (!word) return;
+    addMessage(`Fetching phrases for: ${word} in ${language}`);
+    try {
+      const response = await fetch(`${API_URL}/api/phrase`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          word: word,
+          target_language: language,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Phrase Error (${response.status}): ${errorText}`);
+      }
+
+      const data: PhraseApiResponse = await response.json();
+      addMessage(`Phrase API response: ${JSON.stringify(data)}`);
+
+      Alert.alert(
+        `Learn about "${data.original_word}"`,
+        `1. ${data.sentence1}\n\n2. ${data.sentence2}`,
+        [{ text: 'OK' }]
+      );
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error fetching phrases';
+      addMessage(`❌ Learn More Failed: ${errorMessage}`);
+      console.error('Error fetching phrases:', errorMessage);
+      Alert.alert('Learn More Failed', `Could not fetch phrases: ${errorMessage}`);
+    }
+  };
+
+  // --- Render Logic ---
+
+  // Render camera permission UI
   if (permissionState === 'prompt' || permissionState === 'denied') {
-    return (
+    // ... (keep existing permission UI) ...
+     return (
       <View style={styles.permissionContainer}>
-        <View style={styles.topBar}>
-          <TouchableOpacity 
-            style={styles.topBarButton} 
-            onPress={() => navigation?.goBack?.()}
-          >
-            <ChevronLeft size={24} color="white" />
-          </TouchableOpacity>
-        </View>
-        
+        {/* ... Top bar ... */} 
         <View style={styles.permissionContent}>
-          <CameraIcon size={64} color={THEME_COLOR} style={{ marginBottom: 20 }} />
-          <Text style={styles.permissionTitle}>
-            {permissionState === 'prompt' ? 'Camera Access Required' : 'Camera Access Denied'}
-          </Text>
-          <Text style={styles.permissionText}>
-            {permissionState === 'prompt' 
-              ? 'This app needs access to your camera to detect objects.' 
-              : 'Please enable camera access in your browser settings to use this feature.'}
-          </Text>
-          <TouchableOpacity 
+          {/* ... Icon, Title, Text ... */}
+          <TouchableOpacity
             style={styles.permissionButton}
-            onPress={requestCameraPermission}
+            onPress={requestCameraPermission} // This now also starts the stream
           >
             <Text style={styles.permissionButtonText}>
               {permissionState === 'prompt' ? 'Enable Camera Access' : 'Try Again'}
@@ -306,25 +502,21 @@ export function WebCamera({ navigation }: any) {
     );
   }
 
+  // Main camera view render
   return (
     <View style={styles.container}>
       {/* Top Bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity 
-          style={styles.topBarButton} 
-          onPress={() => navigation?.goBack?.()}
-        >
-          <ChevronLeft size={24} color="white" />
-        </TouchableOpacity>
-        
-        <View style={styles.topBarRight}>
-          <TouchableOpacity 
+         {/* ... Back Button ... */} 
+         <TouchableOpacity
             style={styles.topBarButton}
+            onPress={() => navigation?.goBack?.()}
           >
-            <Languages size={24} color="white" />
+            <ChevronLeft size={24} color="white" />
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+        <View style={styles.topBarRight}>
+           {/* ... Language Button (optional) ... */} 
+          <TouchableOpacity
             style={styles.topBarButton}
             onPress={() => setShowDebug(!showDebug)}
           >
@@ -332,27 +524,21 @@ export function WebCamera({ navigation }: any) {
           </TouchableOpacity>
         </View>
       </View>
-      
-      {/* Connection Status */}
+
+      {/* Status Indicator (Detecting/Idle) */}
       <View style={[
-        styles.statusBar, 
-        {backgroundColor: isConnected ? 'rgba(76, 217, 100, 0.8)' : 'rgba(255, 59, 48, 0.8)'}
+        styles.statusBar,
+        {backgroundColor: isDetecting ? 'rgba(76, 217, 100, 0.8)' : 'rgba(100, 100, 100, 0.7)'}
       ]}>
         <Text style={styles.statusText}>
-          {isConnected ? 'Connected' : 'Disconnected'}
+          {isDetecting ? 'Detecting...' : 'Idle'}
+          {isProcessing ? ' (Processing)' : ''}
         </Text>
       </View>
 
       {/* Video Container */}
       <View style={styles.videoContainer}>
-        <View style={[
-          styles.videoWrapper,
-          Platform.OS === 'web' && { 
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-            overflow: 'hidden'
-          }
-        ]}>
-          {/* Fixed using React Native's View as container and HTML video element handled properly */}
+        <View style={styles.videoWrapper}>
           <video
             ref={videoRef}
             autoPlay
@@ -363,6 +549,7 @@ export function WebCamera({ navigation }: any) {
               height: 480,
               backgroundColor: '#333',
               objectFit: 'cover',
+              borderRadius: 12, // Match wrapper
             }}
           />
           <canvas
@@ -371,20 +558,22 @@ export function WebCamera({ navigation }: any) {
             height={480}
             style={{display: 'none'}}
           />
-          
-          {/* Render Detection Markers */}
+
+          {/* Render Detection Markers using WebMarker */}
           {detections.map((detection, index) => (
-            <Marker
-              key={index}
-              position={{ x: detection.center[0], y: detection.center[1] }}
-              isSelected={selectedDetection && selectedDetection === detection}
-              label={detection.translated || detection.label}
+            <WebMarker // Use the new inline component
+              key={`${index}-${detection.label_en}`}
+              position={{ x: detection.center?.[0] ?? 0, y: detection.center?.[1] ?? 0 }}
+              isSelected={selectedDetection === detection}
+              label={detection.label}
+              label_en={detection.label_en}
               onPress={() => handleDetectionPress(detection)}
             />
           ))}
-          
+
           {/* Processing indicator */}
           {isProcessing && (
+             // ... existing processing indicator ...
             <View style={styles.processingIndicator}>
               <ActivityIndicator size="small" color="#fff" />
               <Text style={styles.processingText}>Processing...</Text>
@@ -395,94 +584,79 @@ export function WebCamera({ navigation }: any) {
 
       {/* Controls */}
       <View style={styles.controls}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
-            styles.detectionButton, 
-            isStreaming && styles.stopButton,
-            Platform.OS === 'web' && {
-              boxShadow: isStreaming 
-                ? '0 2px 8px rgba(255,59,48,0.4)' 
-                : '0 2px 8px rgba(255,107,0,0.4)'
-            }
+            styles.detectionButton,
+            isDetecting && styles.stopButton,
+            // ... web shadow styles ...
           ]}
-          onPress={() => {
-            if (!isConnected && !isStreaming) {
-              connectWebSocket();
-            } else if (isConnected && !isStreaming) {
-              startStreaming();
-            } else {
-              stopStreaming();
-            }
-          }}
+          onPress={toggleDetection} // Use the combined toggle function
+          disabled={permissionState !== 'granted'} // Disable if no permission
         >
           <Text style={styles.detectionButtonText}>
-            {!isConnected ? 'Connect' : !isStreaming ? 'Start Detection' : 'Stop Detection'}
+            {isDetecting ? 'Stop Detection' : 'Start Detection'}
           </Text>
         </TouchableOpacity>
       </View>
 
       {/* Debug Messages */}
       {showDebug && (
-        <View style={[
-          styles.messages,
-          Platform.OS === 'web' && { 
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            overflow: 'scroll'
-          }
-        ]}>
+        <View style={styles.messages}>
           <Text style={styles.messagesHeader}>Debug Messages</Text>
-          {messages.length > 0 ? (
-            messages.map((msg, i) => (
-              <Text key={i} style={[
-                styles.message,
-                Platform.OS === 'web' && { fontFamily: 'monospace' }
-              ]}>
-                {msg}
-              </Text>
-            ))
-          ) : (
-            <Text style={styles.noMessages}>No messages yet</Text>
-          )}
+          {messages.map((msg, i) => (
+            <Text key={i} style={styles.message}>{msg}</Text>
+          ))}
+          {lastError && <Text style={[styles.message, {color: 'red'}]}>Error: {lastError}</Text>}
         </View>
       )}
 
-      {/* Selected Detection Details */}
+      {/* Selected Detection Details (Bottom Sheet equivalent) */}
       {selectedDetection && (
-        <View style={[
-          styles.detectionDetails,
-          Platform.OS === 'web' && { boxShadow: '0 -2px 10px rgba(0,0,0,0.2)' }
-        ]}>
+        <View style={styles.detectionDetails}>
           <View style={styles.detectionDetailsHeader}>
-            <Text style={styles.detectionTitle}>{selectedDetection.label}</Text>
-            <TouchableOpacity 
-              style={styles.closeButton} 
+            {/* Use English label as title */}
+            <Text style={styles.detectionTitle}>{selectedDetection.label_en}</Text>
+            <TouchableOpacity
+              style={styles.closeButton}
               onPress={closeSelectedDetection}
             >
               <X size={24} color="#fff" />
             </TouchableOpacity>
           </View>
-          
+
           <View style={styles.detectionContent}>
+            {/* Display both labels */}
             <View style={styles.detectionItem}>
-              <Text style={styles.detectionLabel}>Original:</Text>
-              <Text style={styles.detectionText}>{selectedDetection.label}</Text>
+              <Text style={styles.detectionLabel}>Original (en):</Text>
+              <Text style={styles.detectionText}>{selectedDetection.label_en}</Text>
             </View>
             <View style={styles.detectionItem}>
-              <Text style={styles.detectionLabel}>Translation:</Text>
-              <Text style={styles.detectionText}>{selectedDetection.translated || 'No translation'}</Text>
+              <Text style={styles.detectionLabel}>Translation ({language}):</Text>
+              <Text style={styles.detectionText}>{selectedDetection.label}</Text>
             </View>
             <View style={styles.detectionItem}>
               <Text style={styles.detectionLabel}>Confidence:</Text>
               <Text style={styles.detectionText}>{(selectedDetection.confidence * 100).toFixed(1)}%</Text>
             </View>
-            
-            <TouchableOpacity style={styles.saveButton} onPress={() => {
-              addMessage(`Saved: ${selectedDetection.label}`);
-              closeSelectedDetection();
-            }}>
-              <Save size={20} color="white" />
-              <Text style={styles.saveButtonText}>Save Detection</Text>
-            </TouchableOpacity>
+
+            {/* Action Buttons */}
+            <View style={styles.actionButtonsContainer}> // Added container for layout
+              <TouchableOpacity
+                style={[styles.actionButton, styles.learnMoreButton]} // Use new styles
+                onPress={() => handleLearnMore(selectedDetection.label_en)}
+              >
+                <BookOpen size={20} color="white" />
+                <Text style={styles.actionButtonText}>Learn More</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.actionButton, styles.saveButton]} // Use new styles
+                onPress={() => handleSaveDetection(selectedDetection)}
+              >
+                <Save size={20} color="white" />
+                <Text style={styles.actionButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       )}
@@ -492,18 +666,19 @@ export function WebCamera({ navigation }: any) {
 
 // Using StyleSheet.create for proper type checking
 const styles = StyleSheet.create({
+  // ... (Keep existing styles: container, permission*, topBar*, statusBar, statusText, video*, controls, detectionButton*, stopButton, detectionButtonText, messages*, message*, noMessages, processing*) ...
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f7', // Light gray background instead of black
+    backgroundColor: '#f5f5f7',
   },
   permissionContainer: {
-    flex: 1, 
+    flex: 1,
     backgroundColor: '#f5f5f7',
   },
   permissionContent: {
     flex: 1,
-    justifyContent: 'center', 
-    alignItems: 'center', 
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
   permissionTitle: {
@@ -535,7 +710,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#333', // Darker top bar
+    backgroundColor: '#333',
   },
   topBarButton: {
     width: 40,
@@ -549,11 +724,12 @@ const styles = StyleSheet.create({
   topBarRight: {
     flexDirection: 'row',
   },
-  statusBar: {
+   statusBar: {
     alignSelf: 'center',
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 15,
+    marginTop: 10, // Added margin top
     marginBottom: 10,
   },
   statusText: {
@@ -571,6 +747,8 @@ const styles = StyleSheet.create({
     height: 480,
     borderRadius: 12,
     overflow: 'hidden',
+    backgroundColor: '#333', // Background for the wrapper
+     ...(Platform.OS === 'web' && { boxShadow: '0 4px 12px rgba(0,0,0,0.1)' })
   },
   controls: {
     flexDirection: 'row',
@@ -586,9 +764,11 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
+     ...(Platform.OS === 'web' && { boxShadow: '0 2px 8px rgba(255,107,0,0.4)' })
   },
   stopButton: {
     backgroundColor: 'rgba(255, 59, 48, 0.9)',
+     ...(Platform.OS === 'web' && { boxShadow: '0 2px 8px rgba(255,59,48,0.4)' })
   },
   detectionButtonText: {
     color: 'white',
@@ -601,6 +781,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     maxHeight: 200,
     margin: 15,
+     ...(Platform.OS === 'web' && { boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflowY: 'scroll' })
   },
   messagesHeader: {
     fontSize: 16,
@@ -615,6 +796,7 @@ const styles = StyleSheet.create({
     color: '#555',
     fontSize: 12,
     marginBottom: 6,
+     ...(Platform.OS === 'web' && { fontFamily: 'monospace' })
   },
   noMessages: {
     color: '#999',
@@ -623,7 +805,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
-  processingIndicator: {
+   processingIndicator: {
     position: 'absolute',
     top: 10,
     right: 10,
@@ -638,6 +820,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginLeft: 5,
   },
+
+  // Styles for Detection Details (Bottom Sheet equivalent)
   detectionDetails: {
     position: 'absolute',
     bottom: 0,
@@ -645,8 +829,10 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: 'rgba(51, 51, 51, 0.95)',
     padding: 20,
+    paddingBottom: 30, // More padding at bottom
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    ...(Platform.OS === 'web' && { boxShadow: '0 -2px 10px rgba(0,0,0,0.2)' })
   },
   detectionDetailsHeader: {
     flexDirection: 'row',
@@ -671,37 +857,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   detectionContent: {
-    marginBottom: 20,
+    // Removed marginBottom: 20
   },
   detectionItem: {
     flexDirection: 'row',
     marginBottom: 14,
+    alignItems: 'center', // Align items vertically
   },
   detectionLabel: {
     fontSize: 16,
     fontWeight: '600',
     color: '#aaa',
-    width: 100,
+    width: 120, // Increased width for labels
   },
   detectionText: {
     fontSize: 16,
     color: '#fff',
     flex: 1,
   },
-  saveButton: {
+  // Container for action buttons
+  actionButtonsContainer: {
     flexDirection: 'row',
-    backgroundColor: THEME_COLOR,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginTop: 20,
+    justifyContent: 'space-around',
+    marginTop: 25, // Add margin above buttons
   },
-  saveButtonText: {
+  // Shared style for action buttons
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    minWidth: 140, // Ensure buttons have enough width
+    justifyContent: 'center',
+  },
+  actionButtonText: {
     color: 'white',
-    fontWeight: '600',
-    fontSize: 16,
     marginLeft: 8,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  // Specific styles for Save and Learn More buttons
+  saveButton: {
+     backgroundColor: THEME_COLOR,
+  },
+  learnMoreButton: {
+     backgroundColor: '#007AFF', // Blue color
   },
 });

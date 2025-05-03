@@ -1,8 +1,4 @@
-import { StyleSheet, Dimensions, Platform } from 'react-native';
-
-// Screen dimensions
-export const SCREEN_WIDTH = Dimensions.get('window').width;
-export const SCREEN_HEIGHT = Dimensions.get('window').height;
+import { StyleSheet, Dimensions, Platform, StatusBar } from 'react-native';
 
 // Theme color constants
 export const THEME_COLOR = '#FF6B00';
@@ -10,169 +6,120 @@ export const THEME_COLOR = '#FF6B00';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
-  },
-  fullCamera: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
+    backgroundColor: 'black',
   },
   camera: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.85,
-    overflow: 'hidden',
+    flex: 1, // Ensure camera fills the space above controls
+    position: 'relative', // Needed for absolute positioning of markers/UI
   },
   topBar: {
+    position: 'absolute',
+    top: Platform.OS === 'android' ? StatusBar.currentHeight || 20 + 10 : 50, // Adjust for status bar
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    paddingTop: Platform.OS === 'ios' ? 50 : 20,
+    paddingHorizontal: 15,
+    zIndex: 10,
   },
   topBarButton: {
-    width: 40,
-    height: 40,
+    padding: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
   },
   topBarRight: {
     flexDirection: 'row',
+    gap: 10, // Space between right buttons
   },
   statusBar: {
     position: 'absolute',
-    top: 80,
-    alignSelf: 'center',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 15,
-    zIndex: 10,
+    top: Platform.OS === 'android' ? StatusBar.currentHeight || 20 + 60 : 100, // Below top bar
+    left: 15,
+    right: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+    zIndex: 5,
   },
   statusText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   debugInfo: {
     position: 'absolute',
-    top: 120,
-    right: 10,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    padding: 10,
-    borderRadius: 4,
-    maxWidth: 220,
+    bottom: 120, // Adjust position as needed
+    left: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    padding: 8,
+    borderRadius: 5,
     zIndex: 10,
   },
   debugText: {
     color: 'white',
     fontSize: 10,
-    marginBottom: 4,
   },
   debugErrorText: {
-    color: '#ff6b6b',
+    color: 'red',
     fontSize: 10,
-    marginTop: 4,
-    flexWrap: 'wrap',
+    fontWeight: 'bold',
   },
   processingContainer: {
     position: 'absolute',
-    top: 80,
-    right: 20,
+    top: 10, // Example position
+    right: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 5,
+    borderRadius: 15,
     zIndex: 10,
   },
   detectionMarker: {
     position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
     width: 24,
     height: 24,
-    zIndex: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 5, // Ensure markers are above camera view but below UI elements if needed
   },
   markerDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: THEME_COLOR,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: THEME_COLOR, // Use theme color
     borderWidth: 2,
     borderColor: 'white',
   },
-  detectionLabel: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-    padding: 4,
-    position: 'absolute',
-    top: -30,
-    borderRadius: 2,
-    maxWidth: 180,
-    overflow: 'hidden',
-  },
-  message: {
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: 20,
-    fontSize: 16,
-  },
-  permissionButton: {
-    backgroundColor: THEME_COLOR,
-    padding: 15,
-    borderRadius: 10,
-    width: 200,
-    alignItems: 'center',
-  },
-  permissionButtonText: {
-    color: 'white',
-    fontWeight: '600',
-    fontSize: 16,
-  },
   controls: {
+    height: 100, // Fixed height for control bar
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#000',
-    height: SCREEN_HEIGHT * 0.15,
+    backgroundColor: 'black', // Or a dark semi-transparent color
+    paddingBottom: Platform.OS === 'ios' ? 20 : 10, // Padding for home indicator etc.
   },
   controlButton: {
     alignItems: 'center',
-    justifyContent: 'center',
-    width: 60,
-    height: 60,
+    padding: 10,
   },
   controlText: {
     color: 'white',
-    marginTop: 5,
     fontSize: 12,
+    marginTop: 4,
   },
   detectionButton: {
-    backgroundColor: THEME_COLOR,
+    backgroundColor: THEME_COLOR, // Use theme color
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
   },
   stopButton: {
-    backgroundColor: 'rgba(255, 59, 48, 0.9)',
+    backgroundColor: '#FF3B30', // Red color for stop
   },
   detectionButtonText: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   bottomSheet: {
     position: 'absolute',
@@ -182,18 +129,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 30, // More padding at the bottom
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 10,
-    zIndex: 100,
+    zIndex: 20, // Ensure bottom sheet is on top
+    maxHeight: '45%', // Limit height
   },
   bottomSheetHandle: {
     width: 40,
     height: 5,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#ccc',
     borderRadius: 3,
     alignSelf: 'center',
     marginBottom: 10,
@@ -203,6 +153,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 10,
   },
   bottomSheetTitle: {
     fontSize: 18,
@@ -210,173 +163,62 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   bottomSheetContent: {
-    marginBottom: 20,
+    // Removed fixed height, let content determine size up to maxHeight
   },
   translationItem: {
-    flexDirection: 'row',
     marginBottom: 10,
   },
   translationLabel: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 14,
     color: '#666',
-    width: 100,
+    marginBottom: 2,
   },
   translationText: {
     fontSize: 16,
     color: '#333',
-    flex: 1,
+  },
+  bottomSheetActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around', // Space out buttons
+    marginTop: 20, // Add margin above buttons
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25, // Rounded corners
+    minWidth: 120, // Ensure buttons have a minimum width
+    justifyContent: 'center', // Center content within button
+  },
+  actionButtonText: {
+    color: 'white',
+    marginLeft: 8,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   saveButton: {
-    flexDirection: 'row',
+     backgroundColor: THEME_COLOR, // Theme color for save
+  },
+  learnMoreButton: {
+     backgroundColor: '#007AFF', // Blue color for learn more
+  },
+  message: { // Style for permission message
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#333', // Adjust color as needed
+  },
+  permissionButton: { // Style for grant permission button
     backgroundColor: THEME_COLOR,
-    alignItems: 'center',
-    justifyContent: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginTop: 15,
+    paddingHorizontal: 25,
+    borderRadius: 25,
   },
-  saveButtonText: {
+  permissionButtonText: { // Style for grant permission button text
     color: 'white',
-    fontWeight: '600',
     fontSize: 16,
-    marginLeft: 8,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    maxHeight: SCREEN_HEIGHT * 0.7,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  modalTitle: {
-    fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
-  },
-  languageItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  selectedLanguageItem: {
-    backgroundColor: 'rgba(156, 39, 176, 0.1)',
-  },
-  languageItemText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  selectedLanguageText: {
-    color: '#9C27B0',
-    fontWeight: '600',
-  },
-  checkmark: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#9C27B0',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  settingLabel: {
-    fontSize: 16,
-    color: '#333',
-  },
-  settingToggle: {
-    width: 50,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#e0e0e0',
-    justifyContent: 'center',
-    padding: 3,
-  },
-  settingToggleActive: {
-    backgroundColor: 'rgba(156, 39, 176, 0.5)',
-  },
-  toggleIndicator: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
-    elevation: 2,
-  },
-  toggleIndicatorActive: {
-    transform: [{ translateX: 20 }],
-    backgroundColor: '#9C27B0',
-  },
-  translationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    paddingBottom: 16,
-  },
-  translationTextContainer: {
-    flex: 1,
-  },
-  ttsButton: {
-    padding: 8,
-    backgroundColor: 'rgba(156, 39, 176, 0.1)',
-    borderRadius: 20,
-    marginLeft: 8,
-  },
-  contextualPhrasesTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  contextualPhraseContainer: {
-    marginBottom: 16,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    padding: 12,
-  },
-  phraseItem: {
-    marginBottom: 8,
-  },
-  phraseLevel: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  phraseText: {
-    fontSize: 15,
-    color: '#333',
   },
 });
 

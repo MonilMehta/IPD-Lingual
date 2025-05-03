@@ -1,7 +1,7 @@
 // constants.js or constants.ts - Update with your ngrok URL
 
 // Use the local IP for API and WebSocket URLs when running locally
-export const API_URL = 'http://192.168.29.100:5000'; // Updated to local Flask server
+export const API_URL = 'https://lingual-yn5c.onrender.com'; // Updated to local Flask server
 export const SPEECH_WS_URL = 'ws://192.168.29.100:8766'; // Updated to local Speech WS
 export const CAMERA_WS_URL = 'ws://192.168.29.100:8765'; // Updated to local Camera WS
 

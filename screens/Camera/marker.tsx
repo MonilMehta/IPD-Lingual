@@ -24,9 +24,10 @@ export const Marker: React.FC<MarkerProps> = ({ position, isSelected, label, onP
         }
       ]}
       onPress={onPress}
+      activeOpacity={0.8}
     >
       <View style={[styles.marker, isSelected && styles.selectedMarker]}>
-        <View style={styles.dot} />
+        <Text style={styles.markerText}>●</Text>
       </View>
       {isSelected && (
         <View style={styles.labelContainer}>
@@ -41,32 +42,45 @@ const styles = StyleSheet.create({
   markerContainer: {
     position: 'absolute',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   marker: {
-    width: 60,
-    height: 60,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FF6B00',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+    shadowColor: '#FF6B00',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 6,
   },
   selectedMarker: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    borderColor: '#007AFF',
+    borderWidth: 3,
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#fff',
+  markerText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: -2,
   },
   labelContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    padding: 8,
-    borderRadius: 4,
-    marginTop: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    marginTop: 8,
+    maxWidth: 120,
   },
   label: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 15,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
