@@ -299,6 +299,27 @@ def set_user_language():
         return jsonify({"msg": "Error updating target language"}), 500
 
 # =============================================================================
+# Language Management Endpoints (New)
+# =============================================================================
+
+@app.route("/api/current_language", methods=["GET"])
+@jwt_required()
+def get_current_language():
+    """
+    Get the target language for the current user.
+    Returns: {"target_language": "language_code"} or error.
+    """
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({"username": current_user}, {"target_language": 1})
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    target_language = user.get('target_language', 'en') # Default to 'en' if not set
+
+    return jsonify({"target_language": target_language}), 200
+
+# =============================================================================
 # Detection Management Endpoints
 # =============================================================================
 
