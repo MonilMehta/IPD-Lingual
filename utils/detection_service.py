@@ -45,23 +45,23 @@ class DetectionService:
 
     async def translate_text(self, text, target_language):
         """Translates text using googletrans with caching."""
-        print(f"[DEBUG] Attempting translation: '{text}' -> '{target_language}'") # DEBUG
+        #print(f"[DEBUG] Attempting translation: '{text}' -> '{target_language}'") # DEBUG
         if target_language == 'en': # No need to translate if target is English
-            print("[DEBUG] Target is 'en', skipping translation.") # DEBUG
+            #print("[DEBUG] Target is 'en', skipping translation.") # DEBUG
             return text
         cache_key = (text, target_language)
         if cache_key in translation_cache:
-            print("[DEBUG] Found in cache.") # DEBUG
+            #print("[DEBUG] Found in cache.") # DEBUG
             return translation_cache[cache_key]
         try:
             # Directly await the translate coroutine
             translated = await translator.translate(text, dest=target_language)
             translated_text = translated.text
-            print(f"[DEBUG] Translation result: '{translated_text}'") # DEBUG
+            #print(f"[DEBUG] Translation result: '{translated_text}'") # DEBUG
             translation_cache[cache_key] = translated_text # Cache the result
             return translated_text
         except Exception as e:
-            print(f"[DEBUG] Translation error for '{text}' to {target_language}: {e}") # DEBUG
+            #print(f"[DEBUG] Translation error for '{text}' to {target_language}: {e}") # DEBUG
             # Optionally log the full traceback for better error diagnosis
             import traceback
             traceback.print_exc()
@@ -101,25 +101,45 @@ class DetectionService:
                     if result.get("status") == "error":
                         raise Exception(f"Detection error: {result.get('message')}")
 
-            # Process and translate results
-            detections = []
+            # --- Optimization: Translate unique labels once ---
             api_objects = result.get("objects", [])
+            unique_labels_en = set(obj.get("class_name", "unknown") for obj in api_objects if "box" in obj)
+
+            # Translate unique labels concurrently
+            translation_tasks = {
+                label: self.translate_text(label, target_language)
+                for label in unique_labels_en
+            }
+            # Wait for all translations to complete
+            translated_labels_map = {}
+            for label, task in translation_tasks.items():
+                try:
+                    translated_labels_map[label] = await task
+                except Exception as trans_err:
+                    print(f"[WARN] Failed to translate label '{label}': {trans_err}")
+                    translated_labels_map[label] = label # Fallback to original on error
+
+            # --- End Optimization ---
+
+            # Process results using the pre-translated map
+            detections = []
+            # api_objects = result.get("objects", []) # Already defined above
             for obj in api_objects:
                 if "box" in obj:
                     x1 = obj["box"].get("x1", 0)
                     y1 = obj["box"].get("y1", 0)
                     x2 = obj["box"].get("x2", 0)
                     y2 = obj["box"].get("y2", 0) # Corrected typo here from x2 to y2
-                    label = obj.get("class_name", "unknown")
+                    label_en = obj.get("class_name", "unknown")
 
-                    # Translate the label
-                    translated_label = await self.translate_text(label, target_language)
+                    # Get the translated label from the map
+                    translated_label = translated_labels_map.get(label_en, label_en) # Use map, fallback to original
 
                     detections.append({
                         "box": [int(x1), int(y1), int(x2), int(y2)],
                         "class": obj.get("class", 0), # Keep original class if available
-                        "label": label, # Original English label
-                        "translated": translated_label, # Changed key from translated_label to translated
+                        "label_en": label_en, # Original English label
+                        "label": translated_label, # Potentially translated label
                         "confidence": obj.get("confidence", 0.0)
                     })
 
@@ -128,7 +148,7 @@ class DetectionService:
                 "objects": detections,
                 "count": len(detections),
                 "profile_used": result.get("profile_used", profile),
-                "classes_used": result.get("classes_used", []), # Pass through from API if available
+                # "classes_used": result.get("classes_used", []), # Pass through from API if available
                 "status": "success",
                 "message": None,
                 "target_language": target_language # Include the language used for translation

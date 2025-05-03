@@ -27,6 +27,7 @@ from utils.speech_service import handle_speech_api_request
 from googletrans import Translator
 from bson import ObjectId
 from groq import Groq # Added Groq import
+from datetime import date, timedelta # Added date and timedelta
 
 # =============================================================================
 # Helper Functions and Constants
@@ -83,6 +84,45 @@ async def _run_speech(file, audio_format, lang1, lang2):
     audio_binary = await asyncio.to_thread(file.read)
     return await handle_speech_api_request(audio_binary, audio_format, lang1, lang2)
 
+def get_todays_challenge_word():
+    """Helper function to get today's challenge word."""
+    challenge_file_path = os.path.join('utils', 'quiz', 'daily_challenges.json')
+    if not os.path.exists(challenge_file_path):
+        print("Error: Daily challenge data file not found.")
+        return None
+    try:
+        with open(challenge_file_path, 'r', encoding='utf-8') as f:
+            all_challenges = json.load(f)
+        if not all_challenges:
+            print("Error: No challenges found in the file.")
+            return None
+
+        today = date.today()
+        day_of_month = today.day # Use day of the month
+
+        # Find the challenge for the current day of the month
+        # Assumes structure like [{"day": 1, "challenge": "word"}, ...]
+        todays_challenge = next((item['challenge'] for item in all_challenges if item.get('day') == day_of_month), None)
+
+        if not todays_challenge:
+            print(f"Warning: No challenge found for day {day_of_month}. Using fallback.")
+            # Fallback: use day of year modulo length if day of month fails
+            day_of_year = today.timetuple().tm_yday
+            if not all_challenges: # Avoid division by zero if file is empty after checks
+                 return None
+            challenge_index = (day_of_year - 1) % len(all_challenges)
+            # Assuming the structure is {"day": N, "challenge": "word"}
+            # Need to access the 'challenge' key from the selected object
+            selected_challenge_obj = all_challenges[challenge_index]
+            todays_challenge = selected_challenge_obj.get('challenge') if selected_challenge_obj else None
+
+
+        return todays_challenge.lower() if todays_challenge else None # Return lowercase word or None
+
+    except Exception as e:
+        print(f"Error reading or processing daily challenge file: {e}")
+        return None
+
 # =============================================================================
 # App Initialization
 # =============================================================================
@@ -121,10 +161,12 @@ def register():
     new_user = request.get_json()
     new_user['password'] = hashlib.sha256(new_user['password'].encode('utf-8')).hexdigest()
     doc = users_collection.find_one({'username': new_user['username']})
-    
+
     if not doc:
         new_user['target_language'] = 'en'  # Default to English
         new_user['quiz_index'] = 0
+        new_user['daily_challenge_streak'] = 0 # Initialize streak
+        new_user['last_challenge_completed_at'] = None # Initialize completion date (as None initially)
         users_collection.insert_one(new_user)
         return jsonify({'msg': 'User created successfully'}), 201
     else:
@@ -225,11 +267,42 @@ def delete_user():
     else:
         return jsonify({"msg": "User not found"}), 404
 
+@app.route("/api/set_language", methods=["PUT"])
+@jwt_required()
+def set_user_language():
+    """
+    Set the target language for the current user.
+    Request body: {"target_language": "language_code"}
+    Returns: Success message or error.
+    """
+    data = request.json
+    current_user = get_jwt_identity()
+
+    if not data or 'target_language' not in data:
+        return jsonify({"msg": "Missing 'target_language' in request body"}), 400
+
+    new_language = data['target_language']
+
+    if new_language not in language_mapping.values():
+        return jsonify({"msg": f"Invalid target language code. Allowed: {list(language_mapping.values())}"}), 400
+
+    try:
+        result = users_collection.update_one(
+            {"username": current_user},
+            {"$set": {"target_language": new_language}}
+        )
+        if result.matched_count == 0:
+            return jsonify({"msg": "User not found"}), 404
+        return jsonify({"msg": f"User target language updated to {new_language}"}), 200
+    except Exception as e:
+        print(f"Error updating target language for user {current_user}: {e}")
+        return jsonify({"msg": "Error updating target language"}), 500
+
 # =============================================================================
 # Detection Management Endpoints
 # =============================================================================
 
-@app.route("/store_detection", methods=["POST"])
+@app.route("/api/store_detection", methods=["POST"]) # Renamed route
 @jwt_required()
 def store_detection():
     """
@@ -238,7 +311,7 @@ def store_detection():
     Returns: Success with inserted IDs or error
     """
     data = request.json
- 
+
     if not data or 'detections' not in data:
         return jsonify({"status": "error", "message": "No detections provided"}), 400
     detections = data['detections']
@@ -252,7 +325,7 @@ def store_detection():
         "inserted_ids": [str(inserted_id) for inserted_id in result.inserted_ids]
     }), 201
 
-@app.route("/detections", methods=["GET"])
+@app.route("/api/detections", methods=["GET"]) # Renamed route
 @jwt_required()
 def get_all_detections():
     """
@@ -265,19 +338,29 @@ def get_all_detections():
         detection["_id"] = str(detection["_id"])
     return jsonify(detections), 200
 
-@app.route("/delete_detection", methods=["DELETE"])
+@app.route("/api/delete_detection/<detection_id>", methods=["DELETE"]) # Renamed route and added ID parameter
 @jwt_required()
-def delete_detection():
+def delete_detection(detection_id): # Added detection_id parameter
     """
-    Delete all detection results for current user
+    Delete a specific detection result for the current user by its ID.
+    Path param: detection_id (string representation of MongoDB ObjectId)
     Returns: Success message or error
     """
     current_user = get_jwt_identity()
-    result = detection_collection.delete_one({'user': current_user})
+    try:
+        # Convert string ID to ObjectId
+        obj_id = ObjectId(detection_id)
+    except Exception: # Catches invalid ObjectId format
+        return jsonify({"status": "error", "message": "Invalid detection ID format"}), 400
+
+    # Delete the specific detection belonging to the current user
+    result = detection_collection.delete_one({'_id': obj_id, 'user': current_user})
+
     if result.deleted_count > 0:
-        return jsonify({"status": "success", "message": "Detection(s) deleted"}), 200
+        return jsonify({"status": "success", "message": f"Detection with ID {detection_id} deleted"}), 200
     else:
-        return jsonify({"status": "error", "message": "No detections found for the user"}), 404
+        # Could be because the ID doesn't exist or it doesn't belong to the user
+        return jsonify({"status": "error", "message": "Detection not found or user does not have permission to delete"}), 404
 
 # =============================================================================
 # Quiz Management Endpoints
@@ -287,7 +370,7 @@ def delete_detection():
 @jwt_required()
 def get_quiz():
     """
-    Get quiz questions for user's current level and target language
+    Get quiz questions for user's current level and targegt language
     Returns: Quiz questions or error
     """
     current_user = get_jwt_identity()
@@ -363,6 +446,71 @@ def complete_quiz():
         return jsonify({"msg": "Error updating quiz index"}), 500
 
 # =============================================================================
+# Daily Challenge Endpoints (Modified and New)
+# =============================================================================
+
+@app.route("/api/daily_challenge", methods=["GET"])
+@jwt_required()
+def get_daily_challenge():
+    """
+    Get the daily language learning challenge word for the user.
+    Selects a challenge based on the current day of the month.
+    Returns: {"challenge_word": "..."} or error.
+    """
+    todays_word = get_todays_challenge_word()
+
+    if todays_word:
+        return jsonify({"challenge_word": todays_word}), 200
+    else:
+        # Handle case where word couldn't be determined
+        return jsonify({"msg": "Could not determine today's challenge word."}), 500
+
+
+@app.route("/api/daily_challenge/status", methods=["GET"])
+@jwt_required()
+def get_daily_challenge_status():
+    """
+    Get the user's daily challenge status including streak, last completion,
+    today's word, and completion status for today.
+    Returns: JSON object with challenge status or error.
+    """
+    current_user = get_jwt_identity()
+    # Ensure we fetch the necessary fields
+    user = users_collection.find_one({"username": current_user},
+                                     {"daily_challenge_streak": 1, "last_challenge_completed_at": 1})
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    streak = user.get('daily_challenge_streak', 0)
+    last_completed_dt = user.get('last_challenge_completed_at') # This is a datetime object or None
+
+    todays_word = get_todays_challenge_word()
+    if not todays_word:
+        # If we can't get the word, we can still return status but indicate the word is missing
+         return jsonify({
+            "streak": streak,
+            "last_completed": last_completed_dt.isoformat() if last_completed_dt else None,
+            "todays_word": None,
+            "completed_today": False,
+            "message": "Could not determine today's challenge word."
+        }), 200 # Or 500 if this is considered a server error
+
+    completed_today = False
+    if last_completed_dt:
+        # Compare only the date part with today's date
+        if last_completed_dt.date() == date.today():
+            completed_today = True
+
+    return jsonify({
+        "streak": streak,
+        "last_completed": last_completed_dt.isoformat() if last_completed_dt else None,
+        "todays_word": todays_word,
+        "completed_today": completed_today
+    }), 200
+
+
+# =============================================================================
 # AI Detection and Speech Processing Endpoints
 # =============================================================================
 
@@ -370,9 +518,9 @@ def complete_quiz():
 @jwt_required()
 def api_detect():
     """
-    Detect objects in an image with optional translation
+    Detect objects in an image with optional translation and daily challenge check.
     Form data: image, profile, confidence, iou, target_language
-    Returns: Detection results or error
+    Returns: Detection results (including completed_challenge status) or error
     """
     if 'image' not in request.files:
         return jsonify({"status": "error", "message": "No image file provided"}), 400
@@ -381,10 +529,20 @@ def api_detect():
     profile = request.form.get('profile', 'general')
     confidence = request.form.get('confidence', '0.3')
     iou = request.form.get('iou', '0.6')
-    target_language_param = request.form.get('target_language')  # Get optional language param
+    target_language_param = request.form.get('target_language')
 
-    current_user = get_jwt_identity()  # Get user identity
+    current_user = get_jwt_identity()
 
+    # Fetch user data once, including challenge fields
+    user_data = users_collection.find_one(
+        {"username": current_user},
+        {"target_language": 1, "daily_challenge_streak": 1, "last_challenge_completed_at": 1}
+    )
+    if not user_data:
+         # Should not happen if JWT is valid, but good practice to check
+         return jsonify({"status": "error", "message": "User not found"}), 404
+
+    # Determine target language
     final_target_language = None
     if target_language_param:
         if target_language_param in ALLOWED_LANGUAGES:
@@ -392,21 +550,88 @@ def api_detect():
         else:
             return jsonify({"status": "error", "message": f"Invalid target_language. Must be one of: {', '.join(ALLOWED_LANGUAGES)}"}), 400
     else:
-        user_data = users_collection.find_one({"username": current_user})
-        if user_data and 'target_language' in user_data and user_data['target_language'] in ALLOWED_LANGUAGES:
+        if 'target_language' in user_data and user_data['target_language'] in ALLOWED_LANGUAGES:
             final_target_language = user_data['target_language']
         else:
-            final_target_language = 'en'  # Default to English
+            final_target_language = 'en' # Default to English if not set or invalid
+
+    # --- Daily Challenge Logic Prep ---
+    challenge_completed_today = False
+    todays_challenge_word = get_todays_challenge_word()
+    last_completed_dt = user_data.get('last_challenge_completed_at') # Get from fetched user_data
+    current_streak = user_data.get('daily_challenge_streak', 0) # Get from fetched user_data
+    update_user_challenge_in_db = False # Flag to update DB later
+
+    # Check if already completed today based on date part
+    if last_completed_dt and last_completed_dt.date() == date.today():
+        challenge_completed_today = True
+    # --- End Daily Challenge Logic Prep ---
 
     try:
+        # Run detection - Assuming _run_detection returns a dict like:
+        # {'detections': [{'label': '...', 'label_en': 'original_label', ...}], 'image_base64': '...'}
+        # The 'label_en' key is crucial here.
         results = asyncio.run(_run_detection(file, profile, confidence, iou, final_target_language, current_user))
+
+        # --- Daily Challenge Check Post-Detection ---
+        if todays_challenge_word and not challenge_completed_today: # Only check if word exists and not already completed today
+            detected_labels_en = []
+            # Check the correct key 'objects' instead of 'detections'
+            if 'objects' in results and isinstance(results.get('objects'), list):
+                 # Extract original English labels (case-insensitive)
+                 # Ensure 'label_en' exists and is a string before lowercasing
+                 detected_labels_en = [
+                     det.get('label_en', '').lower()
+                     # Access items within the 'objects' list
+                     for det in results['objects'] if isinstance(det.get('label_en'), str)
+                 ]
+
+            if todays_challenge_word in detected_labels_en:
+                # Challenge word detected! Update streak and timestamp.
+                challenge_completed_today = True # Mark as completed now
+                update_user_challenge_in_db = True # Set flag to update DB
+                today_date = date.today()
+                yesterday_date = today_date - timedelta(days=1)
+
+                if last_completed_dt and last_completed_dt.date() == yesterday_date:
+                    # Completed yesterday, increment streak
+                    current_streak += 1
+                elif last_completed_dt and last_completed_dt.date() == today_date:
+                    # This case should technically be handled by the initial check,
+                    # but adding for robustness. Don't increment streak again.
+                    pass
+                else:
+                    # Didn't complete yesterday (or first time), reset streak to 1
+                    current_streak = 1
+
+                # Update last completed time to now (use datetime for precision)
+                last_completed_dt = datetime.datetime.now(datetime.timezone.utc) # Use timezone-aware UTC
+
+        # Add challenge completion status to the response JSON
+        results['completed_challenge'] = challenge_completed_today
+
+        # Update user in DB if challenge was completed in *this* request
+        if update_user_challenge_in_db:
+            users_collection.update_one(
+                {"username": current_user},
+                {"$set": {
+                    "daily_challenge_streak": current_streak,
+                    "last_challenge_completed_at": last_completed_dt # Store the new datetime object
+                }}
+            )
+            print(f"User {current_user} completed daily challenge '{todays_challenge_word}'. New streak: {current_streak}") # Logging
+
         return jsonify(results), 200
     except ValueError as ve:
-        return jsonify({"status": "error", "message": str(ve)}), 400
+        # Add challenge status even in case of error? Default to false.
+        error_response = {"status": "error", "message": str(ve), "completed_challenge": challenge_completed_today}
+        return jsonify(error_response), 400
     except Exception as e:
         import traceback
         print(f"Error in /api/detect: {e}\n{traceback.format_exc()}")
-        return jsonify({"status": "error", "message": f"Detection failed: {str(e)}"}), 500
+        # Add challenge status even in case of error? Default to false.
+        error_response = {"status": "error", "message": f"Detection failed: {str(e)}", "completed_challenge": challenge_completed_today}
+        return jsonify(error_response), 500
 
 @app.route("/api/speech", methods=["POST"])
 @jwt_required()
@@ -561,13 +786,3 @@ async def generate_phrase(): # Make the function async
 # =============================================================================
 # Test Endpoints
 # =============================================================================
-
-@app.route("/speech_test")
-def speech_test():
-    """
-    Render speech test page with WebSocket configuration
-    Returns: HTML page
-    """
-    host = request.host.split(':')[0]  # Extract host without port
-    speech_websocket_url = f"ws://{host}:8766"  # Speech service runs on port 8766
-    return render_template('speech_test.html', speech_websocket_url=speech_websocket_url)
