@@ -723,7 +723,7 @@ async def generate_phrase(): # Make the function async
 
     try:
         # Initialize Groq client - ensure GROQ_API_KEY is set in your environment/.env file
-        groq_api_key = config('GROQ_API_KEY', default=None)
+        groq_api_key = os.environ.get('GROQ_API_KEY') or None
         if not groq_api_key:
             print("Error: GROQ_API_KEY environment variable not set.")
             return jsonify({"msg": "Server configuration error: Missing API key"}), 500
