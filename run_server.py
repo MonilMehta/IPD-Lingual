@@ -13,7 +13,7 @@ from hypercorn.asyncio import serve
 async def main():
     print("Starting IPD-Lingual ASGI server with Hypercorn...")
     config = Config()
-    config.bind = ["0.0.0.0:5000"] # Bind to the same port as before
+    config.bind = ["0.0.0.0:10000"] # Bind to the same port as before
     # Serve the Flask app directly (Flask >= 2.0 supports ASGI)
     await serve(app, config)
 

@@ -3,4 +3,4 @@ services:
     name: flask-app
     env: python
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn user_auth:app"
+    startCommand: "python run_server.py" # Use run_server.py to start Hypercorn

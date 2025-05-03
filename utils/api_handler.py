@@ -45,6 +45,13 @@ language_mapping = {
     'Japanese': 'ja',
     'Korean': 'ko',
 }
+@app.route('/health', methods=['GET'])
+def health_check():
+    """
+    Health check endpoint.
+    Returns a simple JSON response indicating the service is up.
+    """
+    return jsonify({"status": "ok"}), 200
 
 # Allowed languages for detection translation
 ALLOWED_LANGUAGES = ['en', 'hi', 'gu', 'mr', 'kn']
