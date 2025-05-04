@@ -588,8 +588,6 @@ def api_detect():
 
     file = request.files['image']
     profile = request.form.get('profile', 'general')
-    confidence = request.form.get('confidence', '0.3')
-    iou = request.form.get('iou', '0.6')
     target_language_param = request.form.get('target_language')
 
     current_user = get_jwt_identity()
@@ -632,7 +630,7 @@ def api_detect():
         # Run detection - Assuming _run_detection returns a dict like:
         # {'detections': [{'label': '...', 'label_en': 'original_label', ...}], 'image_base64': '...'}
         # The 'label_en' key is crucial here.
-        results = asyncio.run(_run_detection(file, profile, confidence, iou, final_target_language, current_user))
+        results = asyncio.run(_run_detection(file, profile, final_target_language, current_user))
 
         # --- Daily Challenge Check Post-Detection ---
         if todays_challenge_word and not challenge_completed_today: # Only check if word exists and not already completed today
