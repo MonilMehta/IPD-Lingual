@@ -1,21 +1,55 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
-import { PathwayMap } from '../../components/Pathway/PathwayMap';
-import { Header } from '../../components/Header';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { ArrowLeft } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { LearningPathway } from '../../components/LearningPathway';
 
 export default function PathwayScreen() {
+  const [loading, setLoading] = useState(true);
+  const [quizData, setQuizData] = useState(null);
+  const [error, setError] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchQuiz = async () => {
+      try {
+        // TODO: Replace with your actual method to get the token
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjM4ODY3OCwianRpIjoiM2I5ZTkxMTEtMmZlMy00OWU0LTlmYWYtZjIxMWUxM2M0NDQ0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im1vbmlsIiwibmJmIjoxNzQ2Mzg4Njc4LCJjc3JmIjoiOTA4NWQ4YjQtMGNhOS00ZTc5LWFhZWYtN2MwZjI1OWVlYjgwIiwiZXhwIjoxNzQ2NDc1MDc4fQ.V7TBTzY-bykdkNzULQIVptEwov5GZMYmHBx26KKYgtk';
+        const response = await fetch('https://lingual-yn5c.onrender.com/api/quiz', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error('Failed to fetch quiz');
+        const data = await response.json();
+        setQuizData(data);
+      } catch (err) {
+        setError(err.message);
+        Alert.alert('Error', err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchQuiz();
+  }, []);
+
+  // Placeholder for getting auth token
+  async function getAuthToken() {
+    // Implement your auth logic here
+    return '';
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="dark-content" />
-      <Header title="Learning Pathway" showBackButton={true} />
-      
       <View style={styles.contentContainer}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.title}>Your Language Journey</Text>
-          <Text style={styles.subtitle}>Complete challenges to advance your skills</Text>
-        </View>
-        
-        <PathwayMap />
+        {loading ? (
+          <ActivityIndicator size="large" color="#FF6B00" style={{ marginTop: 40 }} />
+        ) : quizData ? (
+          <LearningPathway questions={quizData.questions} currentLevel={quizData.current_level} totalQuestions={quizData.total_questions || quizData.questions.length} />
+        ) : (
+          <Text style={{ color: 'red', textAlign: 'center', marginTop: 40 }}>Failed to load quiz.</Text>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -30,19 +64,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 16,
+    paddingTop: 16,
+    paddingBottom: 10,
+    gap: 8,
+  },
+  backButton: {
+    marginRight: 8,
+    padding: 4,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
   },
 });

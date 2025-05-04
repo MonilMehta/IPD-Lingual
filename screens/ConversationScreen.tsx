@@ -1,23 +1,35 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, SafeAreaView, StatusBar, Alert, AppState, AppStateStatus } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, SafeAreaView, StatusBar, Alert, Image } from 'react-native';
 import { Audio } from 'expo-av';
 import { Picker } from '@react-native-picker/picker';
 import { MotiView } from 'moti';
-import { Mic, MicOff, ArrowLeft, Languages, Volume2, Volume } from 'lucide-react-native';
+import { Mic, MicOff, ArrowLeft, Languages } from 'lucide-react-native';
 import { useNavigation } from 'expo-router';
 import * as FileSystem from 'expo-file-system';
 import * as Speech from 'expo-speech';
 import { 
   TranslationService, 
   TranslationResponse, 
-  ConfigResponse, 
-  InitResponse,
   SupportedLanguages,
   LanguageSettings 
 } from '../services/TranslationService';
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../styles/conversation_styles';
 import { WaveAnimation, TypingIndicator, PulsingCircle, MemoizedUtterance, Utterance } from '../components/Conversation/ConversationUI';
+
+// Mascot details
+const MASCOT_NAME = 'Ollie';
+const MASCOT_IMG = require('../assets/images/cat-thinking.png');
+const FUN_MESSAGES = [
+  `Ollie is thinking...`,
+  `Ollie is chasing the words...`,
+  `Ollie is purring up a translation!`,
+  `Ollie is paw-sing for thought...`,
+  `Ollie is meowing in two languages!`,
+  `Ollie is on the case!`,
+  `Ollie is making it bilingual!`,
+  `Ollie is fetching your translation!`,
+];
 
 const ConversationScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -37,77 +49,10 @@ const ConversationScreen: React.FC = () => {
   const scrollViewRef = useRef<ScrollView>(null);
   const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isSettingLanguages, setIsSettingLanguages] = useState(false);
-  const [appState, setAppState] = useState<AppStateStatus>(AppState.currentState);
-  const [lastConnectionAttempt, setLastConnectionAttempt] = useState<number>(0);
-  const connectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-  const checkConnectionIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [speakingUtteranceId, setSpeakingUtteranceId] = useState<string | null>(null);
-
-  const createUtterance = useCallback((data: Partial<Utterance>): Utterance => ({
-    id: Date.now().toString(),
-    text: '',
-    language: '',
-    translation: null,
-    audio: undefined,
-    person: '1',
-    timestamp: new Date(),
-    ...data
-  }), []);
-
-  const connectWithThrottle = useCallback(async () => {
-    const now = Date.now();
-    if (now - lastConnectionAttempt > 10000) {
-      console.log('Attempting to connect to translation service...');
-      const success = await TranslationService.connect();
-      setIsConnected(success);
-      setLastConnectionAttempt(now);
-    } else {
-      console.log('Skipping connection attempt - too soon since last attempt');
-    }
-  }, [lastConnectionAttempt]);
-
-  useEffect(() => {
-    const subscription = AppState.addEventListener('change', nextAppState => {
-      if (appState.match(/inactive|background/) && nextAppState === 'active') {
-        connectWithThrottle();
-      } else if (nextAppState.match(/inactive|background/)) {
-        TranslationService.disconnect();
-        if (connectionIntervalRef.current) {
-          clearInterval(connectionIntervalRef.current);
-          connectionIntervalRef.current = null;
-        }
-      }
-      setAppState(nextAppState);
-    });
-
-    return () => {
-      subscription.remove();
-      TranslationService.disconnect();
-      if (connectionIntervalRef.current) {
-        clearInterval(connectionIntervalRef.current);
-      }
-    };
-  }, [appState, connectWithThrottle]);
-
-  useEffect(() => {
-    connectWithThrottle();
-    
-    connectionIntervalRef.current = setInterval(() => {
-      if (!TranslationService.getConnectionStatus()) {
-        connectWithThrottle();
-      }
-    }, 10000);
-
-    return () => {
-      if (connectionIntervalRef.current) {
-        clearInterval(connectionIntervalRef.current);
-      }
-      TranslationService.disconnect();
-    };
-  }, [connectWithThrottle]);
+  const [funMessage, setFunMessage] = useState(FUN_MESSAGES[0]);
 
   useEffect(() => {
     (async () => {
@@ -118,53 +63,21 @@ const ConversationScreen: React.FC = () => {
         shouldDuckAndroid: true,
         playThroughEarpieceAndroid: false,
       });
-
-      TranslationService.onInit((init: InitResponse) => {
-        console.log('🌍 Received supported languages:', Object.keys(init.supportedLanguages).length);
-        setSupportedLanguages(init.supportedLanguages);
-        
-        if (init.currentSettings?.language1 && init.currentSettings?.language2) {
-          setLanguageSettings(init.currentSettings);
-          setSelectedLanguage1(init.currentSettings.language1);
-          setSelectedLanguage2(init.currentSettings.language2);
-        } else {
-          setShowLanguagePicker(true);
-        }
-      });
-
-      TranslationService.onTranslation((response: TranslationResponse) => {
-        if (response.languageSettings) {
-          setLanguageSettings(response.languageSettings);
-        }
-        
-        const utterance: Utterance = {
-          id: Date.now().toString(),
-          text: response.original.text,
-          language: response.original.language,
-          translation: response.translated.text,
-          audio: response.audio,
-          person: response.person,
-          timestamp: new Date()
-        };
-        
-        setConversation(prev => [...prev, utterance]);
-      });
-
-      TranslationService.onConfig((config: ConfigResponse) => {
-        if (config.languageSettings) {
-          setLanguageSettings(config.languageSettings);
-        }
-      });
+      // Fetch supported languages from API
+      try {
+        const langs = await TranslationService.getSupportedLanguagesFromAPI();
+        console.log('Fetched langs from API:', langs);
+        setSupportedLanguages(langs);
+        setShowLanguagePicker(true);
+      } catch (e) {
+        Alert.alert('Error', 'Failed to fetch supported languages');
+      }
     })();
-
     return () => {
       stopRecording();
-      TranslationService.disconnect();
-      if (sound) {
-        sound.unloadAsync();
-      }
+      if (sound) sound.unloadAsync();
     };
-  }, [createUtterance]);
+  }, []);
 
   useEffect(() => {
     if (scrollViewRef.current) {
@@ -173,25 +86,6 @@ const ConversationScreen: React.FC = () => {
       }, 100);
     }
   }, [conversation]);
-
-  useEffect(() => {
-    const checkConnection = async () => {
-      const status = TranslationService.getConnectionStatus();
-      setIsConnected(status);
-    };
-    
-    // Check initially
-    checkConnection();
-    
-    // Setup interval to check connection status
-    checkConnectionIntervalRef.current = setInterval(checkConnection, 3000);
-    
-    return () => {
-      if (checkConnectionIntervalRef.current) {
-        clearInterval(checkConnectionIntervalRef.current);
-      }
-    };
-  }, []);
 
   const processAndSchedule = async () => {
     if (!isRecording) return;
@@ -277,72 +171,61 @@ const ConversationScreen: React.FC = () => {
   };
 
   const processCurrentRecording = async () => {
-    if (!recording || isProcessing) {
-      console.log('⚠️ Skipping process - recording:', !!recording, 'isProcessing:', isProcessing);
-      return;
-    }
-    
+    if (!recording || isProcessing) return;
     setIsProcessing(true);
-    
+    // Pick a random fun message for mascot
+    setFunMessage(FUN_MESSAGES[Math.floor(Math.random() * FUN_MESSAGES.length)]);
     try {
-      console.log('⏹️ Stopping current recording segment');
       const uri = recording.getURI();
       await recording.stopAndUnloadAsync();
       setRecording(null);
-
-      if (uri) {
-        console.log('📤 Sending audio to backend for processing:', uri);
-        // Explicitly set waiting state before sending
+      if (uri && languageSettings.language1 && languageSettings.language2) {
         setIsWaitingForResponse(true);
-        
-        // Check connection and language settings
-        if (!isConnected) {
-          const connected = await connectWithThrottle();
-          if (!connected) {
-            setIsWaitingForResponse(false);
-            Alert.alert('Error', 'Could not connect to translation service');
-            setIsProcessing(false);
-            return;
-          }
-        }
-        
-        if (!languageSettings.language1 || !languageSettings.language2) {
+        try {
+          const response = await TranslationService.processConversationAudioAPI(
+            uri,
+            languageSettings.language1,
+            languageSettings.language2,
+            'aac'
+          );
           setIsWaitingForResponse(false);
-          console.error('❌ Languages must be set before processing audio');
-          Alert.alert('Error', 'Languages must be set before processing audio');
           setIsProcessing(false);
-          return;
-        }
-        
-        const success = await TranslationService.processConversationAudio(uri);
-        
-        if (!success) {
+          if (
+            response &&
+            response.original &&
+            response.translated &&
+            typeof response.original.text === 'string' &&
+            typeof response.translated.text === 'string'
+          ) {
+            setConversation(prev => [
+              ...prev,
+              {
+                id: Date.now().toString(),
+                text: response.original.text,
+                language: response.original.language,
+                translation: response.translated.text,
+                audio: response.audio,
+                person: response.person,
+                timestamp: new Date(),
+              },
+            ]);
+          } else {
+            Alert.alert('Error', 'Invalid response from server. Please try again.');
+          }
+        } catch (err) {
           setIsWaitingForResponse(false);
-          console.error('❌ Failed to process audio');
-          Alert.alert('Error', 'Failed to process audio. Please try again.');
+          setIsProcessing(false);
+          Alert.alert('Error', 'Failed to process audio.');
         }
-        
         try {
           await FileSystem.deleteAsync(uri);
-          console.log('🗑️ Cleaned up recording file');
-        } catch (error) {
-          console.warn('⚠️ Failed to cleanup recording file:', error);
-        }
+        } catch {}
       }
-
-      if (isRecording) {
-        console.log('🎙️ Starting next recording segment...');
-        await startNewRecordingSegment();
-      }
+      if (isRecording) await startNewRecordingSegment();
     } catch (error) {
-      console.error('❌ Error in processCurrentRecording:', error);
       setIsWaitingForResponse(false);
-      if (isRecording) {
-        console.log('🔄 Attempting to recover by starting new recording...');
-        await startNewRecordingSegment();
-      }
-    } finally {
       setIsProcessing(false);
+      if (isRecording) await startNewRecordingSegment();
     }
   };
 
@@ -365,11 +248,36 @@ const ConversationScreen: React.FC = () => {
         if (uri) {
           console.log('📤 Processing final segment...');
           setIsWaitingForResponse(true);  // Set waiting state explicitly
+          setFunMessage(FUN_MESSAGES[Math.floor(Math.random() * FUN_MESSAGES.length)]);
           
-          const success = await TranslationService.processConversationAudio(uri);
-          if (!success) {
-            setIsWaitingForResponse(false);  // Reset on failure
-            Alert.alert('Error', 'Failed to process audio. Please try again.');
+          const response = await TranslationService.processConversationAudioAPI(
+            uri,
+            languageSettings.language1,
+            languageSettings.language2,
+            'aac'
+          );
+          setIsWaitingForResponse(false);
+          if (
+            response &&
+            response.original &&
+            response.translated &&
+            typeof response.original.text === 'string' &&
+            typeof response.translated.text === 'string'
+          ) {
+            setConversation(prev => [
+              ...prev,
+              {
+                id: Date.now().toString(),
+                text: response.original.text,
+                language: response.original.language,
+                translation: response.translated.text,
+                audio: response.audio,
+                person: response.person,
+                timestamp: new Date(),
+              },
+            ]);
+          } else {
+            Alert.alert('Error', 'Invalid response from server. Please try again.');
           }
           
           try {
@@ -390,20 +298,6 @@ const ConversationScreen: React.FC = () => {
   };
 
   const toggleRecording = async () => {
-    // Check connection first
-    if (!isConnected) {
-      await connectWithThrottle();
-      
-      if (!isConnected) {
-        Alert.alert(
-          "Connection Error",
-          "Not connected to translation service. Please try again.",
-          [{ text: "OK" }]
-        );
-        return;
-      }
-    }
-    
     if (isRecording) {
       await stopRecording();
     } else {
@@ -433,37 +327,6 @@ const ConversationScreen: React.FC = () => {
       console.error('Error playing audio:', error);
     }
   };
-
-  // Add response handling to reset waiting state
-  useEffect(() => {
-    const handleResponse = () => {
-      setIsWaitingForResponse(false);
-    };
-
-    // Update the message callback to include our handler
-    TranslationService.onTranslation((response: TranslationResponse) => {
-      if (response.languageSettings) {
-        setLanguageSettings(response.languageSettings);
-      }
-      
-      const utterance: Utterance = {
-        id: Date.now().toString(),
-        text: response.original.text,
-        language: response.original.language,
-        translation: response.translated.text,
-        audio: response.audio,
-        person: response.person,
-        timestamp: new Date()
-      };
-      
-      setConversation(prev => [...prev, utterance]);
-      handleResponse();
-    });
-
-    return () => {
-      // No cleanup needed as we're just enhancing the existing callback
-    };
-  }, []);
 
   // Text-to-speech functionality
   const speakText = async (text: string, utteranceId: string) => {
@@ -525,128 +388,87 @@ const ConversationScreen: React.FC = () => {
       return;
     }
 
-    // Check connection first
-    if (!isConnected) {
-      await connectWithThrottle();
-      
-      if (!isConnected) {
-        Alert.alert(
-          "Connection Error",
-          "Not connected to translation service. Please try again.",
-          [{ text: "OK" }]
-        );
-        return;
-      }
-    }
-
     setIsSettingLanguages(true);
     try {
-      const success = await TranslationService.setLanguages(selectedLanguage1, selectedLanguage2);
-      
-      if (success) {
-        setShowLanguagePicker(false);
-        
-        // Update local language settings
-        setLanguageSettings({
-          language1: selectedLanguage1,
-          language2: selectedLanguage2
-        });
-        
-        if (languageSettings.language1 !== selectedLanguage1 || 
-            languageSettings.language2 !== selectedLanguage2) {
-          setConversation([]);
-        }
-
-        if (!languageSettings.language1 || !languageSettings.language2) {
-          await startRecording();
-        }
-      } else {
-        Alert.alert(
-          "Error",
-          "Failed to set languages. Please check your connection.",
-          [{ text: "OK" }]
-        );
-      }
-    } catch (error) {
-      console.error('Error setting languages:', error);
-      Alert.alert(
-        'Error',
-        'Failed to set languages. Please try again.',
-        [{ text: 'OK' }]
-      );
+      TranslationService.setLanguages(selectedLanguage1, selectedLanguage2);
+      setLanguageSettings({ language1: selectedLanguage1, language2: selectedLanguage2 });
+      setShowLanguagePicker(false);
+      setConversation([]);
     } finally {
       setIsSettingLanguages(false);
     }
   };
 
-  const renderLanguagePicker = () => {
-    return (
-      <View style={styles.languagePickerContainer}>
-        <View style={styles.languagePickerContent}>
-          <Text style={styles.modalTitle}>Select Languages</Text>
-          
-          <Text style={styles.pickerLabel}>Language 1:</Text>
-          <Picker
-            selectedValue={selectedLanguage1}
-            onValueChange={setSelectedLanguage1}
-            style={styles.languagePicker}
-          >
-            <Picker.Item label="Select Language 1" value="" />
-            {Object.entries(supportedLanguages).map(([code, info]) => (
-              <Picker.Item 
-                key={code} 
-                label={info.name} 
-                value={code}
-              />
-            ))}
-          </Picker>
-
-          <Text style={styles.pickerLabel}>Language 2:</Text>
-          <Picker
-            selectedValue={selectedLanguage2}
-            onValueChange={setSelectedLanguage2}
-            style={styles.languagePicker}
-          >
-            <Picker.Item label="Select Language 2" value="" />
-            {Object.entries(supportedLanguages).map(([code, info]) => (
-              <Picker.Item 
-                key={code} 
-                label={info.name} 
-                value={code}
-              />
-            ))}
-          </Picker>
-
-          <View style={styles.pickerButtonContainer}>
-            <TouchableOpacity 
-              style={styles.pickerButton} 
-              onPress={() => setShowLanguagePicker(false)}
-            >
-              <Text style={styles.pickerButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[
-                styles.pickerButton, 
-                styles.pickerButtonConfirm,
-                (isSettingLanguages || !selectedLanguage1 || !selectedLanguage2) && styles.pickerButtonDisabled
-              ]} 
-              onPress={handleLanguageSelect}
-              disabled={isSettingLanguages || !selectedLanguage1 || !selectedLanguage2}
-            >
-              {isSettingLanguages ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.pickerButtonTextConfirm}>Confirm</Text>
-              )}
-            </TouchableOpacity>
+  const renderLanguagePicker = () => (
+    <View style={styles.languagePickerContainer}>
+      <View style={styles.languagePickerContent}>
+        <Text style={styles.modalTitle}>Select Languages</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 16 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.pickerLabel}>Language 1:</Text>
+            <View style={styles.languageGrid}>
+              {Object.entries(supportedLanguages).map(([code, info]) => (
+                <TouchableOpacity
+                  key={code + '-1'}
+                  style={[
+                    styles.languageCard,
+                    selectedLanguage1 === code && styles.selectedCard,
+                  ]}
+                  onPress={() => setSelectedLanguage1(code)}
+                >
+                  <Text style={styles.languageLabel}>{info.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+          <Image source={MASCOT_IMG} style={{ width: 60, height: 60, marginHorizontal: 12 }} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.pickerLabel}>Language 2:</Text>
+            <View style={styles.languageGrid}>
+              {Object.entries(supportedLanguages).map(([code, info]) => (
+                <TouchableOpacity
+                  key={code + '-2'}
+                  style={[
+                    styles.languageCard,
+                    selectedLanguage2 === code && styles.selectedCard,
+                  ]}
+                  onPress={() => setSelectedLanguage2(code)}
+                >
+                  <Text style={styles.languageLabel}>{info.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         </View>
+        <View style={styles.pickerButtonContainer}>
+          <TouchableOpacity 
+            style={styles.pickerButton} 
+            onPress={() => setShowLanguagePicker(false)}
+          >
+            <Text style={styles.pickerButtonText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[
+              styles.pickerButton, 
+              styles.pickerButtonConfirm,
+              (isSettingLanguages || !selectedLanguage1 || !selectedLanguage2) && styles.pickerButtonDisabled
+            ]} 
+            onPress={handleLanguageSelect}
+            disabled={isSettingLanguages || !selectedLanguage1 || !selectedLanguage2}
+          >
+            {isSettingLanguages ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.pickerButtonTextConfirm}>Confirm</Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
-    );
-  };
+    </View>
+  );
 
   const renderLanguageInfo = () => (
-    <View style={styles.languageInfoContainer}>
+    <View style={[styles.languageInfoContainer, { alignItems: 'center', justifyContent: 'center' }]}> 
       <TouchableOpacity 
         style={styles.languageCard}
         onPress={() => {
@@ -663,18 +485,7 @@ const ConversationScreen: React.FC = () => {
         </Text>
         <Text style={styles.tapToChange}>Tap to change</Text>
       </TouchableOpacity>
-      
-      {/* Connection Status Indicator */}
-      <View style={styles.connectionStatus}>
-        <View style={[
-          styles.connectionDot,
-          isConnected ? styles.connected : styles.disconnected
-        ]} />
-        <Text style={styles.connectionText}>
-          {isConnected ? 'Connected' : 'Disconnected'}
-        </Text>
-      </View>
-      
+      <Image source={MASCOT_IMG} style={{ width: 48, height: 48, marginHorizontal: 18 }} />
       <TouchableOpacity 
         style={styles.languageCard}
         onPress={() => {
@@ -724,7 +535,16 @@ const ConversationScreen: React.FC = () => {
         contentContainerStyle={styles.conversationContent}
       >
         {conversation.map((utterance) => (
-          <MemoizedUtterance key={utterance.id} utterance={utterance} />
+          <MemoizedUtterance
+            key={utterance.id}
+            utterance={utterance}
+            languageSettings={languageSettings}
+            supportedLanguages={supportedLanguages}
+            playAudio={playAudio}
+            speakText={speakText}
+            isSpeaking={isSpeaking}
+            speakingUtteranceId={speakingUtteranceId}
+          />
         ))}
         {isProcessing && (
           <View style={styles.processingContainer}>
@@ -734,8 +554,9 @@ const ConversationScreen: React.FC = () => {
         )}
         {isWaitingForResponse && (
           <View style={styles.waitingContainer}>
+            <Image source={MASCOT_IMG} style={{ width: 36, height: 36, marginRight: 10 }} />
             <TypingIndicator />
-            <Text style={styles.waitingText}>Getting translation...</Text>
+            <Text style={styles.waitingText}>{funMessage}</Text>
           </View>
         )}
       </ScrollView>
@@ -756,16 +577,15 @@ const ConversationScreen: React.FC = () => {
             <TouchableOpacity
               style={[
                 styles.recordButton,
-                isRecording ? styles.recordingActive : {},
-                !isConnected ? styles.recordButtonDisabled : {}
+                isRecording ? styles.recordingActive : {}
               ]}
               onPress={toggleRecording}
-              disabled={isProcessing || !isConnected || isWaitingForResponse}
+              disabled={isProcessing || isWaitingForResponse}
             >
               {isRecording ? (
                 <MicOff size={32} color="#fff" />
               ) : (
-                <Mic size={32} color={isConnected ? "#fff" : "#ccc"} />
+                <Mic size={32} color="#fff" />
               )}
             </TouchableOpacity>
           )}
@@ -773,7 +593,6 @@ const ConversationScreen: React.FC = () => {
         <Text style={styles.recordingStatus}>
           {isRecording ? 'Recording...' : 
            isWaitingForResponse ? 'Getting translation...' :
-           !isConnected ? 'Connecting...' : 
            'Tap to start conversation'}
         </Text>
       </View>

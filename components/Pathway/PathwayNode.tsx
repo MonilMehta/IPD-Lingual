@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Lock, Check, Star } from 'lucide-react-native';
+
+const MASCOT_IMAGE = require('../../assets/images/cat-smiling.png');
 
 type PathwayNodeProps = {
   id: number;
@@ -16,7 +18,12 @@ export const PathwayNode = ({ id, status, onPress }: PathwayNodeProps) => {
       case 'completed':
         return <Check size={28} color="#FFFFFF" />;
       case 'current':
-        return <Star size={28} color="#FFFFFF" />;
+        return (
+          <Image
+            source={MASCOT_IMAGE}
+            style={{ width: 38, height: 38, resizeMode: 'contain' }}
+          />
+        );
       default:
         return <Text style={styles.nodeText}>{id}</Text>;
     }

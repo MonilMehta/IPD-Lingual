@@ -4,7 +4,7 @@ import { Settings } from 'lucide-react-native';
 import { MotiView } from 'moti';
 import { Header } from './HomePage/Header';
 import { SearchBar } from './HomePage/SearchBar';
-import { LearningPathway } from './HomePage/LearningPathway';
+import { LearningPathway } from './HomePage/LearningCard';
 import { MainFeatures } from './HomePage/MainFeatures';
 import { QuickPhrases } from './HomePage/QuickPhrases';
 import { TouristGuides } from './HomePage/TouristGuides';

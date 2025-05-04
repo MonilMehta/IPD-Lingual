@@ -4,8 +4,8 @@ import { Settings } from 'lucide-react-native';
 import { StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Header } from '../../screens/HomePage/Header';
-import { SearchBar } from '../../screens/HomePage/SearchBar';
-import { LearningPathway } from '../../screens/HomePage/LearningPathway';
+import { DailyQuiz } from '../../screens/HomePage/DailyQuiz';
+import { LearningPathway } from '../../screens/HomePage/LearningCard';
 import { MainFeatures } from '../../screens/HomePage/MainFeatures';
 import { QuickPhrases } from '../../screens/HomePage/QuickPhrases';
 import { TouristGuides } from '../../screens/HomePage/TouristGuides';
@@ -17,7 +17,7 @@ const HomeScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Header navigation={router} />
-        <SearchBar />
+        <DailyQuiz />
         <LearningPathway navigation={router} />
         <MainFeatures navigation={router} />
         <QuickPhrases navigation={router} />

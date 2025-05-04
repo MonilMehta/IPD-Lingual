@@ -3,12 +3,11 @@ import { View, StyleSheet, Dimensions, ScrollView, SafeAreaView, Platform } from
 import { PathwayNode } from './PathwayNode';
 import { PathSegment } from './PathSegment';
 import { MotiView } from 'moti';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { FloatingText } from './FloatingText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
-const NODES_COUNT = 20;
 const NODE_SIZE = 70;
 const VERTICAL_SPACING = 180;
 
@@ -37,7 +36,7 @@ const samplePhrases = [
 ];
 
 // Calculate the total path height in advance for better planning
-const totalPathHeight = NODES_COUNT * VERTICAL_SPACING + 200;
+const totalPathHeight = 20 * VERTICAL_SPACING + 200;
 
 // Function to check if two phrases would overlap
 const wouldOverlap = (newPos, existingPositions, phraseSize = 80, minDistance = 100) => {
@@ -153,10 +152,51 @@ const generateFloatingPhrases = (count, safeAreaPadding = { left: 20, right: 20 
   return phrases;
 };
 
-export const PathwayMap = () => {
+// Instead of random floating text, set positions explicitly per level
+function generateLevelFloatingTexts(nodes) {
+  // Map: level -> { side: 'left' | 'right' | 'none' }
+  const levelFloatingMap = {
+    1: 'none',
+    2: 'right',
+    3: 'none',
+    4: 'left',
+    5: 'right',
+    6: 'none',
+    7: 'right',
+    8: 'left',
+    9: 'none',
+    10: 'left',
+  };
+  const offsetX = 120; // horizontal offset from node
+  const offsetY = 40;  // vertical offset below node
+  const phrases = [];
+  let phraseIdx = 0;
+  nodes.forEach((node, idx) => {
+    const level = node.id;
+    const side = levelFloatingMap[level];
+    if (!side || side === 'none') return;
+    const sample = samplePhrases[phraseIdx % samplePhrases.length];
+    phraseIdx++;
+    const x = side === 'left' ? node.position.x - offsetX : node.position.x + offsetX;
+    const y = node.position.y + offsetY;
+    phrases.push({
+      ...sample,
+      id: `floating-lvl${level}`,
+      position: { x, y },
+      size: 'large',
+      rotation: 0,
+      color: undefined,
+    });
+  });
+  return phrases;
+}
+
+// Accept questions and currentLevel as props
+export const PathwayMap = ({ questions = [], currentLevel = 1 }) => {
   const insets = useSafeAreaInsets();
-  const [userProgress, setUserProgress] = useState(5);
-  
+  const NODES_COUNT = questions.length;
+  const router = useRouter();
+
   // Pass safe area insets to the phrase generator
   const [floatingPhrases] = useState(() => 
     generateFloatingPhrases(40, {
@@ -164,39 +204,33 @@ export const PathwayMap = () => {
       right: Math.max(insets.right, 10)
     })
   );
-  
+
   // Generate an array of challenge nodes with varying positions
   const nodes = Array.from({ length: NODES_COUNT }, (_, i) => {
     const row = i;
-    
-    // Create more varied positions for nodes
     let horizontalPosition;
     if (row % 2 === 0) {
-      // For even rows, position on left with variation but respect safe area
       horizontalPosition = Math.max(insets.left, 10) + width * (0.15 + (Math.random() * 0.1));
     } else {
-      // For odd rows, position on right with variation but respect safe area
       const rightEdge = width - Math.max(insets.right, 10);
       horizontalPosition = rightEdge - width * (0.15 + (Math.random() * 0.1));
     }
-    
-    // Add some small vertical variation
-    const verticalOffset = (Math.random() * 30) - 15; // Between -15 and 15px
+    const verticalOffset = (Math.random() * 30) - 15;
     const y = 80 + (row * VERTICAL_SPACING) + verticalOffset;
-    
+    let status = 'locked';
+    if (i + 1 < currentLevel) status = 'completed';
+    else if (i + 1 === currentLevel) status = 'current';
     return {
       id: i + 1,
       position: { x: horizontalPosition, y },
-      status: i + 1 <= userProgress ? 'completed' : 
-              i + 1 === userProgress + 1 ? 'current' : 'locked',
+      status,
     };
   });
 
   const handleNodePress = (nodeId) => {
     const node = nodes.find(n => n.id === nodeId);
     if (node.status === 'locked') return;
-    
-    router.push(`/challenge/${nodeId}`);
+    router.push(`/main/challenge/${nodeId}`);
   };
 
   return (

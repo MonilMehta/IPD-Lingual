@@ -8,9 +8,12 @@ import {
   Dimensions,
   Platform,
   StatusBar,
-  Animated
+  Animated,
+  Image,
+  StyleSheet,
+  PanResponder
 } from 'react-native';
-import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import * as SecureStore from 'expo-secure-store';
 import { useIsFocused, useFocusEffect } from '@react-navigation/native';
@@ -18,7 +21,7 @@ import { Camera as CameraIcon, Settings, Languages, ChevronLeft, X, Save, BookOp
 import axios from 'axios';
 import { Badge, Modal, Portal, Switch, Card, Paragraph, Snackbar } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { useRouter } from 'expo-router';
 // Import API_URL from constants
 import { API_URL } from '../../config/constants';
 // Import styles and THEME_COLOR from styles.ts
@@ -27,12 +30,17 @@ import { Marker } from './marker';
 
 // Define the structure for API detection results
 interface ApiDetectionObject {
-  box: number[];
+  box: [number, number, number, number]; // Updated: [x, y, width, height]
   class: number;
   confidence: number;
   label: string; // Translated label
   label_en: string; // English label
-  center?: number[]; // Keep center for marker positioning
+  centre: [number, number]; // Updated: Now mandatory [centerX, centerY] from API
+}
+
+// Update Detection type - markerPosition is no longer needed as we use centre
+interface Detection extends ApiDetectionObject {
+  // markerPosition?: [number, number]; // Removed
 }
 
 interface DetectionApiResponse {
@@ -44,9 +52,6 @@ interface DetectionApiResponse {
   status: string;
   target_language: string;
 }
-
-// Update Detection type to match API response structure
-interface Detection extends ApiDetectionObject {}
 
 // Define the structure for Phrase API response
 interface PhraseApiResponse {
@@ -63,11 +68,14 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 // Fallback token provided by the user
-const FALLBACK_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjI3NjgxMiwianRpIjoiNzZkYzA5OTItZjRkMS00NWRjLWIxOWUtZTA2ZWMyZTc2NDA1IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im1vbmlsIiwibmJmIjoxNzQ2Mjc2ODEyLCJjc3JmIjoiMmViYjJlNTItZTBlMS00NTFiLWJmYmYtZDFjYzI2OWVlNDFmIiwiZXhwIjoxNzQ2MzYzMjEyfQ.0nBVYytIMbGE6fa3P14TRQ6hLUFcjeqKVRQSjmZPhqg';
+const FALLBACK_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjM4ODY3OCwianRpIjoiM2I5ZTkxMTEtMmZlMy00OWU0LTlmYWYtZjIxMWUxM2M0NDQ0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im1vbmlsIiwibmJmIjoxNzQ2Mzg4Njc4LCJjc3JmIjoiOTA4NWQ4YjQtMGNhOS00ZTc5LWFhZWYtN2MwZjI1OWVlYjgwIiwiZXhwIjoxNzQ2NDc1MDc4fQ.V7TBTzY-bykdkNzULQIVptEwov5GZMYmHBx26KKYgtk';
+
+// Mascot images
+const mascotSmiling = require('../../assets/images/cat-smiling.png');
+const mascotSleeping = require('../../assets/images/cat-sleeping.png');
 
 export default function CameraScreen({ navigation }: any) {
   const [permission, requestPermission] = useCameraPermissions();
-  // Removed WebSocket related state: isConnected, connectionStatus, webSocketRef, reconnectAttempts
   const [username, setUsername] = useState('');
   const [detections, setDetections] = useState<Detection[]>([]);
   const [language, setLanguage] = useState('hi'); // Default language
@@ -84,8 +92,9 @@ export default function CameraScreen({ navigation }: any) {
   const [challengeNotified, setChallengeNotified] = useState(false);
   const [showChallengeSnackbar, setShowChallengeSnackbar] = useState(false);
   const [learnMoreData, setLearnMoreData] = useState<PhraseApiResponse | null>(null);
-
-  const cameraRef = useRef<CameraView | null>(null);
+  const [showMascotTip, setShowMascotTip] = useState(false);
+  const router = useRouter();
+    const cameraRef = useRef<CameraView | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null); // Changed from frameInterval
   const isFocused = useIsFocused();
   const [queueSize, setQueueSize] = useState(0); // Keep for request management
@@ -103,6 +112,29 @@ export default function CameraScreen({ navigation }: any) {
     width: number;
     height: number;
   }
+
+  const pan = useRef(new Animated.Value(0)).current;
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => gestureState.dy > 10,
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          pan.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 80) {
+          hideBottomSheet();
+          pan.setValue(0);
+        } else {
+          Animated.spring(pan, {
+            toValue: 0,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   useEffect(() => {
     (async () => {
@@ -279,7 +311,7 @@ export default function CameraScreen({ navigation }: any) {
       const formData = new FormData();
 
       // Append the image file with the key 'image' using uri, name, type (React Native style)
-      formData.append('image', {
+      (formData as any).append('image', {
         uri: resized.uri,
         name: filename,
         type: 'image/jpeg',
@@ -322,39 +354,35 @@ export default function CameraScreen({ navigation }: any) {
           // Validate and process detections
           console.log("Data : ", data);
           const validDetections = data.objects.filter((det: ApiDetectionObject) => {
+            // Updated validation for [x, y, width, height] format and centre
             return (
               Array.isArray(det.box) &&
               det.box.length === 4 &&
               !det.box.some((coord: number) => isNaN(coord)) &&
-              det.box[2] > det.box[0] && // width > 0
-              det.box[3] > det.box[1]    // height > 0
+              det.box[2] > 0 && // width > 0
+              det.box[3] > 0 && // height > 0
+              Array.isArray(det.centre) && // Ensure centre exists and is an array
+              det.centre.length === 2 &&
+              !det.centre.some((coord: number) => isNaN(coord))
             );
           });
   
-          // Adjust coordinates and add center points
-          const adjustedDetections = validDetections.map((det: ApiDetectionObject) => {
-            // Calculate center of the box, add a small offset to the right
-            const scaleX = cameraDimensions.width / 1280; // Your API's image width
-            const scaleY = cameraDimensions.height / 960; // Your API's image height
-            const x1 = det.box[0];
-            const y1 = det.box[1];
-            const x2 = det.box[2];
-            const y2 = det.box[3];
-            let centerX = ((x1 + x2) / 2) * scaleX;
-            let centerY = ((y1 + y2) / 2) * scaleY;
-            centerX += 18; // Move marker a bit to the right for better alignment
+          // Adjust coordinates using provided centre - No adjustment needed, just pass through
+          // The scaling will happen during rendering
+          const processedDetections: Detection[] = validDetections.map((det: ApiDetectionObject): Detection => {
+            // Return the detection object with the original API data
+            // No need for markerPosition anymore
             return {
               ...det,
-              markerPosition: [centerX, centerY]
             };
           });
   
-          console.log('Processed detections:', adjustedDetections.length);
+          console.log('Processed detections:', processedDetections.length);
           if (debugMode) {
-            console.log('Detection details:', JSON.stringify(adjustedDetections));
+            console.log('Detection details:', JSON.stringify(processedDetections));
           }
   
-          setDetections(adjustedDetections);
+          setDetections(processedDetections);
   
           // Handle challenge completion if needed
           if (data.completed_challenge && !challengeNotified) {
@@ -480,7 +508,7 @@ export default function CameraScreen({ navigation }: any) {
           label_en: detection.label_en,
           label_translated: detection.label, // Assuming 'label' is the translated one
           confidence: detection.confidence,
-          box: detection.box, // Send original box coordinates
+          // box: detection.box, // Removed box coordinates as requested
           target_language: language,
         }),
       });
@@ -559,14 +587,49 @@ export default function CameraScreen({ navigation }: any) {
     return <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, width: w, height: h }}>{lines}</View>;
   };
 
+  // Helper: Render bounding box overlays for debugging
+  const renderDebugBoxes = () => {
+    if (!debugMode) return null;
+    return detections.map((detection, idx) => {
+      if (!Array.isArray(detection.box) || detection.box.length !== 4) return null;
+      // API image size (should match what you send to API)
+      const apiWidth = 1280;
+      const apiHeight = 960;
+      const [x, y, w, h] = detection.box; // Use new format [x, y, width, height]
+      const scaleX = cameraDimensions.width / apiWidth;
+      const scaleY = cameraDimensions.height / apiHeight;
+      const left = x * scaleX;
+      const top = y * scaleY;
+      const width = w * scaleX;
+      const height = h * scaleY;
+      // Log for debugging
+      console.log(`Detection #${idx}: box=`, detection.box, 'centre=', detection.centre, 'rect:', { left, top, width, height });
+      return (
+        <View
+          key={`debug-box-${idx}`}
+          style={{
+            position: 'absolute',
+            left,
+            top,
+            width,
+            height,
+            borderWidth: 2,
+            borderColor: 'lime',
+            borderRadius: 6,
+            zIndex: 50,
+          }}
+          pointerEvents="none"
+        />
+      );
+    });
+  };
+
   // --- Render Logic ---
 
   if (!permission) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#181818' }]}> 
-        <View style={{ alignItems: 'center', marginBottom: 30 }}>
-          <CameraIcon size={60} color="#FF6B00" />
-        </View>
+        <Image source={mascotSleeping} style={{ width: 120, height: 120, marginBottom: 18 }} />
         <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>Camera Permission Needed</Text>
         <Text style={{ color: '#bbb', fontSize: 15, textAlign: 'center', marginBottom: 30, maxWidth: 280 }}>
           To use the camera features, please grant camera access to the app.
@@ -581,9 +644,7 @@ export default function CameraScreen({ navigation }: any) {
   if (!permission.granted) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#181818' }]}> 
-        <View style={{ alignItems: 'center', marginBottom: 30 }}>
-          <CameraIcon size={60} color="#FF6B00" />
-        </View>
+        <Image source={mascotSleeping} style={{ width: 120, height: 120, marginBottom: 18 }} />
         <Text style={{ color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 10 }}>Camera Permission Needed</Text>
         <Text style={{ color: '#bbb', fontSize: 15, textAlign: 'center', marginBottom: 30, maxWidth: 280 }}>
           To use the camera features, please grant camera access to the app.
@@ -595,34 +656,42 @@ export default function CameraScreen({ navigation }: any) {
     );
   }
 
-  const bottomSheetTranslateY = bottomSheetAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [300, 0], // Adjusted output range for potentially taller content
-  });
+  const bottomSheetTranslateY = Animated.add(
+    bottomSheetAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [300, 0], // Adjusted output range for potentially taller content
+    }),
+    pan
+  );
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
+      {/* Subtle background gradient overlay */}
+      <View style={{
+        ...StyleSheet.absoluteFillObject,
+        zIndex: 0,
+        backgroundColor: 'transparent',
+      }}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(255,107,0,0.08)' }} />
+      </View>
       <CameraView
         ref={cameraRef}
         style={styles.camera}
-        animateShutter={false} // Ensure shutter animation is off
         facing={cameraFacing}
-        flash={flashEnabled ? 'torch' : 'off'}
+        enableTorch={flashEnabled}
         onCameraReady={() => {
-          console.log('Camera ready');
           setCameraReady(true);
         }}
         onMountError={(error: { message: string }) => {
-          console.error('Camera mount error:', error);
           setLastError(`Camera mount error: ${error.message}`);
         }}
       >
         {/* Top Bar with Status Chip on Right */}
-        <View style={styles.topBar}>
+        <View style={[styles.topBar, { backgroundColor: 'transparent', borderRadius: 18, margin: 10, marginTop: Platform.OS === 'android' ? 30 : 40, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8 }]}> 
           <TouchableOpacity
             style={styles.topBarButton}
-            onPress={() => navigation?.goBack?.()}
+            onPress={() => router.back()}
           >
             <ChevronLeft size={24} color="white" />
           </TouchableOpacity>
@@ -647,6 +716,21 @@ export default function CameraScreen({ navigation }: any) {
         {/* Grid Overlay */}
         {renderGrid()}
 
+        {/* Mascot floating button */}
+        <TouchableOpacity
+          style={{ position: 'absolute', bottom: 120, right: 24, zIndex: 20 }}
+          onPress={() => setShowMascotTip(t => !t)}
+          activeOpacity={0.8}
+        >
+          <Image source={mascotSmiling} style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: '#fff', borderWidth: 2, borderColor: THEME_COLOR, shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 6 }} />
+        </TouchableOpacity>
+        {showMascotTip && (
+          <View style={{ position: 'absolute', bottom: 190, right: 24, backgroundColor: '#fff', borderRadius: 16, padding: 14, maxWidth: 220, shadowColor: '#000', shadowOpacity: 0.10, shadowRadius: 8, borderWidth: 1, borderColor: '#eee', zIndex: 30 }}>
+            <Text style={{ color: THEME_COLOR, fontWeight: 'bold', fontSize: 15, marginBottom: 4 }}>Hi there!</Text>
+            <Text style={{ color: '#333', fontSize: 14 }}>Point the camera at an object and tap "Start Detection". I'll help you learn what you see!</Text>
+          </View>
+        )}
+
         {/* Debug Information */}
         {debugMode && (
           <View style={[styles.debugInfo, { maxWidth: 220, top: 120, left: 20 }]}> 
@@ -668,25 +752,48 @@ export default function CameraScreen({ navigation }: any) {
 
         {/* Render detection markers using Marker component */}
         {detections.map((detection, index) => {
-          if (!detection.markerPosition) return null;
+          // Scale the centre coordinates for marker positioning
+          const apiWidth = 1280; // Assume API processes 1280x960 images
+          const apiHeight = 960;
+          const scaleX = cameraDimensions.width / apiWidth;
+          const scaleY = cameraDimensions.height / apiHeight;
+          let markerX = detection.centre[0] * scaleX;
+          let markerY = detection.centre[1] * scaleY;
+          markerX += 28; // Move marker 10 more pixels to the right
+
+          // Adjust position based on marker size (assuming marker is 32x32)
+          const markerOffsetX = 16;
+          const markerOffsetY = 16;
+
           return (
             <Marker
               key={`${index}-${detection.label_en}`}
-              position={{ x: detection.markerPosition[0] - 16, y: detection.markerPosition[1] - 16 }}
+              position={{ x: markerX - markerOffsetX, y: markerY - markerOffsetY }}
               isSelected={selectedDetection?.label_en === detection.label_en}
               label={detection.label_en}
               onPress={() => handleDetectionPress(detection)}
             />
           );
         })}
+
+        {/* Render debug boxes overlay */}
+        {renderDebugBoxes()}
+
+        {/* Mascot in empty state (no detections, not processing, not detecting) */}
+        {(!isProcessing && detections.length === 0 && !isDetecting) && (
+          <View style={{ position: 'absolute', alignSelf: 'center', top: '35%', alignItems: 'center', zIndex: 10 }}>
+            <Image source={mascotSmiling} style={{ width: 90, height: 90, marginBottom: 10 }} />
+            <Text style={{ color: '#fff', fontSize: 17, fontWeight: '600', textAlign: 'center', textShadowColor: '#000', textShadowRadius: 4 }}>Ready to explore! Start detection to see what I find.</Text>
+          </View>
+        )}
       </CameraView>
 
-      {/* Bottom Controls Bar (Keep as is) */}
-      <View style={styles.controls}>
+      {/* Bottom Controls Bar (revamped) */}
+      <View style={[styles.controls, { borderTopLeftRadius: 24, borderTopRightRadius: 24, backgroundColor: 'rgba(0,0,0,0.92)', shadowColor: '#000', shadowOpacity: 0.10, shadowRadius: 8 }]}> 
         <TouchableOpacity
           style={styles.controlButton}
           onPress={() => setCameraFacing(
-            (currentType: CameraType) => currentType === 'back' ? 'front' : 'back' // Added type annotation
+            (currentType: CameraType) => currentType === 'back' ? 'front' : 'back'
           )}
         >
           <CameraIcon size={24} color="white" />
@@ -694,10 +801,16 @@ export default function CameraScreen({ navigation }: any) {
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.detectionButton, isDetecting && styles.stopButton]}
+          style={[
+            styles.detectionButton,
+            isDetecting && styles.stopButton,
+            { elevation: 2, shadowColor: THEME_COLOR, shadowOpacity: 0.18, shadowRadius: 8, minWidth: 160, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }
+          ]}
           onPress={toggleDetection}
-          disabled={!cameraReady} // Disable button until camera is ready
+          disabled={!cameraReady}
+          activeOpacity={0.85}
         >
+          <Image source={mascotSmiling} style={{ width: 28, height: 28, marginRight: 10 }} />
           <Text style={styles.detectionButtonText}>
             {isDetecting ? 'Stop' : 'Start'} Detection
           </Text>
@@ -739,23 +852,31 @@ export default function CameraScreen({ navigation }: any) {
             styles.bottomSheet,
             { transform: [{ translateY: bottomSheetTranslateY }], padding: 0, backgroundColor: '#f8f8f8' }
           ]}
+          {...panResponder.panHandlers}
         >
-          <Card style={{ borderTopLeftRadius: 20, borderTopRightRadius: 20, elevation: 0, backgroundColor: '#fff' }}>
-            <View style={styles.bottomSheetHandle} />
-            <View style={[styles.bottomSheetHeader, { borderBottomWidth: 0, marginBottom: 0, paddingBottom: 0 }]}> 
-              <Text style={[styles.bottomSheetTitle, { fontSize: 20 }]}>{selectedDetection.label_en}</Text>
-              <TouchableOpacity onPress={hideBottomSheet}>
-                <X size={24} color="#333" />
+          <Card style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, elevation: 2, backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8 }}>
+            {/* Swipe down handle */}
+            <View style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 2 }}>
+              <View style={{ width: 48, height: 6, borderRadius: 3, backgroundColor: '#ddd', marginBottom: 8 }} />
+            </View>
+            {/* Header: mascot, title, close */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 8, paddingHorizontal: 16 }}>
+              <Image source={mascotSmiling} style={{ width: 32, height: 32, marginRight: 10 }} />
+              <Text style={[styles.bottomSheetTitle, { fontSize: 20, flex: 1, textAlign: 'center', color: THEME_COLOR }]} numberOfLines={1}>
+                {selectedDetection.label_en}
+              </Text>
+              <TouchableOpacity onPress={hideBottomSheet} style={{ marginLeft: 10, alignSelf: 'flex-start' }}>
+                <X size={26} color="#333" />
               </TouchableOpacity>
             </View>
-            <Card.Content style={{ paddingTop: 0 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                <Badge style={{ backgroundColor: '#FF6B00', marginRight: 12, width: 32, height: 32, borderRadius: 16, justifyContent: 'center', alignItems: 'center' }} size={32}>
+            <Card.Content style={{ paddingTop: 0, paddingHorizontal: 16 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16, backgroundColor: '#FFF6ED', borderRadius: 12, padding: 10 }}>
+                <Badge style={{ backgroundColor: THEME_COLOR, marginRight: 14, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', fontSize: 18 }} size={36}>
                   {selectedDetection.label_en[0]}
                 </Badge>
                 <View>
                   <Text style={{ color: '#888', fontSize: 15, marginTop: 2 }}>Translation:</Text>
-                  <Text style={{ color: '#333', fontSize: 17, fontWeight: '600' }}>{selectedDetection.label}</Text>
+                  <Text style={{ color: '#333', fontSize: 18, fontWeight: '700' }}>{selectedDetection.label}</Text>
                 </View>
               </View>
               {/* Divider */}

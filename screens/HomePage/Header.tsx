@@ -1,8 +1,24 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { Platform } from 'react-native';
+import { View, Text,TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { MotiView } from 'moti';
 import { Bell, User } from 'lucide-react-native';
-import { LanguageSelector } from '../LanguageSelector';
+// import { SearchBar } from 'react-native-screens';
+import { Search } from 'lucide-react-native';
+
+
+const SearchBar = () => {
+  return (
+    <View style={styles.searchContainer}>
+      <Search size={20} color="#666" />
+      <TextInput 
+        style={styles.searchInput} 
+        placeholder="Search phrases, translations..." 
+        placeholderTextColor="#999" 
+      />
+    </View>
+  );
+};
 
 export const Header = ({ navigation }) => {
   const username = "Alex";
@@ -56,7 +72,7 @@ export const Header = ({ navigation }) => {
         animate={{ opacity: 1 }}
         transition={{ delay: 300, duration: 500 }}
       >
-        <LanguageSelector />
+        <SearchBar />
       </MotiView>
     </MotiView>
   );
@@ -103,6 +119,30 @@ const styles = StyleSheet.create({
     elevation: 2,
     position: 'relative',
   },
+  searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#FFF',
+      borderRadius: 12,
+      padding: 12,
+      marginBottom: 24,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 3,
+      marginLeft: 6,
+      marginRight: 6,
+    },
+    searchInput: {
+      flex: 1,
+      fontSize: 16,
+      color: '#333',
+      marginLeft: 10,
+      ...(Platform.OS === 'web' && {
+        outlineStyle: 'none',
+      }),
+    },
   notificationBadge: {
     position: 'absolute',
     width: 10,

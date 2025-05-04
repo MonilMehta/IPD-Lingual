@@ -28,14 +28,16 @@ export default function RootLayout() {
   }
 
   return (
-    <PaperProvider> {/* <-- wrap everything with PaperProvider */}
+    
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <PaperProvider> 
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(main)" />
         </Stack>
         <StatusBar style="auto" />
+        </PaperProvider>
       </ThemeProvider>
-    </PaperProvider>
+    
   );
 }

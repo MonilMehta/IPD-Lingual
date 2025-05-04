@@ -35,12 +35,23 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eee',
   },
   languageCard: {
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
-    minWidth: 120,
+    backgroundColor: '#fff7ed',
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderRadius: 16,
+    minWidth: 110,
     alignItems: 'center',
+    marginVertical: 6,
+    marginHorizontal: 4,
+    borderWidth: 2,
+    borderColor: '#FF6B00',
+    shadowColor: '#FF6B00',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+    transitionProperty: 'background-color',
+    transitionDuration: '0.2s',
   },
   speakerLabel: {
     fontSize: 14,
@@ -113,17 +124,20 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 20,
+    paddingHorizontal: 10,
+    minHeight: 320,
   },
   languagePicker: {
     width: '100%',
     height: 200,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#FF6B00',
     textAlign: 'center',
-    paddingVertical: 16,
+    paddingVertical: 18,
+    letterSpacing: 0.5,
   },
   pickerButtonContainer: {
     flexDirection: 'row',
@@ -154,10 +168,11 @@ const styles = StyleSheet.create({
   pickerLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
-    marginLeft: 20,
+    color: '#FF6B00',
+    marginLeft: 0,
     marginTop: 10,
     marginBottom: 5,
+    textAlign: 'center',
   },
   utteranceContainer: {
     marginVertical: 6,
@@ -242,9 +257,11 @@ const styles = StyleSheet.create({
     height: 70,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 107, 0, 0.1)',
     borderRadius: 35,
     marginBottom: 12,
+    backgroundColor: 'rgba(255, 107, 0, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 0, 0.1)',
   },
   waveContainer: {
     flexDirection: 'row',
@@ -260,9 +277,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 1,
   },
   waitingText: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#FF6B00',
-    marginTop: 5,
+    marginLeft: 6,
+    fontWeight: '500',
   },
   waitingContainer: {
     flexDirection: 'row',
@@ -315,12 +333,6 @@ const styles = StyleSheet.create({
   },
   
   // Waiting container with improved styling
-  waitingText: {
-    fontSize: 14,
-    color: '#FF6B00',
-    marginLeft: 6,
-    fontWeight: '500',
-  },
   
   // Pulsing animation styles
   pulsingCircle: {
@@ -331,16 +343,28 @@ const styles = StyleSheet.create({
   },
   
   // Wave animation container with better visibility
-  waveAnimationContainer: {
-    width: 70,
-    height: 70,
-    justifyContent: 'center',
+  
+  languageGrid: {
+    flexDirection: 'column',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginVertical: 8,
     alignItems: 'center',
-    borderRadius: 35,
-    marginBottom: 12,
-    backgroundColor: 'rgba(255, 107, 0, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 107, 0, 0.1)',
+    justifyContent: 'center',
+  },
+  mascotImage: {
+    width: 60,
+    height: 60,
+    marginHorizontal: 12,
+    alignSelf: 'center',
+  },
+  selectedCard: {
+    backgroundColor: '#FFEDD5',
+    borderColor: '#FF6B00',
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 4,
+    transform: [{ scale: 1.06 }],
   },
 });
 

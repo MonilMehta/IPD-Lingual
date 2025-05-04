@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Header } from '../../../components/Header';
 import { ChallengeQuiz } from '../../../components/Challenge/ChallengeQuiz';
@@ -52,6 +52,26 @@ const fetchChallengeData = async (challengeId) => {
   };
 };
 
+const completeQuiz = async (challengeId) => {
+  try {
+    // TODO: Replace with your actual method to get the token
+    const token = '';
+    const response = await fetch('https://lingual-yn5c.onrender.com/api/quiz/complete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ challenge_id: challengeId }),
+    });
+    if (!response.ok) throw new Error('Failed to complete quiz');
+    return true;
+  } catch (err) {
+    Alert.alert('Error', err.message || 'Failed to complete quiz');
+    return false;
+  }
+};
+
 export default function ChallengeScreen() {
   const { id } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
@@ -83,7 +103,7 @@ export default function ChallengeScreen() {
     }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < challengeData.questions.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
@@ -94,8 +114,11 @@ export default function ChallengeScreen() {
           correctCount++;
         }
       });
-      
       setScore(Math.round((correctCount / challengeData.questions.length) * 100));
+      // Call complete endpoint if all correct
+      if (correctCount === challengeData.questions.length) {
+        await completeQuiz(id);
+      }
       setCompleted(true);
     }
   };
@@ -133,6 +156,7 @@ export default function ChallengeScreen() {
           isLastQuestion={currentStep === challengeData.questions.length - 1}
           questionNumber={currentStep + 1}
           totalQuestions={challengeData.questions.length}
+          onCompleteQuiz={() => completeQuiz(id)}
         />
       ) : (
         <ChallengeComplete 

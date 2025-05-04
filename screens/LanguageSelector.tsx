@@ -37,25 +37,7 @@ export function LanguageSelector() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Globe size={20} color="#FF6B00" style={styles.icon} />
-        <Text style={styles.label}>Learning Language</Text>
-      </View>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={selectedLanguage}
-          onValueChange={handleLanguageChange}
-          style={styles.picker}
-        >
-          {LANGUAGES.map(lang => (
-            <Picker.Item 
-              key={lang.code}
-              label={lang.name}
-              value={lang.code}
-            />
-          ))}
-        </Picker>
-      </View>
+      {/* Removed LanguageSelector UI as per request */}
     </View>
   );
 }

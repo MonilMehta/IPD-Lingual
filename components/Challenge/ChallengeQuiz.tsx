@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { MotiView } from 'moti';
+import { useRouter } from 'expo-router';
+
+// Mascot images
+const mascots = [
+  require('../../assets/images/cat-laughing.jpg'),
+  require('../../assets/images/cat-pointing.png'),
+  require('../../assets/images/cat-pointing2.jpg'),
+  require('../../assets/images/cat-sayinghi.jpg'),
+  require('../../assets/images/cat-sleeping.png'),
+  require('../../assets/images/cat-sleeping2.jpg'),
+  require('../../assets/images/cat-smiling.png'),
+  require('../../assets/images/cat-thinking.png'),
+];
 
 type QuestionType = {
   id: number;
@@ -18,6 +31,7 @@ type ChallengeQuizProps = {
   isLastQuestion: boolean;
   questionNumber: number;
   totalQuestions: number;
+  onCompleteQuiz?: () => Promise<void>; // <-- new prop for completion
 };
 
 export const ChallengeQuiz = ({ 
@@ -27,133 +41,52 @@ export const ChallengeQuiz = ({
   userAnswer, 
   isLastQuestion,
   questionNumber,
-  totalQuestions
+  totalQuestions,
+  onCompleteQuiz // <-- new prop for completion
 }: ChallengeQuizProps) => {
-  const [textInput, setTextInput] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
-  
-  const isAnswerCorrect = userAnswer === currentQuestion.correctAnswer;
-  
-  const handleOptionSelect = (option: string) => {
-    onAnswer(currentQuestion.id, option);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
+
+  // Pick a mascot based on question number for variety
+  const mascot = mascots[questionNumber % mascots.length];
+
+  const isAnswerCorrect = selectedOption === currentQuestion.correctAnswer;
+
+  const handleOptionSelect = async (option: string) => {
+    setSelectedOption(option);
     setShowFeedback(true);
-  };
-  
-  const handleTextSubmit = () => {
-    if (textInput.trim()) {
-      onAnswer(currentQuestion.id, textInput.trim());
-      setShowFeedback(true);
+    onAnswer(currentQuestion.id, option);
+    // If last question and correct, call complete endpoint
+    if (isLastQuestion && option === currentQuestion.correctAnswer && onCompleteQuiz) {
+      setSubmitting(true);
+      try {
+        await onCompleteQuiz();
+      } catch {}
+      setSubmitting(false);
     }
   };
 
   const handleNext = () => {
     setShowFeedback(false);
-    setTextInput('');
+    setSelectedOption(null);
     onNext();
   };
 
-  const renderQuestionContent = () => {
-    switch (currentQuestion.type) {
-      case 'multipleChoice':
-        return (
-          <View style={styles.optionsContainer}>
-            {currentQuestion.options.map((option, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.optionButton,
-                  userAnswer === option && styles.selectedOption,
-                  showFeedback && userAnswer === option && isAnswerCorrect && styles.correctOption,
-                  showFeedback && userAnswer === option && !isAnswerCorrect && styles.wrongOption,
-                ]}
-                onPress={() => handleOptionSelect(option)}
-                disabled={showFeedback}
-              >
-                <Text 
-                  style={[
-                    styles.optionText,
-                    userAnswer === option && styles.selectedOptionText,
-                    showFeedback && userAnswer === option && isAnswerCorrect && styles.correctOptionText,
-                    showFeedback && userAnswer === option && !isAnswerCorrect && styles.wrongOptionText,
-                  ]}
-                >
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        );
-      
-      case 'translation':
-        return (
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Type your answer here"
-              value={textInput}
-              onChangeText={setTextInput}
-              editable={!showFeedback}
-              autoCapitalize="none"
-            />
-            
-            {!userAnswer && (
-              <TouchableOpacity 
-                style={styles.submitButton}
-                onPress={handleTextSubmit}
-              >
-                <Text style={styles.submitButtonText}>Check</Text>
-              </TouchableOpacity>
-            )}
-            
-            {showFeedback && (
-              <MotiView 
-                from={{ opacity: 0, translateY: 10 }}
-                animate={{ opacity: 1, translateY: 0 }}
-                style={[styles.feedbackContainer, isAnswerCorrect ? styles.correctFeedback : styles.wrongFeedback]}
-              >
-                <Text style={styles.feedbackText}>
-                  {isAnswerCorrect 
-                    ? "Correct!" 
-                    : `The correct answer is: ${currentQuestion.correctAnswer}`}
-                </Text>
-              </MotiView>
-            )}
-          </View>
-        );
+  const handleTryAgain = () => {
+    setShowFeedback(false);
+    setSelectedOption(null);
+  };
 
-      case 'fill':
-        return (
-          <View style={styles.optionsContainer}>
-            {currentQuestion.options.map((option, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.optionButton,
-                  userAnswer === option && styles.selectedOption,
-                  showFeedback && userAnswer === option && isAnswerCorrect && styles.correctOption,
-                  showFeedback && userAnswer === option && !isAnswerCorrect && styles.wrongOption,
-                ]}
-                onPress={() => handleOptionSelect(option)}
-                disabled={showFeedback}
-              >
-                <Text 
-                  style={[
-                    styles.optionText,
-                    userAnswer === option && styles.selectedOptionText,
-                    showFeedback && userAnswer === option && isAnswerCorrect && styles.correctOptionText,
-                    showFeedback && userAnswer === option && !isAnswerCorrect && styles.wrongOptionText,
-                  ]}
-                >
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        );
-      
-      default:
-        return null;
+  // Helper to call complete endpoint before navigating to main
+  const handleGoToMain = async () => {
+    if (onCompleteQuiz) {
+      try {
+        await onCompleteQuiz();
+      } catch {}
     }
+    router.push('/(main)/home');
   };
 
   return (
@@ -161,7 +94,6 @@ export const ChallengeQuiz = ({
       <View style={styles.progressContainer}>
         <Text style={styles.progressText}>Question {questionNumber} of {totalQuestions}</Text>
       </View>
-      
       <MotiView
         key={`question-${currentQuestion.id}`}
         from={{ opacity: 0, translateX: 20 }}
@@ -170,21 +102,68 @@ export const ChallengeQuiz = ({
         style={styles.questionContainer}
       >
         <Text style={styles.questionText}>{currentQuestion.question}</Text>
-        
-        {renderQuestionContent()}
-        
+        <Image source={mascot} style={styles.mascot} resizeMode="contain" />
+        <View style={styles.optionsContainer}>
+          {currentQuestion.options.map((option, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.optionButton,
+                selectedOption === option && styles.selectedOption,
+                showFeedback && selectedOption === option && isAnswerCorrect && styles.correctOption,
+                showFeedback && selectedOption === option && !isAnswerCorrect && styles.wrongOption,
+              ]}
+              onPress={() => handleOptionSelect(option)}
+              disabled={showFeedback || submitting}
+            >
+              <Text 
+                style={[
+                  styles.optionText,
+                  selectedOption === option && styles.selectedOptionText,
+                  showFeedback && selectedOption === option && isAnswerCorrect && styles.correctOptionText,
+                  showFeedback && selectedOption === option && !isAnswerCorrect && styles.wrongOptionText,
+                ]}
+              >
+                {option}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
         {showFeedback && (
-          <TouchableOpacity 
-            style={[
-              styles.nextButton,
-              isAnswerCorrect ? styles.correctNextButton : styles.wrongNextButton
-            ]}
-            onPress={handleNext}
-          >
-            <Text style={styles.nextButtonText}>
-              {isLastQuestion ? "Complete Challenge" : "Next Question"}
-            </Text>
-          </TouchableOpacity>
+          <View style={{ marginTop: 24 }}>
+            {isAnswerCorrect ? (
+              <>
+                <Text style={[styles.feedbackText, { color: '#4CAF50', textAlign: 'center', marginBottom: 12 }]}>Correct!</Text>
+                <TouchableOpacity
+                  style={[styles.nextButton, styles.correctNextButton]}
+                  onPress={handleNext}
+                  disabled={submitting}
+                >
+                  <Text style={styles.nextButtonText}>
+                    {isLastQuestion ? 'Complete Quiz' : 'Next Question'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.nextButton, { backgroundColor: '#FF6B00', marginTop: 12 }]}
+                  onPress={handleGoToMain}
+                  disabled={submitting}
+                >
+                  <Text style={styles.nextButtonText}>Go to Main Screen</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.feedbackText, { color: '#F44336', textAlign: 'center', marginBottom: 12 }]}>Incorrect. Try again!</Text>
+                <TouchableOpacity
+                  style={[styles.nextButton, styles.wrongNextButton]}
+                  onPress={handleTryAgain}
+                  disabled={submitting}
+                >
+                  <Text style={styles.nextButtonText}>Try Again</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
         )}
       </MotiView>
     </View>
@@ -319,4 +298,10 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontWeight: '600',
     },
+  mascot: {
+    width: 100,
+    height: 100,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
 });
