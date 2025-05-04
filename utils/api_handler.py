@@ -187,6 +187,14 @@ def health_check():
     """
     return jsonify({"status": "ok"}), 200
 
+@app.route('/', methods=['GET'])
+def health_check():
+    """
+    Health check endpoint.
+    Returns a simple JSON response indicating the service is up.
+    """
+    return jsonify({"status": "ok"}), 200
+
 # =============================================================================
 # Authentication Endpoints
 # =============================================================================
