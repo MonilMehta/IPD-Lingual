@@ -101,7 +101,7 @@ class DetectionService:
 
             # --- Optimization: Translate unique labels once ---
             api_objects = result.get("objects", [])
-            unique_labels_en = set(obj.get("class_name", "unknown") for obj in api_objects if "box" in obj)
+            unique_labels_en = set(obj.get("label_en") for obj in api_objects if "box" in obj)
 
             # Translate unique labels concurrently
             translation_tasks = {
@@ -122,28 +122,35 @@ class DetectionService:
             # Process results using the pre-translated map
             detections = []
             # api_objects = result.get("objects", []) # Already defined above
+            print(f"[DEBUG] API response: {json.dumps(api_objects, indent=2)}") # DEBUG log the full response
             for obj in api_objects:
-                if "box" in obj:
-                    x1 = obj["box"].get("x1", 0)
-                    y1 = obj["box"].get("y1", 0)
-                    x2 = obj["box"].get("x2", 0)
-                    y2 = obj["box"].get("y2", 0) # Corrected typo here from x2 to y2
-                    label_en = obj.get("class_name", "unknown")
+                # Check if 'box' exists and is a list with 4 elements
+                if "box" in obj and isinstance(obj["box"], list) and len(obj["box"]) == 4:
+                    # Box format is [x, y, width, height]
+                    x1 = obj["box"][0]
+                    y1 = obj["box"][1]
+                    width = obj["box"][2]
+                    height = obj["box"][3]
+                    x2 = x1 + width # Calculate x2
+                    y2 = y1 + height # Calculate y2
+
+                    label_en = obj.get("label_en") # Assuming class_name is still the key for the label
 
                     # Get the translated label from the map
                     translated_label = translated_labels_map.get(label_en, label_en) # Use map, fallback to original
 
-                    width = x2 - x1
-                    height = y2 - y1
                     centre = [x1 + width // 2, y1 + height // 2]
 
                     detections.append({
-                        "box": [int(x1), int(y1), int(width), int(height)],
+                        "box": [int(x1), int(y1), int(width), int(height)], # Keep the [x, y, w, h] format
                         "centre": centre,
-                        "class": obj.get("class", 0), # Keep original class if available
                         "label_en": label_en, # Original English label
                         "label": translated_label # Potentially translated label
+                        # Confidence removed as per previous request
                     })
+                elif "box" in obj: # Log if box format is unexpected
+                    print(f"[WARN] Unexpected box format received: {obj['box']}")
+
 
             # Construct the final response structure (similar to your original format)
             final_response = {
