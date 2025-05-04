@@ -10,19 +10,25 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  Modal,
+  TouchableWithoutFeedback,
+  FlatList,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowLeftRight, X, Mic } from 'lucide-react-native';
 import { Stack } from 'expo-router';
 
-// Mock language options
+// Supported languages
 const LANGUAGES = [
   { code: 'en', name: 'English' },
+  { code: 'hi', name: 'Hindi' },
   { code: 'es', name: 'Spanish' },
   { code: 'fr', name: 'French' },
   { code: 'de', name: 'German' },
-  { code: 'ja', name: 'Japanese' },
-  { code: 'zh', name: 'Chinese' },
+  { code: 'it', name: 'Italian' },
+  { code: 'pt', name: 'Portuguese' },
+  { code: 'ru', name: 'Russian' },
 ];
 
 // Common phrases for suggestions
@@ -35,7 +41,60 @@ const COMMON_PHRASES = [
   "I don't understand",
   "Can you help me?",
   "Good morning",
+  "How do I get to...?",
+  "Where is the nearest...?",
+  "What time is it?",
+  "Can I have...?",
+  "I need help",
+  "Please speak slowly",
+  "Do you speak English?",
+  "Where can I find...?",
+  "How far is...?",
+  "Is it safe here?",
+  "Can you show me on the map?",
 ];
+
+function LanguageDropdown({ selected, onSelect, options }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <View>
+      <TouchableOpacity
+        style={styles.customDropdown}
+        onPress={() => setVisible(true)}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.customDropdownText}>{selected.name}</Text>
+      </TouchableOpacity>
+      <Modal
+        visible={visible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setVisible(false)}>
+          <View style={styles.modalOverlay} />
+        </TouchableWithoutFeedback>
+        <View style={styles.modalDropdown}>
+          <FlatList
+            data={options}
+            keyExtractor={item => item.code}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.dropdownItem}
+                onPress={() => {
+                  onSelect(item);
+                  setVisible(false);
+                }}
+              >
+                <Text style={styles.dropdownItemText}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      </Modal>
+    </View>
+  );
+}
 
 export default function TextTranslateScreen() {
   const [sourceText, setSourceText] = useState('');
@@ -43,6 +102,7 @@ export default function TextTranslateScreen() {
   const [sourceLanguage, setSourceLanguage] = useState(LANGUAGES[0]);
   const [targetLanguage, setTargetLanguage] = useState(LANGUAGES[1]);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [showPhraseScrollTip, setShowPhraseScrollTip] = useState(true);
   
   // Swap languages function
   const swapLanguages = () => {
@@ -59,11 +119,9 @@ export default function TextTranslateScreen() {
   
   // Add phrase to input
   const addPhrase = (phrase) => {
-    if (sourceText) {
-      setSourceText(sourceText + ' ' + phrase);
-    } else {
-      setSourceText(phrase);
-    }
+    let newText = sourceText ? sourceText + ' ' + phrase : phrase;
+    setSourceText(newText);
+    setTranslatedText('');
   };
   
   // Clear input text
@@ -72,18 +130,20 @@ export default function TextTranslateScreen() {
     setTranslatedText('');
   };
   
-  // Perform translation (mock implementation)
-  const translateText = async () => {
-    if (!sourceText.trim()) return;
-    
+  // Perform translation using Google Translate API
+  const translateText = async (textToTranslate = sourceText) => {
+    if (!textToTranslate.trim()) return;
     setIsTranslating(true);
-    
-    // Simulate API call with timeout
-    setTimeout(() => {
-      // Mock translation - in a real app, call translation API here
-      setTranslatedText(`[${targetLanguage.name} translation of: "${sourceText}"]`);
-      setIsTranslating(false);
-    }, 1000);
+    try {
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLanguage.code}&dt=t&q=${encodeURIComponent(textToTranslate)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      // Google API returns [[['translated','original',null,null,...]],null,'sourceLang',...]
+      setTranslatedText(data[0]?.[0]?.[0] || '');
+    } catch (e) {
+      setTranslatedText('Translation failed.');
+    }
+    setIsTranslating(false);
   };
 
   return (
@@ -102,12 +162,24 @@ export default function TextTranslateScreen() {
         style={styles.keyboardAvoidView}
       >
         <ScrollView style={styles.scrollContainer}>
+          {/* Add mascot image at the top */}
+          <View style={{ alignItems: 'center', marginBottom: 16 }}>
+            <Image
+              source={require('../../assets/images/cat-smiling.png')}
+              style={{ width: 80, height: 80, borderRadius: 40 }}
+              resizeMode="contain"
+            />
+          </View>
           {/* Language Selection */}
           <View style={styles.languageSelector}>
             <View style={styles.languageOption}>
               <Text style={styles.languageLabel}>From:</Text>
               <View style={styles.languageDropdown}>
-                <Text style={styles.languageName}>{sourceLanguage.name}</Text>
+                <LanguageDropdown
+                  selected={sourceLanguage}
+                  onSelect={setSourceLanguage}
+                  options={LANGUAGES}
+                />
               </View>
             </View>
             
@@ -118,7 +190,11 @@ export default function TextTranslateScreen() {
             <View style={styles.languageOption}>
               <Text style={styles.languageLabel}>To:</Text>
               <View style={styles.languageDropdown}>
-                <Text style={styles.languageName}>{targetLanguage.name}</Text>
+                <LanguageDropdown
+                  selected={targetLanguage}
+                  onSelect={setTargetLanguage}
+                  options={LANGUAGES}
+                />
               </View>
             </View>
           </View>
@@ -141,26 +217,38 @@ export default function TextTranslateScreen() {
             ) : null}
             
             <TouchableOpacity style={styles.micButton}>
-              <Mic size={20} color="#9C27B0" />
+              <Mic size={20} color="#FF6B00" />
             </TouchableOpacity>
           </View>
           
           {/* Phrase Suggestions */}
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            style={styles.phrasesContainer}
-          >
-            {COMMON_PHRASES.map((phrase, index) => (
-              <TouchableOpacity 
-                key={index} 
-                style={styles.phraseChip}
-                onPress={() => addPhrase(phrase)}
-              >
-                <Text style={styles.phraseText}>{phrase}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+          <View style={styles.phrasesScrollWrapper}>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              style={styles.phrasesContainer}
+              onScroll={({ nativeEvent }) => {
+                if (nativeEvent.contentOffset.x > 10) setShowPhraseScrollTip(false);
+              }}
+              scrollEventThrottle={16}
+            >
+              {COMMON_PHRASES.map((phrase, index) => (
+                <TouchableOpacity 
+                  key={index} 
+                  style={styles.phraseChip}
+                  onPress={() => addPhrase(phrase)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.phraseText}>{phrase}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            {showPhraseScrollTip && (
+              <View style={styles.scrollTip}>
+                <Text style={styles.scrollTipText}>⇠ scroll</Text>
+              </View>
+            )}
+          </View>
           
           {/* Translate Button */}
           <TouchableOpacity 
@@ -264,36 +352,41 @@ const styles = StyleSheet.create({
     bottom: 8,
     right: 8,
     padding: 8,
-    backgroundColor: 'rgba(156, 39, 176, 0.1)',
+    backgroundColor: 'rgba(255, 107, 0, 0.1)',
     borderRadius: 20,
+  },
+  phrasesScrollWrapper: {
+    position: 'relative',
+    marginBottom: 20,
   },
   phrasesContainer: {
     flexDirection: 'row',
     marginBottom: 20,
   },
   phraseChip: {
-    backgroundColor: 'rgba(156, 39, 176, 0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 16,
-    marginRight: 8,
+    backgroundColor: '#fff3e0',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 18,
+    marginRight: 10,
     borderWidth: 1,
-    borderColor: 'rgba(156, 39, 176, 0.3)',
+    borderColor: '#FF6B00',
+    marginBottom: 8,
   },
   phraseText: {
-    fontSize: 14,
-    color: '#9C27B0',
-    fontWeight: '500',
+    fontSize: 15,
+    color: '#FF6B00',
+    fontWeight: '600',
   },
   translateButton: {
-    backgroundColor: '#9C27B0',
+    backgroundColor: '#FF6B00',
     borderRadius: 8,
     padding: 16,
     alignItems: 'center',
     marginBottom: 20,
   },
   translateButtonDisabled: {
-    backgroundColor: '#d0d0d0',
+    backgroundColor: '#ffd6b3',
   },
   translateButtonText: {
     color: '#fff',
@@ -319,5 +412,62 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     lineHeight: 24,
+  },
+  customDropdown: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FF6B00',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    minWidth: 120,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  customDropdownText: {
+    color: '#FF6B00',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  modalDropdown: {
+    position: 'absolute',
+    top: 120,
+    left: 30,
+    right: 30,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#FF6B00',
+    maxHeight: 300,
+    zIndex: 100,
+    paddingVertical: 8,
+  },
+  dropdownItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: '#FF6B00',
+  },
+  scrollTip: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    backgroundColor: '#FF6B00',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    zIndex: 10,
+  },
+  scrollTipText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });

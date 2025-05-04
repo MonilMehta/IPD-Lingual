@@ -10,7 +10,7 @@ import { MainFeatures } from '../../screens/HomePage/MainFeatures';
 import { QuickPhrases } from '../../screens/HomePage/QuickPhrases';
 import { TouristGuides } from '../../screens/HomePage/TouristGuides';
 
-const HomeScreen: React.FC = () => {
+export const HomeScreen: React.FC = () => {
   const router = useRouter();
 
   return (
@@ -18,8 +18,8 @@ const HomeScreen: React.FC = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Header navigation={router} />
         <DailyQuiz />
-        <LearningPathway navigation={router} />
         <MainFeatures navigation={router} />
+        <LearningPathway navigation={router} />
         <QuickPhrases navigation={router} />
         <TouristGuides navigation={router} />
       </ScrollView>
@@ -58,7 +58,5 @@ export const styles = StyleSheet.create({
       elevation: 3,
     },
   });
-  
-
 
 export default HomeScreen;
