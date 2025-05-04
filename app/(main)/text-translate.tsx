@@ -131,15 +131,22 @@ export default function TextTranslateScreen() {
   };
   
   // Perform translation using Google Translate API
-  const translateText = async (textToTranslate = sourceText) => {
-    if (!textToTranslate.trim()) return;
+  const translateText = async (textToTranslate) => {
+    const text = typeof textToTranslate === 'string' ? textToTranslate : String(textToTranslate ?? '');
+    if (!text.trim()) return;
     setIsTranslating(true);
     try {
-      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLanguage.code}&dt=t&q=${encodeURIComponent(textToTranslate)}`;
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLanguage.code}&dt=t&q=${encodeURIComponent(text)}`;
       const res = await fetch(url);
       const data = await res.json();
-      // Google API returns [[['translated','original',null,null,...]],null,'sourceLang',...]
-      setTranslatedText(data[0]?.[0]?.[0] || '');
+      // Always extract translation as string
+      let result = '';
+      if (Array.isArray(data) && Array.isArray(data[0]) && Array.isArray(data[0][0])) {
+        result = data[0][0][0] || '';
+      } else {
+        result = 'Could not get translation.';
+      }
+      setTranslatedText(result);
     } catch (e) {
       setTranslatedText('Translation failed.');
     }
