@@ -67,7 +67,7 @@ class DetectionService:
             traceback.print_exc()
             return text # Return original text on error
 
-    async def detect_objects_api(self, frame, profile='kids', confidence='0.3', iou='0.6', target_language='en', username=None): # Add target_language and username
+    async def detect_objects_api(self, frame, profile='kids', target_language='en', username=None): # Remove confidence and iou
         """Detect objects in a frame using Hugging Face Spaces API and translate labels."""
         try:
             # Convert OpenCV frame to PIL Image
@@ -85,8 +85,6 @@ class DetectionService:
             form_data.add_field('image', image_bytes, filename='image.jpg', content_type='image/jpeg')
             # Use provided parameters or defaults
             form_data.add_field('profile', profile)
-            form_data.add_field('confidence', confidence)
-            form_data.add_field('iou', iou)
 
             # Call Hugging Face Spaces API with form data
             async with aiohttp.ClientSession() as session:
@@ -135,12 +133,16 @@ class DetectionService:
                     # Get the translated label from the map
                     translated_label = translated_labels_map.get(label_en, label_en) # Use map, fallback to original
 
+                    width = x2 - x1
+                    height = y2 - y1
+                    centre = [x1 + width // 2, y1 + height // 2]
+
                     detections.append({
-                        "box": [int(x1), int(y1), int(x2), int(y2)],
+                        "box": [int(x1), int(y1), int(width), int(height)],
+                        "centre": centre,
                         "class": obj.get("class", 0), # Keep original class if available
                         "label_en": label_en, # Original English label
-                        "label": translated_label, # Potentially translated label
-                        "confidence": obj.get("confidence", 0.0)
+                        "label": translated_label # Potentially translated label
                     })
 
             # Construct the final response structure (similar to your original format)

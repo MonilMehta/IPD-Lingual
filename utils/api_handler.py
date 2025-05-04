@@ -28,6 +28,8 @@ from googletrans import Translator
 from bson import ObjectId
 from groq import Groq # Added Groq import
 from datetime import date, timedelta # Added date and timedelta
+import logging 
+from flask import request
 
 # =============================================================================
 # Helper Functions and Constants
@@ -122,13 +124,41 @@ def get_todays_challenge_word():
     except Exception as e:
         print(f"Error reading or processing daily challenge file: {e}")
         return None
-
 # =============================================================================
 # App Initialization
 # =============================================================================
 
 app = Flask(__name__)
 CORS(app)
+
+# =============================================================================
+# Request Logging Middleware
+# =============================================================================
+#Configure Logging
+app.logger.setLevel(logging.INFO)
+# Optional: Configure format if needed, but default might be fine for Render
+log_handler = logging.StreamHandler() # Log to stderr/stdout
+log_handler.setFormatter(logging.Formatter(
+    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+))
+# Only add the handler if Flask isn't already logging to stdout/stderr by default
+if not app.logger.handlers:
+     app.logger.addHandler(log_handler)
+
+@app.after_request
+def log_request_info(response):
+    """Log information about each request after it's processed."""
+    # Use Flask's logger instance
+    app.logger.info(
+        f'{request.remote_addr} - "{request.method} {request.path} HTTP/{request.environ.get("SERVER_PROTOCOL", "1.1")}" {response.status_code}'
+    )
+    # Log request headers (optional, can be verbose)
+    # app.logger.debug(f"Request Headers: {request.headers}")
+    # Log response headers (optional, can be verbose)
+    # app.logger.debug(f"Response Headers: {response.headers}")
+    return response
+
+
 
 # JWT Configuration
 jwt = JWTManager(app)
