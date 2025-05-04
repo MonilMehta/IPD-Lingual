@@ -60,7 +60,7 @@ def get_language_name_from_code(code):
             return name.lower()  # e.g., 'english'
     return 'english'  # Default
 
-async def _run_detection(file, profile, confidence, iou, target_language, username):
+async def _run_detection(file, profile, target_language, username):
     """
     Helper async function for object detection with translation
     """
@@ -73,8 +73,6 @@ async def _run_detection(file, profile, confidence, iou, target_language, userna
     return await detection_service.detect_objects_api(
         frame,
         profile=profile,
-        confidence=confidence,
-        iou=iou,
         target_language=target_language,
         username=username
     )
