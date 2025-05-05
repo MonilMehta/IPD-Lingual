@@ -1,0 +1,512 @@
+{
+  "local_markets": [
+    {
+      "label1": "これはいくらですか？",
+      "label2": "How much is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "割引してもらえますか？",
+      "label2": "Can I get a discount?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "これは何で作られていますか？",
+      "label2": "What is this made of?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "一番近い市場はどこですか？",
+      "label2": "Where is the nearest market?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "カードは使えますか？",
+      "label2": "Do you accept cards?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "これは手作りですか？",
+      "label2": "Is it handmade?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "もう少し安くできますか？",
+      "label2": "Can you lower the price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "これは高すぎます。",
+      "label2": "This is too expensive.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "これをもらいます。",
+      "label2": "I'll take it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "別のものを見てもいいですか？",
+      "label2": "Can I see another one?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "これはどれくらい古いですか？",
+      "label2": "How old is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "返品ポリシーはどうなっていますか？",
+      "label2": "What's the return policy?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "これを包装してもらえますか？",
+      "label2": "Can you pack it?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "これは壊れているようです。",
+      "label2": "This looks damaged.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "一番良い値段はいくらですか？",
+      "label2": "What's your best price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "これは他の色がありますか？",
+      "label2": "Do you have this in another color?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "これを試着してもいいですか？",
+      "label2": "Can I try it on?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "見ているだけです。",
+      "label2": "I'm just looking.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "考えておきます。",
+      "label2": "I'll think about it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ご協力ありがとうございます。",
+      "label2": "Thank you for your help.",
+      "category": "Local Markets Guide"
+    }
+  ],
+  "transport": [
+    {
+      "label1": "バスステーションはどこですか？",
+      "label2": "Where is the bus station?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "空港へはどうやって行きますか？",
+      "label2": "How do I get to the airport?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "タクシーが必要です。",
+      "label2": "I need a taxi.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "これが正しい電車ですか？",
+      "label2": "Is this the right train?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "次のバスは何時ですか？",
+      "label2": "What time is the next bus?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "チケットはどこで買えますか？",
+      "label2": "Where can I buy a ticket?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "これは直行ルートですか？",
+      "label2": "Is it a direct route?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "運賃はいくらですか？",
+      "label2": "How much is the fare?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "座席予約はできますか？",
+      "label2": "Can I get a seat reservation?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "プラットフォームはどこですか？",
+      "label2": "Where is the platform?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "これは市内中心部に行きますか？",
+      "label2": "Does this go to the city center?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "次の停留所はどこですか？",
+      "label2": "What stop is next?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "どれくらいの時間がかかりますか？",
+      "label2": "How long is the ride?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "電車を乗り換える必要がありますか？",
+      "label2": "Do I need to change trains?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "遅延はありますか？",
+      "label2": "Is there a delay?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "車をレンタルできますか？",
+      "label2": "Can I rent a car?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "停留所を逃してしまいました。",
+      "label2": "I missed my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "タクシーを呼んでもらえますか？",
+      "label2": "Can you call a cab?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "これが私の停留所です。",
+      "label2": "This is my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "夜間は安全ですか？",
+      "label2": "Is it safe at night?",
+      "category": "Transport Guide"
+    }
+  ],
+  "restaurant": [
+    {
+      "label1": "メニューを見せてもらえますか？",
+      "label2": "Can I see the menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "私はベジタリアンです。",
+      "label2": "I'm vegetarian.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "何かおすすめはありますか？",
+      "label2": "What do you recommend?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "この料理は辛いですか？",
+      "label2": "Is this dish spicy?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "食物アレルギーがあります。",
+      "label2": "I have a food allergy.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "水をもらえますか？",
+      "label2": "Can I have some water?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "お会計をお願いします。",
+      "label2": "The bill, please.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "カードで支払えますか？",
+      "label2": "Can I pay by card?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "サービス料は含まれていますか？",
+      "label2": "Is service included?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "これは注文したものと違います。",
+      "label2": "This is not what I ordered.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "玉ねぎ抜きでもらえますか？",
+      "label2": "Can I get it without onions?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "子供用メニューはありますか？",
+      "label2": "Do you have a kids menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "これはグルテンフリーですか？",
+      "label2": "Is this gluten-free?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "持ち帰りできますか？",
+      "label2": "Can I have it to go?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ナッツアレルギーがあります。",
+      "label2": "I'm allergic to nuts.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "とても美味しかったです。",
+      "label2": "It was delicious.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "もう一つもらえますか？",
+      "label2": "Can I have another one?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "お酒は提供していますか？",
+      "label2": "Do you serve alcohol?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "この料理には何が入っていますか？",
+      "label2": "What's in this dish?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ありがとう、とても良かったです。",
+      "label2": "Thank you, it was great.",
+      "category": "Restaurant Guide"
+    }
+  ],
+  "scam_save": [
+    {
+      "label1": "あなたを知りません。",
+      "label2": "I don't know you.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "一人にしてください。",
+      "label2": "Leave me alone.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "警察を呼んでください。",
+      "label2": "Call the police.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "それは私のバッグではありません。",
+      "label2": "That's not my bag.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "これは詐欺のように感じます。",
+      "label2": "This feels like a scam.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "興味ありません。",
+      "label2": "I'm not interested.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ついてこないでください。",
+      "label2": "Stop following me.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "IDを見せてください。",
+      "label2": "Show me your ID.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "マネージャーと話したいです。",
+      "label2": "I want to speak to the manager.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "これには同意していません。",
+      "label2": "I didn't agree to this.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "警察署に行きましょう。",
+      "label2": "Let's go to the police station.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "それを返してください。",
+      "label2": "Please give it back.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "お金がかかるとは言われていませんでした。",
+      "label2": "You didn't say it costs money.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ノーはノーです。",
+      "label2": "No means no.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "免許を持っていますか？",
+      "label2": "Do you have a license?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "領収書が欲しいです。",
+      "label2": "I want a receipt.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "これは正しく見えません。",
+      "label2": "This doesn't look right.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "これは合法ですか？",
+      "label2": "Is this legal?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "あなたは私を不快にしています。",
+      "label2": "You're making me uncomfortable.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "助けて！誰か警備員を呼んでください。",
+      "label2": "Help! Someone call security.",
+      "category": "Scam Safety Guide"
+    }
+  ],
+  "kids_guide": [
+    {
+      "label1": "お母さんはどこですか？",
+      "label2": "Where is my mom?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "迷子になりました。",
+      "label2": "I'm lost.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "手伝ってもらえますか？",
+      "label2": "Can you help me?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "アイスクリームが食べたいです。",
+      "label2": "I want ice cream.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "トイレに行きたいです。",
+      "label2": "I need to go to the bathroom.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "それは私のおもちゃです。",
+      "label2": "That's my toy.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "どこに行くの？",
+      "label2": "Where are we going?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "お腹がすきました。",
+      "label2": "I'm hungry.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "それは何ですか？",
+      "label2": "What's that?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "遊べますか？",
+      "label2": "Can we play?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "疲れました。",
+      "label2": "I'm tired.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "家に帰りたいです。",
+      "label2": "I want to go home.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "気分が悪いです。",
+      "label2": "I don't feel good.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "アニメを見てもいい？",
+      "label2": "Can we watch a cartoon?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "これが好きです。",
+      "label2": "I like this.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "行こう！",
+      "label2": "Let's go!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "それはいりません。",
+      "label2": "I don't want that.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "楽しい！",
+      "label2": "This is fun!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "一つもらえますか？",
+      "label2": "Can I have one?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "待っていてください！",
+      "label2": "Please wait for me!",
+      "category": "Kids Guide"
+    }
+  ]
+}

@@ -1,0 +1,512 @@
+{
+  "local_markets": [
+    {
+      "label1": "हे किती आहे?",
+      "label2": "How much is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "मला सूट मिळू शकेल का?",
+      "label2": "Can I get a discount?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "हे कशापासून बनलेले आहे?",
+      "label2": "What is this made of?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "जवळचे बाजार कुठे आहे?",
+      "label2": "Where is the nearest market?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "तुम्ही कार्ड स्वीकारता का?",
+      "label2": "Do you accept cards?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "हे हाताने बनवलेले आहे का?",
+      "label2": "Is it handmade?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "तुम्ही किंमत कमी करू शकता का?",
+      "label2": "Can you lower the price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "हे खूप महाग आहे.",
+      "label2": "This is too expensive.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "मी हे घेईन.",
+      "label2": "I'll take it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "मी दुसरे पाहू शकतो/शकते का?",
+      "label2": "Can I see another one?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "हे किती जुने आहे?",
+      "label2": "How old is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "परत करण्याचे धोरण काय आहे?",
+      "label2": "What's the return policy?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "तुम्ही हे पॅक करू शकता का?",
+      "label2": "Can you pack it?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "हे नुकसान झाल्यासारखे दिसत आहे.",
+      "label2": "This looks damaged.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "तुमची सर्वोत्तम किंमत काय आहे?",
+      "label2": "What's your best price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "तुमच्याकडे हे दुसऱ्या रंगात आहे का?",
+      "label2": "Do you have this in another color?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "मी हे घालून पाहू शकतो/शकते का?",
+      "label2": "Can I try it on?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "मी फक्त पाहत आहे.",
+      "label2": "I'm just looking.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "मी याबद्दल विचार करेन.",
+      "label2": "I'll think about it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "तुमच्या मदतीबद्दल धन्यवाद.",
+      "label2": "Thank you for your help.",
+      "category": "Local Markets Guide"
+    }
+  ],
+  "transport": [
+    {
+      "label1": "बस स्टेशन कुठे आहे?",
+      "label2": "Where is the bus station?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "मी विमानतळापर्यंत कसे पोहोचू?",
+      "label2": "How do I get to the airport?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "मला एक टॅक्सी हवी आहे.",
+      "label2": "I need a taxi.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ही योग्य ट्रेन आहे का?",
+      "label2": "Is this the right train?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "पुढची बस किती वाजता आहे?",
+      "label2": "What time is the next bus?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "मी तिकीट कुठे विकत घेऊ शकतो/शकते?",
+      "label2": "Where can I buy a ticket?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "हा थेट मार्ग आहे का?",
+      "label2": "Is it a direct route?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "भाडे किती आहे?",
+      "label2": "How much is the fare?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "मी सीट आरक्षण मिळवू शकतो/शकते का?",
+      "label2": "Can I get a seat reservation?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "प्लॅटफॉर्म कुठे आहे?",
+      "label2": "Where is the platform?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "हे शहराच्या केंद्रापर्यंत जाते का?",
+      "label2": "Does this go to the city center?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "पुढचा थांबा कोणता आहे?",
+      "label2": "What stop is next?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "प्रवास किती लांब आहे?",
+      "label2": "How long is the ride?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "मला ट्रेन बदलावी लागेल का?",
+      "label2": "Do I need to change trains?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "विलंब आहे का?",
+      "label2": "Is there a delay?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "मी कार भाड्याने घेऊ शकतो/शकते का?",
+      "label2": "Can I rent a car?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "माझा थांबा चुकला आहे.",
+      "label2": "I missed my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "तुम्ही टॅक्सीला फोन करू शकता का?",
+      "label2": "Can you call a cab?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "हा माझा थांबा आहे.",
+      "label2": "This is my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "हे रात्री सुरक्षित आहे का?",
+      "label2": "Is it safe at night?",
+      "category": "Transport Guide"
+    }
+  ],
+  "restaurant": [
+    {
+      "label1": "मी मेनू पाहू शकतो/शकते का?",
+      "label2": "Can I see the menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "मी शाकाहारी आहे.",
+      "label2": "I'm vegetarian.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "तुम्ही काय सुचवता?",
+      "label2": "What do you recommend?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "हे जेवण तिखट आहे का?",
+      "label2": "Is this dish spicy?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "मला अन्न अॅलर्जी आहे.",
+      "label2": "I have a food allergy.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "मला थोडे पाणी मिळू शकते का?",
+      "label2": "Can I have some water?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "बिल, कृपया.",
+      "label2": "The bill, please.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "मी कार्डाद्वारे पेमेंट करू शकतो/शकते का?",
+      "label2": "Can I pay by card?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "सेवा समाविष्ट आहे का?",
+      "label2": "Is service included?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "हे मी ऑर्डर केलेले नाही.",
+      "label2": "This is not what I ordered.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "मी हे कांद्याशिवाय घेऊ शकतो/शकते का?",
+      "label2": "Can I get it without onions?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "तुमच्याकडे मुलांसाठी मेनू आहे का?",
+      "label2": "Do you have a kids menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "हे ग्लुटेन-फ्री आहे का?",
+      "label2": "Is this gluten-free?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "मी हे बाहेर नेऊ शकतो/शकते का?",
+      "label2": "Can I have it to go?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "मला ड्राय फ्रुट्सची अॅलर्जी आहे.",
+      "label2": "I'm allergic to nuts.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "हे चविष्ट होते.",
+      "label2": "It was delicious.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "मला आणखी एक मिळू शकते का?",
+      "label2": "Can I have another one?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "तुम्ही दारू सर्व्ह करता का?",
+      "label2": "Do you serve alcohol?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "या डिशमध्ये काय आहे?",
+      "label2": "What's in this dish?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "धन्यवाद, हे छान होते.",
+      "label2": "Thank you, it was great.",
+      "category": "Restaurant Guide"
+    }
+  ],
+  "scam_save": [
+    {
+      "label1": "मी तुम्हाला ओळखत नाही.",
+      "label2": "I don't know you.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "मला एकटे सोडा.",
+      "label2": "Leave me alone.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "पोलिसांना बोलवा.",
+      "label2": "Call the police.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ती माझी बॅग नाही.",
+      "label2": "That's not my bag.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "हे फसवणूक वाटते.",
+      "label2": "This feels like a scam.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "मला यात रस नाही.",
+      "label2": "I'm not interested.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "माझा पाठलाग करणे थांबवा.",
+      "label2": "Stop following me.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "तुमचे आयडी दाखवा.",
+      "label2": "Show me your ID.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "मला व्यवस्थापकाशी बोलायचे आहे.",
+      "label2": "I want to speak to the manager.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "मी याला मान्यता दिली नव्हती.",
+      "label2": "I didn't agree to this.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "चला पोलीस स्टेशनला जाऊ.",
+      "label2": "Let's go to the police station.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "कृपया हे परत द्या.",
+      "label2": "Please give it back.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "तुम्ही सांगितले नाही की हे पैशाचे आहे.",
+      "label2": "You didn't say it costs money.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "नाही म्हणजे नाही.",
+      "label2": "No means no.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "तुमच्याकडे परवाना आहे का?",
+      "label2": "Do you have a license?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "मला पावती हवी आहे.",
+      "label2": "I want a receipt.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "हे बरोबर वाटत नाही.",
+      "label2": "This doesn't look right.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "हे कायदेशीर आहे का?",
+      "label2": "Is this legal?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "तुम्ही मला अस्वस्थ करत आहात.",
+      "label2": "You're making me uncomfortable.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "मदत करा! कोणीतरी सुरक्षा रक्षकांना बोलवा.",
+      "label2": "Help! Someone call security.",
+      "category": "Scam Safety Guide"
+    }
+  ],
+  "kids_guide": [
+    {
+      "label1": "माझी आई कुठे आहे?",
+      "label2": "Where is my mom?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "मी हरवलो/हरवले आहे.",
+      "label2": "I'm lost.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "तुम्ही माझी मदत करू शकता का?",
+      "label2": "Can you help me?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "मला आइस्क्रीम हवा आहे.",
+      "label2": "I want ice cream.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "मला बाथरूमला जायचे आहे.",
+      "label2": "I need to go to the bathroom.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "हे माझे खेळणे आहे.",
+      "label2": "That's my toy.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "आपण कुठे जात आहोत?",
+      "label2": "Where are we going?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "मला भूक लागली आहे.",
+      "label2": "I'm hungry.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "हे काय आहे?",
+      "label2": "What's that?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "आपण खेळू शकतो का?",
+      "label2": "Can we play?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "मी थकलो/थकले आहे.",
+      "label2": "I'm tired.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "मला घरी जायचे आहे.",
+      "label2": "I want to go home.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "मला बरे वाटत नाही.",
+      "label2": "I don't feel good.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "आपण कार्टून पाहू शकतो का?",
+      "label2": "Can we watch a cartoon?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "मला हे आवडते.",
+      "label2": "I like this.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "चला जाऊया!",
+      "label2": "Let's go!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "मला ते नको आहे.",
+      "label2": "I don't want that.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "हे मजेदार आहे!",
+      "label2": "This is fun!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "मला एक मिळू शकते का?",
+      "label2": "Can I have one?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "कृपया माझी वाट पहा!",
+      "label2": "Please wait for me!",
+      "category": "Kids Guide"
+    }
+  ]
+}

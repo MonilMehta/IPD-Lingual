@@ -1,0 +1,512 @@
+{
+  "local_markets": [
+    {
+      "label1": "How much is this?",
+      "label2": "How much is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Can I get a discount?",
+      "label2": "Can I get a discount?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "What is this made of?",
+      "label2": "What is this made of?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Where is the nearest market?",
+      "label2": "Where is the nearest market?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Do you accept cards?",
+      "label2": "Do you accept cards?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Is it handmade?",
+      "label2": "Is it handmade?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Can you lower the price?",
+      "label2": "Can you lower the price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "This is too expensive.",
+      "label2": "This is too expensive.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "I’ll take it.",
+      "label2": "I’ll take it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Can I see another one?",
+      "label2": "Can I see another one?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "How old is this?",
+      "label2": "How old is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "What’s the return policy?",
+      "label2": "What’s the return policy?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Can you pack it?",
+      "label2": "Can you pack it?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "This looks damaged.",
+      "label2": "This looks damaged.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "What’s your best price?",
+      "label2": "What’s your best price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Do you have this in another color?",
+      "label2": "Do you have this in another color?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Can I try it on?",
+      "label2": "Can I try it on?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "I’m just looking.",
+      "label2": "I’m just looking.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "I’ll think about it.",
+      "label2": "I’ll think about it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Thank you for your help.",
+      "label2": "Thank you for your help.",
+      "category": "Local Markets Guide"
+    }
+  ],
+  "transport": [
+    {
+      "label1": "Where is the bus station?",
+      "label2": "Where is the bus station?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "How do I get to the airport?",
+      "label2": "How do I get to the airport?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "I need a taxi.",
+      "label2": "I need a taxi.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Is this the right train?",
+      "label2": "Is this the right train?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "What time is the next bus?",
+      "label2": "What time is the next bus?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Where can I buy a ticket?",
+      "label2": "Where can I buy a ticket?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Is it a direct route?",
+      "label2": "Is it a direct route?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "How much is the fare?",
+      "label2": "How much is the fare?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Can I get a seat reservation?",
+      "label2": "Can I get a seat reservation?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Where is the platform?",
+      "label2": "Where is the platform?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Does this go to the city center?",
+      "label2": "Does this go to the city center?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "What stop is next?",
+      "label2": "What stop is next?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "How long is the ride?",
+      "label2": "How long is the ride?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Do I need to change trains?",
+      "label2": "Do I need to change trains?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Is there a delay?",
+      "label2": "Is there a delay?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Can I rent a car?",
+      "label2": "Can I rent a car?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "I missed my stop.",
+      "label2": "I missed my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Can you call a cab?",
+      "label2": "Can you call a cab?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "This is my stop.",
+      "label2": "This is my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Is it safe at night?",
+      "label2": "Is it safe at night?",
+      "category": "Transport Guide"
+    }
+  ],
+  "restaurant": [
+    {
+      "label1": "Can I see the menu?",
+      "label2": "Can I see the menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "I’m vegetarian.",
+      "label2": "I’m vegetarian.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "What do you recommend?",
+      "label2": "What do you recommend?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Is this dish spicy?",
+      "label2": "Is this dish spicy?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "I have a food allergy.",
+      "label2": "I have a food allergy.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Can I have some water?",
+      "label2": "Can I have some water?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "The bill, please.",
+      "label2": "The bill, please.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Can I pay by card?",
+      "label2": "Can I pay by card?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Is service included?",
+      "label2": "Is service included?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "This is not what I ordered.",
+      "label2": "This is not what I ordered.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Can I get it without onions?",
+      "label2": "Can I get it without onions?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Do you have a kids menu?",
+      "label2": "Do you have a kids menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Is this gluten-free?",
+      "label2": "Is this gluten-free?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Can I have it to go?",
+      "label2": "Can I have it to go?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "I’m allergic to nuts.",
+      "label2": "I’m allergic to nuts.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "It was delicious.",
+      "label2": "It was delicious.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Can I have another one?",
+      "label2": "Can I have another one?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Do you serve alcohol?",
+      "label2": "Do you serve alcohol?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "What’s in this dish?",
+      "label2": "What’s in this dish?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Thank you, it was great.",
+      "label2": "Thank you, it was great.",
+      "category": "Restaurant Guide"
+    }
+  ],
+  "scam_save": [
+    {
+      "label1": "I don’t know you.",
+      "label2": "I don’t know you.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Leave me alone.",
+      "label2": "Leave me alone.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Call the police.",
+      "label2": "Call the police.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "That’s not my bag.",
+      "label2": "That’s not my bag.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "This feels like a scam.",
+      "label2": "This feels like a scam.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "I’m not interested.",
+      "label2": "I’m not interested.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Stop following me.",
+      "label2": "Stop following me.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Show me your ID.",
+      "label2": "Show me your ID.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "I want to speak to the manager.",
+      "label2": "I want to speak to the manager.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "I didn’t agree to this.",
+      "label2": "I didn’t agree to this.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Let’s go to the police station.",
+      "label2": "Let’s go to the police station.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Please give it back.",
+      "label2": "Please give it back.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "You didn’t say it costs money.",
+      "label2": "You didn’t say it costs money.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "No means no.",
+      "label2": "No means no.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Do you have a license?",
+      "label2": "Do you have a license?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "I want a receipt.",
+      "label2": "I want a receipt.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "This doesn’t look right.",
+      "label2": "This doesn’t look right.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Is this legal?",
+      "label2": "Is this legal?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "You’re making me uncomfortable.",
+      "label2": "You’re making me uncomfortable.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Help! Someone call security.",
+      "label2": "Help! Someone call security.",
+      "category": "Scam Safety Guide"
+    }
+  ],
+  "kids_guide": [
+    {
+      "label1": "Where is my mom?",
+      "label2": "Where is my mom?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "I’m lost.",
+      "label2": "I’m lost.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Can you help me?",
+      "label2": "Can you help me?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "I want ice cream.",
+      "label2": "I want ice cream.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "I need to go to the bathroom.",
+      "label2": "I need to go to the bathroom.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "That’s my toy.",
+      "label2": "That’s my toy.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Where are we going?",
+      "label2": "Where are we going?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "I’m hungry.",
+      "label2": "I’m hungry.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "What’s that?",
+      "label2": "What’s that?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Can we play?",
+      "label2": "Can we play?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "I’m tired.",
+      "label2": "I’m tired.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "I want to go home.",
+      "label2": "I want to go home.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "I don’t feel good.",
+      "label2": "I don’t feel good.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Can we watch a cartoon?",
+      "label2": "Can we watch a cartoon?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "I like this.",
+      "label2": "I like this.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Let’s go!",
+      "label2": "Let’s go!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "I don’t want that.",
+      "label2": "I don’t want that.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "This is fun!",
+      "label2": "This is fun!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Can I have one?",
+      "label2": "Can I have one?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Please wait for me!",
+      "label2": "Please wait for me!",
+      "category": "Kids Guide"
+    }
+  ]
+}

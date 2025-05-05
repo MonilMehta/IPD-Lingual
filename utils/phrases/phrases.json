@@ -1,0 +1,1272 @@
+{
+  "en": [
+    {
+      "label1": "Where is...?",
+      "label2": "Where is...?",
+      "category": "Navigation"
+    },
+    {
+      "label1": "How much?",
+      "label2": "How much?",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Thank you",
+      "label2": "Thank you",
+      "category": "Basics"
+    },
+    {
+      "label1": "Can you help me?",
+      "label2": "Can you help me?",
+      "category": "Help"
+    },
+    {
+      "label1": "I don't understand",
+      "label2": "I don't understand",
+      "category": "Help"
+    },
+    {
+      "label1": "The bill, please",
+      "label2": "The bill, please",
+      "category": "Dining"
+    },
+    {
+      "label1": "Hello",
+      "label2": "Hello",
+      "category": "Basics"
+    },
+    {
+      "label1": "Goodbye",
+      "label2": "Goodbye",
+      "category": "Basics"
+    },
+    {
+      "label1": "Yes",
+      "label2": "Yes",
+      "category": "Basics"
+    },
+    {
+      "label1": "No",
+      "label2": "No",
+      "category": "Basics"
+    },
+    {
+      "label1": "Excuse me",
+      "label2": "Excuse me",
+      "category": "Basics"
+    },
+    {
+      "label1": "Sorry",
+      "label2": "Sorry",
+      "category": "Basics"
+    },
+    {
+      "label1": "What is this?",
+      "label2": "What is this?",
+      "category": "Help"
+    },
+    {
+      "label1": "I need a doctor",
+      "label2": "I need a doctor",
+      "category": "Emergency"
+    },
+    {
+      "label1": "Call the police",
+      "label2": "Call the police",
+      "category": "Emergency"
+    },
+    {
+      "label1": "I'm lost",
+      "label2": "I'm lost",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I’m allergic to...",
+      "label2": "I’m allergic to...",
+      "category": "Emergency"
+    },
+    {
+      "label1": "I need water",
+      "label2": "I need water",
+      "category": "Dining"
+    },
+    {
+      "label1": "Restroom",
+      "label2": "Restroom",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I'm looking for this address",
+      "label2": "I'm looking for this address",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Please",
+      "label2": "Please",
+      "category": "Basics"
+    },
+    {
+      "label1": "You're welcome",
+      "label2": "You're welcome",
+      "category": "Basics"
+    },
+    {
+      "label1": "No problem",
+      "label2": "No problem",
+      "category": "Basics"
+    },
+    {
+      "label1": "Check, please",
+      "label2": "Check, please",
+      "category": "Dining"
+    },
+    {
+      "label1": "I don’t speak [language]",
+      "label2": "I don’t speak [language]",
+      "category": "Help"
+    }
+  ],
+  "gu": [
+    {
+      "label1": "Where is...?",
+      "label2": "ક્યાં છે...?",
+      "category": "Navigation"
+    },
+    {
+      "label1": "How much?",
+      "label2": "કેટલાં થયું?",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Thank you",
+      "label2": "આભાર",
+      "category": "Basics"
+    },
+    {
+      "label1": "Can you help me?",
+      "label2": "તમે મારી મદદ કરી શકો?",
+      "category": "Help"
+    },
+    {
+      "label1": "I don't understand",
+      "label2": "મને સમજાતું નથી",
+      "category": "Help"
+    },
+    {
+      "label1": "The bill, please",
+      "label2": "બીલ આપો, કૃપા કરીને",
+      "category": "Dining"
+    },
+    {
+      "label1": "Hello",
+      "label2": "નમસ્તે",
+      "category": "Basics"
+    },
+    {
+      "label1": "Goodbye",
+      "label2": "આવજો",
+      "category": "Basics"
+    },
+    {
+      "label1": "Yes",
+      "label2": "હા",
+      "category": "Basics"
+    },
+    {
+      "label1": "No",
+      "label2": "ના",
+      "category": "Basics"
+    },
+    {
+      "label1": "Excuse me",
+      "label2": "માફ કરશો",
+      "category": "Basics"
+    },
+    {
+      "label1": "Sorry",
+      "label2": "માફ કરો",
+      "category": "Basics"
+    },
+    {
+      "label1": "What is this?",
+      "label2": "આ શું છે?",
+      "category": "Help"
+    },
+    {
+      "label1": "I need a doctor",
+      "label2": "મને ડૉક્ટર જોઈએ છે",
+      "category": "Emergency"
+    },
+    {
+      "label1": "Call the police",
+      "label2": "પોલીસને બોલાવો",
+      "category": "Emergency"
+    },
+    {
+      "label1": "I'm lost",
+      "label2": "હું ખોવાઈ ગયો છું",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I’m allergic to...",
+      "label2": "મને ... થી એલર્જી છે",
+      "category": "Emergency"
+    },
+    {
+      "label1": "I need water",
+      "label2": "મને પાણી જોઈએ છે",
+      "category": "Dining"
+    },
+    {
+      "label1": "Restroom",
+      "label2": "શૌચાલય",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I'm looking for this address",
+      "label2": "હું આ સરનામું શોધી રહ્યો છું",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Please",
+      "label2": "કૃપા કરીને",
+      "category": "Basics"
+    },
+    {
+      "label1": "You're welcome",
+      "label2": "તમારું સ્વાગત છે",
+      "category": "Basics"
+    },
+    {
+      "label1": "No problem",
+      "label2": "કોઈ સમસ્યા નથી",
+      "category": "Basics"
+    },
+    {
+      "label1": "Check, please",
+      "label2": "બીલ આપો",
+      "category": "Dining"
+    },
+    {
+      "label1": "I don’t speak [language]",
+      "label2": "હું [ભાષા] બોલતો નથી",
+      "category": "Help"
+    }
+  ],
+  "hi": [
+    {
+      "label1": "Where is...?",
+      "label2": "कहाँ है...?",
+      "category": "Navigation"
+    },
+    {
+      "label1": "How much?",
+      "label2": "कितना हुआ?",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Thank you",
+      "label2": "धन्यवाद",
+      "category": "Basics"
+    },
+    {
+      "label1": "Can you help me?",
+      "label2": "क्या आप मेरी मदद कर सकते हैं?",
+      "category": "Help"
+    },
+    {
+      "label1": "I don't understand",
+      "label2": "मुझे समझ नहीं आया",
+      "category": "Help"
+    },
+    {
+      "label1": "The bill, please",
+      "label2": "बिल दीजिए",
+      "category": "Dining"
+    },
+    {
+      "label1": "Hello",
+      "label2": "नमस्ते",
+      "category": "Basics"
+    },
+    {
+      "label1": "Goodbye",
+      "label2": "अलविदा",
+      "category": "Basics"
+    },
+    {
+      "label1": "Yes",
+      "label2": "हाँ",
+      "category": "Basics"
+    },
+    {
+      "label1": "No",
+      "label2": "नहीं",
+      "category": "Basics"
+    },
+    {
+      "label1": "Excuse me",
+      "label2": "माफ कीजिए",
+      "category": "Basics"
+    },
+    {
+      "label1": "Sorry",
+      "label2": "माफ कीजिए",
+      "category": "Basics"
+    },
+    {
+      "label1": "What is this?",
+      "label2": "यह क्या है?",
+      "category": "Help"
+    },
+    {
+      "label1": "I need a doctor",
+      "label2": "मुझे डॉक्टर चाहिए",
+      "category": "Emergency"
+    },
+    {
+      "label1": "Call the police",
+      "label2": "पुलिस को बुलाओ",
+      "category": "Emergency"
+    },
+    {
+      "label1": "I'm lost",
+      "label2": "मैं खो गया हूँ",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I’m allergic to...",
+      "label2": "मुझे ... से एलर्जी है",
+      "category": "Emergency"
+    },
+    {
+      "label1": "I need water",
+      "label2": "मुझे पानी चाहिए",
+      "category": "Dining"
+    },
+    {
+      "label1": "Restroom",
+      "label2": "शौचालय",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I'm looking for this address",
+      "label2": "मैं इस पते को ढूंढ रहा हूँ",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Please",
+      "label2": "कृपया",
+      "category": "Basics"
+    },
+    {
+      "label1": "You're welcome",
+      "label2": "आपका स्वागत है",
+      "category": "Basics"
+    },
+    {
+      "label1": "No problem",
+      "label2": "कोई बात नहीं",
+      "category": "Basics"
+    },
+    {
+      "label1": "Check, please",
+      "label2": "बिल दीजिए",
+      "category": "Dining"
+    },
+    {
+      "label1": "I don’t speak [language]",
+      "label2": "मैं [भाषा] नहीं बोलता",
+      "category": "Help"
+    }
+  ],
+  "kn": [
+    {
+      "label1": "Where is...?",
+      "label2": "ಎಲ್ಲಿ ಇದೆ...?",
+      "category": "Navigation"
+    },
+    {
+      "label1": "How much?",
+      "label2": "ಎಷ್ಟು?",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Thank you",
+      "label2": "ಧನ್ಯವಾದಗಳು",
+      "category": "Basics"
+    },
+    {
+      "label1": "Can you help me?",
+      "label2": "ನೀವು ನನಗೆ ಸಹಾಯ ಮಾಡಬಹುದೆ?",
+      "category": "Help"
+    },
+    {
+      "label1": "I don't understand",
+      "label2": "ನನಗೆ ಅರ್ಥವಾಗುತ್ತಿಲ್ಲ",
+      "category": "Help"
+    },
+    {
+      "label1": "The bill, please",
+      "label2": "ಬಿಲ್ ನೀಡಿ",
+      "category": "Dining"
+    },
+    {
+      "label1": "Hello",
+      "label2": "ನಮಸ್ಕಾರ",
+      "category": "Basics"
+    },
+    {
+      "label1": "Goodbye",
+      "label2": "ವಿದಾಯ",
+      "category": "Basics"
+    },
+    {
+      "label1": "Yes",
+      "label2": "ಹೌದು",
+      "category": "Basics"
+    },
+    {
+      "label1": "No",
+      "label2": "ಇಲ್ಲ",
+      "category": "Basics"
+    },
+    {
+      "label1": "Excuse me",
+      "label2": "ಕ್ಷಮಿಸಿ",
+      "category": "Basics"
+    },
+    {
+      "label1": "Sorry",
+      "label2": "ಕ್ಷಮಿಸಿ",
+      "category": "Basics"
+    },
+    {
+      "label1": "What is this?",
+      "label2": "ಇದು ಏನು?",
+      "category": "Help"
+    },
+    {
+      "label1": "I need a doctor",
+      "label2": "ನನಗೆ ವೈದ್ಯರ ಅವಶ್ಯಕತೆ ಇದೆ",
+      "category": "Emergency"
+    },
+    {
+      "label1": "Call the police",
+      "label2": "ಪೊಲೀಸರನ್ನು ಕರೆ ಮಾಡಿ",
+      "category": "Emergency"
+    },
+    {
+      "label1": "I'm lost",
+      "label2": "ನಾನು ತಪ್ಪಿಸಿಕೊಂಡಿದ್ದೇನೆ",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I’m allergic to...",
+      "label2": "ನನಗೆ ... ಅಲರ್ಜಿ ಇದೆ",
+      "category": "Emergency"
+    },
+    {
+      "label1": "I need water",
+      "label2": "ನನಗೆ ನೀರು ಬೇಕು",
+      "category": "Dining"
+    },
+    {
+      "label1": "Restroom",
+      "label2": "ಶೌಚಾಲಯ",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I'm looking for this address",
+      "label2": "ನಾನು ಈ ವಿಳಾಸವನ್ನು ಹುಡುಕುತ್ತಿದ್ದೇನೆ",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Please",
+      "label2": "ದಯವಿಟ್ಟು",
+      "category": "Basics"
+    },
+    {
+      "label1": "You're welcome",
+      "label2": "ಸ್ವಾಗತ",
+      "category": "Basics"
+    },
+    {
+      "label1": "No problem",
+      "label2": "ಯಾವುದೇ ತೊಂದರೆ ಇಲ್ಲ",
+      "category": "Basics"
+    },
+    {
+      "label1": "Check, please",
+      "label2": "ಬಿಲ್ ನೀಡಿ",
+      "category": "Dining"
+    },
+    {
+      "label1": "I don’t speak [language]",
+      "label2": "ನಾನು [ಭಾಷೆ] ಮಾತನಾಡಲಾರೆ",
+      "category": "Help"
+    }
+  ],
+  "mr": [
+    {
+      "label1": "Where is...?",
+      "label2": "कोठे आहे...?",
+      "category": "Navigation"
+    },
+    {
+      "label1": "How much?",
+      "label2": "किती झाले?",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Thank you",
+      "label2": "धन्यवाद",
+      "category": "Basics"
+    },
+    {
+      "label1": "Can you help me?",
+      "label2": "तुम्ही मला मदत करू शकता का?",
+      "category": "Help"
+    },
+    {
+      "label1": "I don't understand",
+      "label2": "मला समजले नाही",
+      "category": "Help"
+    },
+    {
+      "label1": "The bill, please",
+      "label2": "बिल द्या",
+      "category": "Dining"
+    },
+    {
+      "label1": "Hello",
+      "label2": "नमस्कार",
+      "category": "Basics"
+    },
+    {
+      "label1": "Goodbye",
+      "label2": "नमस्ते",
+      "category": "Basics"
+    },
+    {
+      "label1": "Yes",
+      "label2": "हो",
+      "category": "Basics"
+    },
+    {
+      "label1": "No",
+      "label2": "नाही",
+      "category": "Basics"
+    },
+    {
+      "label1": "Excuse me",
+      "label2": "माफ करा",
+      "category": "Basics"
+    },
+    {
+      "label1": "Sorry",
+      "label2": "माफ करा",
+      "category": "Basics"
+    },
+    {
+      "label1": "What is this?",
+      "label2": "हे काय आहे?",
+      "category": "Help"
+    },
+    {
+      "label1": "I need a doctor",
+      "label2": "मला डॉक्टर पाहिजे",
+      "category": "Emergency"
+    },
+    {
+      "label1": "Call the police",
+      "label2": "पोलिसांना बोलवा",
+      "category": "Emergency"
+    },
+    {
+      "label1": "I'm lost",
+      "label2": "मी हरवले आहे",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I’m allergic to...",
+      "label2": "मला ... ला अ‍ॅलर्जी आहे",
+      "category": "Emergency"
+    },
+    {
+      "label1": "I need water",
+      "label2": "मला पाणी पाहिजे",
+      "category": "Dining"
+    },
+    {
+      "label1": "Restroom",
+      "label2": "शौचालय",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I'm looking for this address",
+      "label2": "मी हे पत्ता शोधत आहे",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Please",
+      "label2": "कृपया",
+      "category": "Basics"
+    },
+    {
+      "label1": "You're welcome",
+      "label2": "तुमचे स्वागत आहे",
+      "category": "Basics"
+    },
+    {
+      "label1": "No problem",
+      "label2": "काही every problem नाही",
+      "category": "Basics"
+    },
+    {
+      "label1": "Check, please",
+      "label2": "बिल द्या",
+      "category": "Dining"
+    },
+    {
+      "label1": "I don’t speak [language]",
+      "label2": "मी [भाषा] बोलत नाही",
+      "category": "Help"
+    }
+  ],
+"fr": [
+    {
+      "label1": "Where is...?",
+      "label2": "Où est...?",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Do you have this in another size?",
+      "label2": "Do you have this in another size? (fr)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Yes",
+      "label2": "Oui",
+      "category": "Basics"
+    },
+    {
+      "label1": "Call the police",
+      "label2": "Call the police (fr)",
+      "category": "Help"
+    },
+    {
+      "label1": "This is delicious",
+      "label2": "This is delicious (fr)",
+      "category": "Dining"
+    },
+    {
+      "label1": "Good night",
+      "label2": "Good night (fr)",
+      "category": "Greetings"
+    },
+    {
+      "label1": "There’s been an accident",
+      "label2": "There’s been an accident (fr)",
+      "category": "Emergency"
+    },
+    {
+      "label1": "How long does it take?",
+      "label2": "How long does it take? (fr)",
+      "category": "Transportation"
+    },
+    {
+      "label1": "Do you have a room?",
+      "label2": "Do you have a room? (fr)",
+      "category": "Accommodation"
+    },
+    {
+      "label1": "What’s the date?",
+      "label2": "What’s the date? (fr)",
+      "category": "Time & Dates"
+    },
+    {
+      "label1": "Is it far?",
+      "label2": "Is it far? (fr)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I want to buy this",
+      "label2": "I want to buy this (fr)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "No",
+      "label2": "Non",
+      "category": "Basics"
+    },
+    {
+      "label1": "Call the police",
+      "label2": "Call the police (fr)",
+      "category": "Help"
+    },
+    {
+      "label1": "Can I have water?",
+      "label2": "Can I have water? (fr)",
+      "category": "Dining"
+    },
+    {
+      "label1": "Nice to meet you",
+      "label2": "Nice to meet you (fr)",
+      "category": "Greetings"
+    },
+    {
+      "label1": "I need a doctor",
+      "label2": "I need a doctor (fr)",
+      "category": "Emergency"
+    },
+    {
+      "label1": "How long does it take?",
+      "label2": "How long does it take? (fr)",
+      "category": "Transportation"
+    },
+    {
+      "label1": "Do you have a room?",
+      "label2": "Do you have a room? (fr)",
+      "category": "Accommodation"
+    },
+    {
+      "label1": "Tomorrow",
+      "label2": "Tomorrow (fr)",
+      "category": "Time & Dates"
+    },
+    {
+      "label1": "Turn left",
+      "label2": "Turn left (fr)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Where is the changing room?",
+      "label2": "Where is the changing room? (fr)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Please",
+      "label2": "Please (fr)",
+      "category": "Basics"
+    },
+    {
+      "label1": "Call the police",
+      "label2": "Call the police (fr)",
+      "category": "Help"
+    },
+    {
+      "label1": "This is delicious",
+      "label2": "This is delicious (fr)",
+      "category": "Dining"
+    }
+  ],
+  "es": [
+    {
+      "label1": "Where is...?",
+      "label2": "¿Dónde está...?",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I want to buy this",
+      "label2": "I want to buy this (es)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Yes",
+      "label2": "Sí",
+      "category": "Basics"
+    },
+    {
+      "label1": "Is there a doctor?",
+      "label2": "Is there a doctor? (es)",
+      "category": "Help"
+    },
+    {
+      "label1": "Can I have water?",
+      "label2": "Can I have water? (es)",
+      "category": "Dining"
+    },
+    {
+      "label1": "Hello",
+      "label2": "Hola",
+      "category": "Greetings"
+    },
+    {
+      "label1": "Help!",
+      "label2": "Help! (es)",
+      "category": "Emergency"
+    },
+    {
+      "label1": "Where is the bus stop?",
+      "label2": "Where is the bus stop? (es)",
+      "category": "Transportation"
+    },
+    {
+      "label1": "Do you have a room?",
+      "label2": "Do you have a room? (es)",
+      "category": "Accommodation"
+    },
+    {
+      "label1": "Tomorrow",
+      "label2": "Tomorrow (es)",
+      "category": "Time & Dates"
+    },
+    {
+      "label1": "How do I get to...?",
+      "label2": "How do I get to...? (es)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Do you have this in another size?",
+      "label2": "Do you have this in another size? (es)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Excuse me",
+      "label2": "Excuse me (es)",
+      "category": "Basics"
+    },
+    {
+      "label1": "Call the police",
+      "label2": "Call the police (es)",
+      "category": "Help"
+    },
+    {
+      "label1": "The bill, please",
+      "label2": "La cuenta, por favor",
+      "category": "Dining"
+    },
+    {
+      "label1": "Good morning",
+      "label2": "Good morning (es)",
+      "category": "Greetings"
+    },
+    {
+      "label1": "Call an ambulance",
+      "label2": "Call an ambulance (es)",
+      "category": "Emergency"
+    },
+    {
+      "label1": "How long does it take?",
+      "label2": "How long does it take? (es)",
+      "category": "Transportation"
+    },
+    {
+      "label1": "How much is it per night?",
+      "label2": "How much is it per night? (es)",
+      "category": "Accommodation"
+    },
+    {
+      "label1": "What time is it?",
+      "label2": "What time is it? (es)",
+      "category": "Time & Dates"
+    },
+    {
+      "label1": "Turn left",
+      "label2": "Turn left (es)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Do you have this in another size?",
+      "label2": "Do you have this in another size? (es)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Please",
+      "label2": "Please (es)",
+      "category": "Basics"
+    },
+    {
+      "label1": "I don't understand",
+      "label2": "No entiendo",
+      "category": "Help"
+    },
+    {
+      "label1": "The bill, please",
+      "label2": "La cuenta, por favor",
+      "category": "Dining"
+    }
+  ],
+  "zh": [
+    {
+      "label1": "Turn left",
+      "label2": "Turn left (zh)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "How much?",
+      "label2": "多少钱？",
+      "category": "Shopping"
+    },
+    {
+      "label1": "No",
+      "label2": "不",
+      "category": "Basics"
+    },
+    {
+      "label1": "I don't understand",
+      "label2": "我不明白",
+      "category": "Help"
+    },
+    {
+      "label1": "I’m vegetarian",
+      "label2": "I’m vegetarian (zh)",
+      "category": "Dining"
+    },
+    {
+      "label1": "Good night",
+      "label2": "Good night (zh)",
+      "category": "Greetings"
+    },
+    {
+      "label1": "Call an ambulance",
+      "label2": "Call an ambulance (zh)",
+      "category": "Emergency"
+    },
+    {
+      "label1": "Where is the bus stop?",
+      "label2": "Where is the bus stop? (zh)",
+      "category": "Transportation"
+    },
+    {
+      "label1": "Is breakfast included?",
+      "label2": "Is breakfast included? (zh)",
+      "category": "Accommodation"
+    },
+    {
+      "label1": "Yesterday",
+      "label2": "Yesterday (zh)",
+      "category": "Time & Dates"
+    },
+    {
+      "label1": "Turn left",
+      "label2": "Turn left (zh)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Do you accept credit cards?",
+      "label2": "Do you accept credit cards? (zh)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Yes",
+      "label2": "是",
+      "category": "Basics"
+    },
+    {
+      "label1": "Call the police",
+      "label2": "Call the police (zh)",
+      "category": "Help"
+    },
+    {
+      "label1": "Can I have water?",
+      "label2": "Can I have water? (zh)",
+      "category": "Dining"
+    },
+    {
+      "label1": "Good morning",
+      "label2": "Good morning (zh)",
+      "category": "Greetings"
+    },
+    {
+      "label1": "Call an ambulance",
+      "label2": "Call an ambulance (zh)",
+      "category": "Emergency"
+    },
+    {
+      "label1": "Where is the bus stop?",
+      "label2": "Where is the bus stop? (zh)",
+      "category": "Transportation"
+    },
+    {
+      "label1": "Is breakfast included?",
+      "label2": "Is breakfast included? (zh)",
+      "category": "Accommodation"
+    },
+    {
+      "label1": "Yesterday",
+      "label2": "Yesterday (zh)",
+      "category": "Time & Dates"
+    },
+    {
+      "label1": "Is it far?",
+      "label2": "Is it far? (zh)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Where is the changing room?",
+      "label2": "Where is the changing room? (zh)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Excuse me",
+      "label2": "Excuse me (zh)",
+      "category": "Basics"
+    },
+    {
+      "label1": "Is there a doctor?",
+      "label2": "Is there a doctor? (zh)",
+      "category": "Help"
+    },
+    {
+      "label1": "The bill, please",
+      "label2": "请给我账单",
+      "category": "Dining"
+    }
+  ],
+  "ru": [
+    {
+      "label1": "Is it far?",
+      "label2": "Is it far? (ru)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Where is the changing room?",
+      "label2": "Where is the changing room? (ru)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "No",
+      "label2": "Нет",
+      "category": "Basics"
+    },
+    {
+      "label1": "Is there a doctor?",
+      "label2": "Is there a doctor? (ru)",
+      "category": "Help"
+    },
+    {
+      "label1": "The bill, please",
+      "label2": "Счёт, пожалуйста",
+      "category": "Dining"
+    },
+    {
+      "label1": "Nice to meet you",
+      "label2": "Nice to meet you (ru)",
+      "category": "Greetings"
+    },
+    {
+      "label1": "I’m lost",
+      "label2": "I’m lost (ru)",
+      "category": "Emergency"
+    },
+    {
+      "label1": "I need a taxi",
+      "label2": "I need a taxi (ru)",
+      "category": "Transportation"
+    },
+    {
+      "label1": "I have a reservation",
+      "label2": "I have a reservation (ru)",
+      "category": "Accommodation"
+    },
+    {
+      "label1": "What’s the date?",
+      "label2": "What’s the date? (ru)",
+      "category": "Time & Dates"
+    },
+    {
+      "label1": "Where is...?",
+      "label2": "Где находится...?",
+      "category": "Navigation"
+    },
+    {
+      "label1": "How much?",
+      "label2": "Сколько стоит?",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Excuse me",
+      "label2": "Excuse me (ru)",
+      "category": "Basics"
+    },
+    {
+      "label1": "I don't understand",
+      "label2": "Я не понимаю",
+      "category": "Help"
+    },
+    {
+      "label1": "No spicy food",
+      "label2": "No spicy food (ru)",
+      "category": "Dining"
+    },
+    {
+      "label1": "Hello",
+      "label2": "Здравствуйте",
+      "category": "Greetings"
+    },
+    {
+      "label1": "I need a doctor",
+      "label2": "I need a doctor (ru)",
+      "category": "Emergency"
+    },
+    {
+      "label1": "One ticket please",
+      "label2": "One ticket please (ru)",
+      "category": "Transportation"
+    },
+    {
+      "label1": "Do you have a room?",
+      "label2": "Do you have a room? (ru)",
+      "category": "Accommodation"
+    },
+    {
+      "label1": "Tomorrow",
+      "label2": "Tomorrow (ru)",
+      "category": "Time & Dates"
+    },
+    {
+      "label1": "Turn left",
+      "label2": "Turn left (ru)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Do you accept credit cards?",
+      "label2": "Do you accept credit cards? (ru)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Excuse me",
+      "label2": "Excuse me (ru)",
+      "category": "Basics"
+    },
+    {
+      "label1": "Is there a doctor?",
+      "label2": "Is there a doctor? (ru)",
+      "category": "Help"
+    },
+    {
+      "label1": "This is delicious",
+      "label2": "This is delicious (ru)",
+      "category": "Dining"
+    }
+  ],
+  "ja": [
+    {
+      "label1": "Is it far?",
+      "label2": "Is it far? (ja)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "I want to buy this",
+      "label2": "I want to buy this (ja)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "No",
+      "label2": "いいえ",
+      "category": "Basics"
+    },
+    {
+      "label1": "I don't understand",
+      "label2": "わかりません",
+      "category": "Help"
+    },
+    {
+      "label1": "This is delicious",
+      "label2": "This is delicious (ja)",
+      "category": "Dining"
+    },
+    {
+      "label1": "Nice to meet you",
+      "label2": "Nice to meet you (ja)",
+      "category": "Greetings"
+    },
+    {
+      "label1": "There’s been an accident",
+      "label2": "There’s been an accident (ja)",
+      "category": "Emergency"
+    },
+    {
+      "label1": "One ticket please",
+      "label2": "One ticket please (ja)",
+      "category": "Transportation"
+    },
+    {
+      "label1": "How much is it per night?",
+      "label2": "How much is it per night? (ja)",
+      "category": "Accommodation"
+    },
+    {
+      "label1": "What time is it?",
+      "label2": "What time is it? (ja)",
+      "category": "Time & Dates"
+    },
+    {
+      "label1": "Turn left",
+      "label2": "Turn left (ja)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "Where is the changing room?",
+      "label2": "Where is the changing room? (ja)",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Excuse me",
+      "label2": "Excuse me (ja)",
+      "category": "Basics"
+    },
+    {
+      "label1": "Is there a doctor?",
+      "label2": "Is there a doctor? (ja)",
+      "category": "Help"
+    },
+    {
+      "label1": "The bill, please",
+      "label2": "お勘定をお願いします",
+      "category": "Dining"
+    },
+    {
+      "label1": "Good morning",
+      "label2": "Good morning (ja)",
+      "category": "Greetings"
+    },
+    {
+      "label1": "Call an ambulance",
+      "label2": "Call an ambulance (ja)",
+      "category": "Emergency"
+    },
+    {
+      "label1": "What time is the train?",
+      "label2": "What time is the train? (ja)",
+      "category": "Transportation"
+    },
+    {
+      "label1": "I have a reservation",
+      "label2": "I have a reservation (ja)",
+      "category": "Accommodation"
+    },
+    {
+      "label1": "What’s the date?",
+      "label2": "What’s the date? (ja)",
+      "category": "Time & Dates"
+    },
+    {
+      "label1": "Go straight",
+      "label2": "Go straight (ja)",
+      "category": "Navigation"
+    },
+    {
+      "label1": "How much?",
+      "label2": "いくらですか？",
+      "category": "Shopping"
+    },
+    {
+      "label1": "Excuse me",
+      "label2": "Excuse me (ja)",
+      "category": "Basics"
+    },
+    {
+      "label1": "I need help",
+      "label2": "I need help (ja)",
+      "category": "Help"
+    },
+    {
+      "label1": "Can I have water?",
+      "label2": "Can I have water? (ja)",
+      "category": "Dining"
+    }
+  ]
+}

@@ -1,0 +1,512 @@
+{
+  "local_markets": [
+    {
+      "label1": "ಇದು ಎಷ್ಟು?",
+      "label2": "How much is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನನಗೆ ರಿಯಾಯಿತಿ ಸಿಗಬಹುದೇ?",
+      "label2": "Can I get a discount?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ಇದನ್ನು ಯಾವುದರಿಂದ ಮಾಡಲಾಗಿದೆ?",
+      "label2": "What is this made of?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ಹತ್ತಿರದ ಮಾರುಕಟ್ಟೆ ಎಲ್ಲಿದೆ?",
+      "label2": "Where is the nearest market?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನೀವು ಕಾರ್ಡ್ ಸ್ವೀಕರಿಸುತ್ತೀರಾ?",
+      "label2": "Do you accept cards?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ಇದು ಕೈಯಿಂದ ಮಾಡಿದ್ದೇನಾ?",
+      "label2": "Is it handmade?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನೀವು ಬೆಲೆ ಕಡಿಮೆ ಮಾಡಬಹುದೇ?",
+      "label2": "Can you lower the price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ಇದು ತುಂಬಾ ದುಬಾರಿ.",
+      "label2": "This is too expensive.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನಾನು ಇದನ್ನು ತೆಗೆದುಕೊಳ್ಳುತ್ತೇನೆ.",
+      "label2": "I'll take it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನಾನು ಇನ್ನೊಂದನ್ನು ನೋಡಬಹುದೇ?",
+      "label2": "Can I see another one?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ಇದು ಎಷ್ಟು ಹಳೆಯದಾಗಿದೆ?",
+      "label2": "How old is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ಮರುಪಾವತಿ ನೀತಿ ಏನು?",
+      "label2": "What's the return policy?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನೀವು ಇದನ್ನು ಪ್ಯಾಕ್ ಮಾಡಬಹುದೇ?",
+      "label2": "Can you pack it?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ಇದು ಹಾಳಾಗಿದೆ ಎಂದು ಕಾಣುತ್ತದೆ.",
+      "label2": "This looks damaged.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನಿಮ್ಮ ಉತ್ತಮ ಬೆಲೆ ಏನು?",
+      "label2": "What's your best price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನಿಮ್ಮಲ್ಲಿ ಇದು ಬೇರೆ ಬಣ್ಣದಲ್ಲಿ ಇದೆಯೇ?",
+      "label2": "Do you have this in another color?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನಾನು ಇದನ್ನು ಪ್ರಯತ್ನಿಸಬಹುದೇ?",
+      "label2": "Can I try it on?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನಾನು ಕೇವಲ ನೋಡುತ್ತಿದ್ದೇನೆ.",
+      "label2": "I'm just looking.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನಾನು ಇದರ ಬಗ್ಗೆ ಯೋಚಿಸುತ್ತೇನೆ.",
+      "label2": "I'll think about it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "ನಿಮ್ಮ ಸಹಾಯಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು.",
+      "label2": "Thank you for your help.",
+      "category": "Local Markets Guide"
+    }
+  ],
+  "transport": [
+    {
+      "label1": "ಬಸ್ ನಿಲ್ದಾಣ ಎಲ್ಲಿದೆ?",
+      "label2": "Where is the bus station?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ನಾನು ವಿಮಾನ ನಿಲ್ದಾಣಕ್ಕೆ ಹೇಗೆ ತಲುಪಬಹುದು?",
+      "label2": "How do I get to the airport?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಟ್ಯಾಕ್ಸಿ ಬೇಕು.",
+      "label2": "I need a taxi.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ಇದು ಸರಿಯಾದ ರೈಲುವೇ?",
+      "label2": "Is this the right train?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ಮುಂದಿನ ಬಸ್ ಯಾವಾಗ?",
+      "label2": "What time is the next bus?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ನಾನು ಟಿಕೆಟ್ ಎಲ್ಲಿ ಖರೀದಿಸಬಹುದು?",
+      "label2": "Where can I buy a ticket?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ಇದು ನೇರ ಮಾರ್ಗವೇ?",
+      "label2": "Is it a direct route?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ದರ ಎಷ್ಟು?",
+      "label2": "How much is the fare?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ನಾನು ಆಸನ ಕಾಯ್ದಿರಿಸಬಹುದೇ?",
+      "label2": "Can I get a seat reservation?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ವೇದಿಕೆ ಎಲ್ಲಿದೆ?",
+      "label2": "Where is the platform?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ಇದು ನಗರ ಕೇಂದ್ರಕ್ಕೆ ಹೋಗುತ್ತದೆಯೇ?",
+      "label2": "Does this go to the city center?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ಮುಂದಿನ ನಿಲ್ದಾಣ ಯಾವುದು?",
+      "label2": "What stop is next?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ಪ್ರಯಾಣ ಎಷ್ಟು ಉದ್ದವಾಗಿದೆ?",
+      "label2": "How long is the ride?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ನಾನು ರೈಲು ಬದಲಾಯಿಸಬೇಕೇ?",
+      "label2": "Do I need to change trains?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ವಿಳಂಬವಿದೆಯೇ?",
+      "label2": "Is there a delay?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ನಾನು ಕಾರ್ ಬಾಡಿಗೆಗೆ ಪಡೆಯಬಹುದೇ?",
+      "label2": "Can I rent a car?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ನಾನು ನನ್ನ ನಿಲ್ದಾಣವನ್ನು ತಪ್ಪಿಸಿದ್ದೇನೆ.",
+      "label2": "I missed my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ನೀವು ಟ್ಯಾಕ್ಸಿಗೆ ಕರೆ ಮಾಡಬಹುದೇ?",
+      "label2": "Can you call a cab?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ಇದು ನನ್ನ ನಿಲ್ದಾಣ.",
+      "label2": "This is my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "ಇದು ರಾತ್ರಿಯಲ್ಲಿ ಸುರಕ್ಷಿತವೇ?",
+      "label2": "Is it safe at night?",
+      "category": "Transport Guide"
+    }
+  ],
+  "restaurant": [
+    {
+      "label1": "ನಾನು ಮೆನು ನೋಡಬಹುದೇ?",
+      "label2": "Can I see the menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ನಾನು ಸಸ್ಯಾಹಾರಿ.",
+      "label2": "I'm vegetarian.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ನೀವು ಏನು ಸೂಚಿಸುತ್ತೀರಿ?",
+      "label2": "What do you recommend?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ಈ ತಿನಿಸು ಕಾರವೇ?",
+      "label2": "Is this dish spicy?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಆಹಾರ ಅಲರ್ಜಿ ಇದೆ.",
+      "label2": "I have a food allergy.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಸ್ವಲ್ಪ ನೀರು ಸಿಗಬಹುದೇ?",
+      "label2": "Can I have some water?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ಬಿಲ್, ದಯವಿಟ್ಟು.",
+      "label2": "The bill, please.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ನಾನು ಕಾರ್ಡ್ನಿಂದ ಪಾವತಿಸಬಹುದೇ?",
+      "label2": "Can I pay by card?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ಸೇವೆ ಸೇರಿದೆಯೇ?",
+      "label2": "Is service included?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ಇದು ನಾನು ಆದೇಶಿಸಿದ್ದಲ್ಲ.",
+      "label2": "This is not what I ordered.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ಇದನ್ನು ಈರುಳ್ಳಿಯಿಲ್ಲದೆ ಪಡೆಯಬಹುದೇ?",
+      "label2": "Can I get it without onions?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ನಿಮ್ಮಲ್ಲಿ ಮಕ್ಕಳ ಮೆನು ಇದೆಯೇ?",
+      "label2": "Do you have a kids menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ಇದು ಗ್ಲೂಟೆನ್ ಮುಕ್ತವೇ?",
+      "label2": "Is this gluten-free?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ನಾನು ಇದನ್ನು ಪ್ಯಾಕ್ ಮಾಡಬಹುದೇ?",
+      "label2": "Can I have it to go?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಕಾಯಿಗಳ ಅಲರ್ಜಿ ಇದೆ.",
+      "label2": "I'm allergic to nuts.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ಅದು ರುಚಿಯಾಗಿತ್ತು.",
+      "label2": "It was delicious.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಇನ್ನೊಂದು ಸಿಗಬಹುದೇ?",
+      "label2": "Can I have another one?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ನೀವು ಮದ್ಯ ಸೇವಿಸುತ್ತೀರಾ?",
+      "label2": "Do you serve alcohol?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ಈ ತಿನಿಸಿನಲ್ಲಿ ಏನಿದೆ?",
+      "label2": "What's in this dish?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "ಧನ್ಯವಾದಗಳು, ಅದು ಅದ್ಭುತವಾಗಿತ್ತು.",
+      "label2": "Thank you, it was great.",
+      "category": "Restaurant Guide"
+    }
+  ],
+  "scam_save": [
+    {
+      "label1": "ನಾನು ನಿಮ್ಮನ್ನು ತಿಳಿದಿಲ್ಲ.",
+      "label2": "I don't know you.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ನನ್ನನ್ನು ಒಬ್ಬಂಟಿಯಾಗಿ ಬಿಡಿ.",
+      "label2": "Leave me alone.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ಪೊಲೀಸರಿಗೆ ಕರೆ ಮಾಡಿ.",
+      "label2": "Call the police.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ಅದು ನನ್ನ ಚೀಲವಲ್ಲ.",
+      "label2": "That's not my bag.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ಇದು ವಂಚನೆಯಂತೆ ಭಾಸವಾಗುತ್ತದೆ.",
+      "label2": "This feels like a scam.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಆಸಕ್ತಿ ಇಲ್ಲ.",
+      "label2": "I'm not interested.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ನನ್ನನ್ನು ಹಿಂಬಾಲಿಸುವುದನ್ನು ನಿಲ್ಲಿಸಿ.",
+      "label2": "Stop following me.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ನಿಮ್ಮ ಐಡಿ ತೋರಿಸಿ.",
+      "label2": "Show me your ID.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ನಾನು ವ್ಯವಸ್ಥಾಪಕರೊಂದಿಗೆ ಮಾತನಾಡಬೇಕು.",
+      "label2": "I want to speak to the manager.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ನಾನು ಇದಕ್ಕೆ ಒಪ್ಪಿಗೆ ನೀಡಿಲ್ಲ.",
+      "label2": "I didn't agree to this.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ಪೊಲೀಸ್ ಠಾಣೆಗೆ ಹೋಗೋಣ.",
+      "label2": "Let's go to the police station.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ದಯವಿಟ್ಟು ಅದನ್ನು ಹಿಂದಿರುಗಿಸಿ.",
+      "label2": "Please give it back.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ಇದಕ್ಕೆ ಹಣ ಬೇಕು ಎಂದು ನೀವು ಹೇಳಲಿಲ್ಲ.",
+      "label2": "You didn't say it costs money.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ಇಲ್ಲ ಎಂದರೆ ಇಲ್ಲ.",
+      "label2": "No means no.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ನಿಮ್ಮ ಬಳಿ ಪರವಾನಗಿ ಇದೆಯೇ?",
+      "label2": "Do you have a license?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ನನಗೆ ರಸೀದಿ ಬೇಕು.",
+      "label2": "I want a receipt.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ಇದು ಸರಿಯಾಗಿ ಕಾಣುತ್ತಿಲ್ಲ.",
+      "label2": "This doesn't look right.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ಇದು ಕಾನೂನುಬದ್ಧವೇ?",
+      "label2": "Is this legal?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ನೀವು ನನ್ನನ್ನು ಅಸಹಜವಾಗಿಸುತ್ತಿದ್ದೀರಿ.",
+      "label2": "You're making me uncomfortable.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "ಸಹಾಯ! ಯಾರಾದರೂ ಭದ್ರತಾ ಸಿಬ್ಬಂದಿಗೆ ಕರೆ ಮಾಡಿ.",
+      "label2": "Help! Someone call security.",
+      "category": "Scam Safety Guide"
+    }
+  ],
+  "kids_guide": [
+    {
+      "label1": "ನನ್ನ ಅಮ್ಮ ಎಲ್ಲಿದ್ದಾರೆ?",
+      "label2": "Where is my mom?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನಾನು ಕಳೆದುಹೋಗಿದ್ದೇನೆ.",
+      "label2": "I'm lost.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನೀವು ನನಗೆ ಸಹಾಯ ಮಾಡಬಹುದೇ?",
+      "label2": "Can you help me?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಐಸ್ ಕ್ರೀಮ್ ಬೇಕು.",
+      "label2": "I want ice cream.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನಾನು ಬಾಥ್‌ರೂಮ್‌ಗೆ ಹೋಗಬೇಕು.",
+      "label2": "I need to go to the bathroom.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ಅದು ನನ್ನ ಆಟಿಕೆ.",
+      "label2": "That's my toy.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನಾವು ಎಲ್ಲಿಗೆ ಹೋಗುತ್ತಿದ್ದೇವೆ?",
+      "label2": "Where are we going?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಹಸಿವಾಗಿದೆ.",
+      "label2": "I'm hungry.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ಅದು ಏನು?",
+      "label2": "What's that?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನಾವು ಆಡಬಹುದೇ?",
+      "label2": "Can we play?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನಾನು ಆಯಾಸಗೊಂಡಿದ್ದೇನೆ.",
+      "label2": "I'm tired.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನಾನು ಮನೆಗೆ ಹೋಗಬೇಕು.",
+      "label2": "I want to go home.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಚೆನ್ನಾಗಿ ಅನ್ನಿಸುತ್ತಿಲ್ಲ.",
+      "label2": "I don't feel good.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನಾವು ಕಾರ್ಟೂನ್ ನೋಡಬಹುದೇ?",
+      "label2": "Can we watch a cartoon?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಇದು ಇಷ್ಟ.",
+      "label2": "I like this.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ಹೋಗೋಣ ಬನ್ನಿ!",
+      "label2": "Let's go!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಅದು ಬೇಡ.",
+      "label2": "I don't want that.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ಇದು ಮಜಾ!",
+      "label2": "This is fun!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ನನಗೆ ಒಂದು ಸಿಗಬಹುದೇ?",
+      "label2": "Can I have one?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "ದಯವಿಟ್ಟು ನನಗಾಗಿ ಕಾಯಿರಿ!",
+      "label2": "Please wait for me!",
+      "category": "Kids Guide"
+    }
+  ]
+}

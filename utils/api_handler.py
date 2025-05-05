@@ -39,13 +39,14 @@ from flask import request
 language_mapping = {
     'English': 'en',
     'Hindi': 'hi',
-    'Spanish': 'es',
+    'Gujarati': 'gu',
+    'Kannada': 'kn',
+    'Marathi': 'mr',
     'French': 'fr',
-    'German': 'de',
-    'Italian': 'it',
-    'Chinese': 'zh',
+    'Spanish': 'es',
+    'Chinese': 'zh-cn',
     'Japanese': 'ja',
-    'Korean': 'ko',
+    'Russian': 'ru',
 }
 
 # Allowed languages for detection translation
@@ -734,7 +735,18 @@ def api_speech_config():
     Get speech processing configuration
     Returns: Supported languages and options
     """
-    supported_languages = ['en', 'hi', 'es', 'fr', 'de', 'it', 'pt', 'ru']  # Example list
+    supported_languages =  [
+    "en",  # English
+    "hi",  # Hindi
+    "gu",  # Gujarati
+    "kn",  # Kannada
+    "mr",  # Marathi
+    "fr",  # French
+    "es",  # Spanish
+    "zh",  # Chinese
+    "ja",  # Japanese
+    "ru"   # Russian
+  ]
     return jsonify({
         "supported_languages": supported_languages
     }), 200
