@@ -102,7 +102,7 @@ const LoginScreen: React.FC = () => {
 
             <TouchableOpacity 
               style={styles.forgotPassword}
-              onPress={() => router.push('/(auth)/forgotPassword')}
+              onPress={() => router.navigate('/(auth)/forgotPassword')}
             >
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
@@ -120,7 +120,7 @@ const LoginScreen: React.FC = () => {
 
           <TouchableOpacity 
             style={styles.signupLink}
-            onPress={() => router.push('/(auth)/signup')}
+            onPress={() => router.navigate('/(auth)/signup')}
           >
             <Text style={styles.signupText}>
               Don't have an account? <Text style={styles.signupTextBold}>Sign Up</Text>

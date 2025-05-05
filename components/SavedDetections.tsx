@@ -5,9 +5,9 @@ import { Colors } from '../constants/Colors';
 
 const mascots = [
   require('../assets/images/cat-smiling.png'),
-  require('../assets/images/cat-sayinghi.jpg'),
+  require('../assets/images/cat-sayinghi.png'),
   require('../assets/images/cat-pointing.png'),
-  require('../assets/images/cat-laughing.jpg'),
+  require('../assets/images/cat-laughing.png'),
   require('../assets/images/cat-sleeping.png'),
   require('../assets/images/cat-thinking.png'),
 ];

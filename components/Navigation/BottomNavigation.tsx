@@ -54,7 +54,7 @@ export const BottomNavigation = () => {
         <TouchableOpacity
           key={item.name}
           style={styles.tab}
-          onPress={() => router.push(item.path)}
+          onPress={() => router.navigate(item.path)}
           activeOpacity={0.7}
         >
           {item.icon(isActive(item.path))}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ActivityIndicator, StyleSheet } from 'react-native';
 
-const MASCOT = require('../../assets/images/cat-smiling.png');
+const MASCOT = require('../../assets/images/cat-pointing.png');
 const API_URL = 'https://lingual-yn5c.onrender.com/api/daily_challenge';
 
 export const DailyQuiz = () => {

@@ -16,6 +16,8 @@ export default function MainLayout() {
       <Stack.Screen name="conversation" />
       <Stack.Screen name="settings" />
       <Stack.Screen name="pathway" />
+            <Stack.Screen name="learn" />
+            <Stack.Screen name="guides" />
       <Stack.Screen 
         name="challenge/[id]" 
         options={{

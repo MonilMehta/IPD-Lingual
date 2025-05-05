@@ -12,9 +12,9 @@ const { width } = Dimensions.get('window');
 const NODE_SIZE = 70;
 const VERTICAL_SPACING = 180;
 const MASCOT_IMAGE = require('../assets/images/cat-smiling.png');
-import catSayingHi from '../assets/images/cat-sayinghi.jpg';
+import catSayingHi from '../assets/images/cat-sayinghi.png';
 import catThinking from '../assets/images/cat-thinking.png';
-import catLaughing from '../assets/images/cat-laughing.jpg';
+import catLaughing from '../assets/images/cat-laughing.png';
 
 // Sample phrases for floating text
 const samplePhrases = [
@@ -347,7 +347,7 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
               onPress={() => {
                 if (node.status !== 'locked') {
                   // Use correct route for your file structure
-                  router.push(`/challenge/${node.id}`);
+                  router.navigate(`/challenge/${node.id}`);
                 }
               }}
             />

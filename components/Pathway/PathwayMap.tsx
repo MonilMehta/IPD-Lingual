@@ -230,7 +230,7 @@ export const PathwayMap = ({ questions = [], currentLevel = 1 }) => {
   const handleNodePress = (nodeId) => {
     const node = nodes.find(n => n.id === nodeId);
     if (node.status === 'locked') return;
-    router.push(`/main/challenge/${nodeId}`);
+    router.navigate(`/main/challenge/${nodeId}`);
   };
 
   return (

@@ -5,12 +5,12 @@ import { useRouter } from 'expo-router';
 
 // Mascot images
 const mascots = [
-  require('../../assets/images/cat-laughing.jpg'),
+  require('../../assets/images/cat-laughing.png'),
   require('../../assets/images/cat-pointing.png'),
-  require('../../assets/images/cat-pointing2.jpg'),
-  require('../../assets/images/cat-sayinghi.jpg'),
+  require('../../assets/images/cat-pointing2.png'),
+  require('../../assets/images/cat-sayinghi.png'),
   require('../../assets/images/cat-sleeping.png'),
-  require('../../assets/images/cat-sleeping2.jpg'),
+  require('../../assets/images/cat-sleeping2.png'),
   require('../../assets/images/cat-smiling.png'),
   require('../../assets/images/cat-thinking.png'),
 ];
@@ -86,7 +86,7 @@ export const ChallengeQuiz = ({
         await onCompleteQuiz();
       } catch {}
     }
-    router.push('/(main)/home');
+    router.navigate('/(main)/home');
   };
 
   return (

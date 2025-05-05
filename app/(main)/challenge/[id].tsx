@@ -124,7 +124,7 @@ export default function ChallengeScreen() {
   };
 
   const handleComplete = () => {
-    router.push('/pathway');
+    router.navigate('/pathway');
   };
 
   if (loading) {

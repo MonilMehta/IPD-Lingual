@@ -9,6 +9,7 @@ import { LearningPathway } from '../../screens/HomePage/LearningCard';
 import { MainFeatures } from '../../screens/HomePage/MainFeatures';
 import { QuickPhrases } from '../../screens/HomePage/QuickPhrases';
 import { TouristGuides } from '../../screens/HomePage/TouristGuides';
+import { FloatingTabBar } from '../../components/Navigation/FloatingTabBar';
 
 export const HomeScreen: React.FC = () => {
   const router = useRouter();
@@ -19,17 +20,8 @@ export const HomeScreen: React.FC = () => {
         <Header navigation={router} />
         <DailyQuiz />
         <MainFeatures navigation={router} />
-        <LearningPathway navigation={router} />
-        <QuickPhrases navigation={router} />
-        <TouristGuides navigation={router} />
       </ScrollView>
-
-      <TouchableOpacity 
-        style={styles.settingsButton} 
-        onPress={() => router.push('/(main)/settings')}
-      >
-        <Settings size={24} color="#666" />
-      </TouchableOpacity>
+      <FloatingTabBar />
     </SafeAreaView>
   );
 };

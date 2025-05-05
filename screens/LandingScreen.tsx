@@ -75,7 +75,7 @@ const LandingScreen: React.FC = ({ navigation }) => {
         >
           <TouchableOpacity
             style={[styles.button, styles.loginButton]}
-            onPress={() => router.push('/screens/auth/login')}
+            onPress={() => router.navigate('/screens/auth/login')}
             activeOpacity={0.7}
           >
             <Text style={styles.buttonText}>Get Started</Text>
@@ -83,7 +83,7 @@ const LandingScreen: React.FC = ({ navigation }) => {
 
           <TouchableOpacity
             style={[styles.button, styles.signupButton]}
-            onPress={() => router.push('/screens/auth/signup')}
+            onPress={() => router.navigate('/screens/auth/signup')}
             activeOpacity={0.7}
           >
             <Text style={[styles.buttonText, styles.signupText]}>Create Account</Text>
