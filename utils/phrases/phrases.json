@@ -81,8 +81,8 @@
       "category": "Navigation"
     },
     {
-      "label1": "I’m allergic to...",
-      "label2": "I’m allergic to...",
+      "label1": "I'm allergic to...",
+      "label2": "I'm allergic to...",
       "category": "Emergency"
     },
     {
@@ -121,8 +121,8 @@
       "category": "Dining"
     },
     {
-      "label1": "I don’t speak [language]",
-      "label2": "I don’t speak [language]",
+      "label1": "I don't speak [language]",
+      "label2": "I don't speak [language]",
       "category": "Help"
     }
   ],
@@ -208,7 +208,7 @@
       "category": "Navigation"
     },
     {
-      "label1": "I’m allergic to...",
+      "label1": "I'm allergic to...",
       "label2": "મને ... થી એલર્જી છે",
       "category": "Emergency"
     },
@@ -248,7 +248,7 @@
       "category": "Dining"
     },
     {
-      "label1": "I don’t speak [language]",
+      "label1": "I don't speak [language]",
       "label2": "હું [ભાષા] બોલતો નથી",
       "category": "Help"
     }
@@ -335,7 +335,7 @@
       "category": "Navigation"
     },
     {
-      "label1": "I’m allergic to...",
+      "label1": "I'm allergic to...",
       "label2": "मुझे ... से एलर्जी है",
       "category": "Emergency"
     },
@@ -375,7 +375,7 @@
       "category": "Dining"
     },
     {
-      "label1": "I don’t speak [language]",
+      "label1": "I don't speak [language]",
       "label2": "मैं [भाषा] नहीं बोलता",
       "category": "Help"
     }
@@ -462,7 +462,7 @@
       "category": "Navigation"
     },
     {
-      "label1": "I’m allergic to...",
+      "label1": "I'm allergic to...",
       "label2": "ನನಗೆ ... ಅಲರ್ಜಿ ಇದೆ",
       "category": "Emergency"
     },
@@ -502,7 +502,7 @@
       "category": "Dining"
     },
     {
-      "label1": "I don’t speak [language]",
+      "label1": "I don't speak [language]",
       "label2": "ನಾನು [ಭಾಷೆ] ಮಾತನಾಡಲಾರೆ",
       "category": "Help"
     }
@@ -589,7 +589,7 @@
       "category": "Navigation"
     },
     {
-      "label1": "I’m allergic to...",
+      "label1": "I'm allergic to...",
       "label2": "मला ... ला अ‍ॅलर्जी आहे",
       "category": "Emergency"
     },
@@ -629,12 +629,12 @@
       "category": "Dining"
     },
     {
-      "label1": "I don’t speak [language]",
+      "label1": "I don't speak [language]",
       "label2": "मी [भाषा] बोलत नाही",
       "category": "Help"
     }
   ],
-"fr": [
+  "fr": [
     {
       "label1": "Where is...?",
       "label2": "Où est...?",
@@ -642,7 +642,7 @@
     },
     {
       "label1": "Do you have this in another size?",
-      "label2": "Do you have this in another size? (fr)",
+      "label2": "Avez-vous ceci dans une autre taille ?",
       "category": "Shopping"
     },
     {
@@ -652,47 +652,47 @@
     },
     {
       "label1": "Call the police",
-      "label2": "Call the police (fr)",
+      "label2": "Appelez la police",
       "category": "Help"
     },
     {
       "label1": "This is delicious",
-      "label2": "This is delicious (fr)",
+      "label2": "C'est délicieux",
       "category": "Dining"
     },
     {
       "label1": "Good night",
-      "label2": "Good night (fr)",
+      "label2": "Bonne nuit",
       "category": "Greetings"
     },
     {
-      "label1": "There’s been an accident",
-      "label2": "There’s been an accident (fr)",
+      "label1": "There's been an accident",
+      "label2": "Il y a eu un accident",
       "category": "Emergency"
     },
     {
       "label1": "How long does it take?",
-      "label2": "How long does it take? (fr)",
+      "label2": "Combien de temps cela prend-il ?",
       "category": "Transportation"
     },
     {
       "label1": "Do you have a room?",
-      "label2": "Do you have a room? (fr)",
+      "label2": "Avez-vous une chambre ?",
       "category": "Accommodation"
     },
     {
-      "label1": "What’s the date?",
-      "label2": "What’s the date? (fr)",
+      "label1": "What's the date?",
+      "label2": "Quelle est la date ?",
       "category": "Time & Dates"
     },
     {
       "label1": "Is it far?",
-      "label2": "Is it far? (fr)",
+      "label2": "Est-ce loin ?",
       "category": "Navigation"
     },
     {
       "label1": "I want to buy this",
-      "label2": "I want to buy this (fr)",
+      "label2": "Je veux acheter ceci",
       "category": "Shopping"
     },
     {
@@ -702,62 +702,62 @@
     },
     {
       "label1": "Call the police",
-      "label2": "Call the police (fr)",
+      "label2": "Appelez la police",
       "category": "Help"
     },
     {
       "label1": "Can I have water?",
-      "label2": "Can I have water? (fr)",
+      "label2": "Puis-je avoir de l'eau ?",
       "category": "Dining"
     },
     {
       "label1": "Nice to meet you",
-      "label2": "Nice to meet you (fr)",
+      "label2": "Enchanté(e)",
       "category": "Greetings"
     },
     {
       "label1": "I need a doctor",
-      "label2": "I need a doctor (fr)",
+      "label2": "J'ai besoin d'un médecin",
       "category": "Emergency"
     },
     {
       "label1": "How long does it take?",
-      "label2": "How long does it take? (fr)",
+      "label2": "Combien de temps cela prend-il ?",
       "category": "Transportation"
     },
     {
       "label1": "Do you have a room?",
-      "label2": "Do you have a room? (fr)",
+      "label2": "Avez-vous une chambre ?",
       "category": "Accommodation"
     },
     {
       "label1": "Tomorrow",
-      "label2": "Tomorrow (fr)",
+      "label2": "Demain",
       "category": "Time & Dates"
     },
     {
       "label1": "Turn left",
-      "label2": "Turn left (fr)",
+      "label2": "Tournez à gauche",
       "category": "Navigation"
     },
     {
       "label1": "Where is the changing room?",
-      "label2": "Where is the changing room? (fr)",
+      "label2": "Où est la cabine d'essayage ?",
       "category": "Shopping"
     },
     {
       "label1": "Please",
-      "label2": "Please (fr)",
+      "label2": "S'il vous plaît",
       "category": "Basics"
     },
     {
       "label1": "Call the police",
-      "label2": "Call the police (fr)",
+      "label2": "Appelez la police",
       "category": "Help"
     },
     {
       "label1": "This is delicious",
-      "label2": "This is delicious (fr)",
+      "label2": "C'est délicieux",
       "category": "Dining"
     }
   ],
@@ -769,7 +769,7 @@
     },
     {
       "label1": "I want to buy this",
-      "label2": "I want to buy this (es)",
+      "label2": "Quiero comprar esto",
       "category": "Shopping"
     },
     {
@@ -779,12 +779,12 @@
     },
     {
       "label1": "Is there a doctor?",
-      "label2": "Is there a doctor? (es)",
+      "label2": "¿Hay un médico?",
       "category": "Help"
     },
     {
       "label1": "Can I have water?",
-      "label2": "Can I have water? (es)",
+      "label2": "¿Puedo tomar agua?",
       "category": "Dining"
     },
     {
@@ -794,42 +794,42 @@
     },
     {
       "label1": "Help!",
-      "label2": "Help! (es)",
+      "label2": "¡Ayuda!",
       "category": "Emergency"
     },
     {
       "label1": "Where is the bus stop?",
-      "label2": "Where is the bus stop? (es)",
+      "label2": "¿Dónde está la parada de autobús?",
       "category": "Transportation"
     },
     {
       "label1": "Do you have a room?",
-      "label2": "Do you have a room? (es)",
+      "label2": "¿Tiene una habitación?",
       "category": "Accommodation"
     },
     {
       "label1": "Tomorrow",
-      "label2": "Tomorrow (es)",
+      "label2": "Mañana",
       "category": "Time & Dates"
     },
     {
       "label1": "How do I get to...?",
-      "label2": "How do I get to...? (es)",
+      "label2": "¿Cómo llego a...?",
       "category": "Navigation"
     },
     {
       "label1": "Do you have this in another size?",
-      "label2": "Do you have this in another size? (es)",
+      "label2": "¿Tiene esto en otra talla?",
       "category": "Shopping"
     },
     {
       "label1": "Excuse me",
-      "label2": "Excuse me (es)",
+      "label2": "Perdón",
       "category": "Basics"
     },
     {
       "label1": "Call the police",
-      "label2": "Call the police (es)",
+      "label2": "Llame a la policía",
       "category": "Help"
     },
     {
@@ -839,42 +839,42 @@
     },
     {
       "label1": "Good morning",
-      "label2": "Good morning (es)",
+      "label2": "Buenos días",
       "category": "Greetings"
     },
     {
       "label1": "Call an ambulance",
-      "label2": "Call an ambulance (es)",
+      "label2": "Llame a una ambulancia",
       "category": "Emergency"
     },
     {
       "label1": "How long does it take?",
-      "label2": "How long does it take? (es)",
+      "label2": "¿Cuánto tiempo tarda?",
       "category": "Transportation"
     },
     {
       "label1": "How much is it per night?",
-      "label2": "How much is it per night? (es)",
+      "label2": "¿Cuánto cuesta por noche?",
       "category": "Accommodation"
     },
     {
       "label1": "What time is it?",
-      "label2": "What time is it? (es)",
+      "label2": "¿Qué hora es?",
       "category": "Time & Dates"
     },
     {
       "label1": "Turn left",
-      "label2": "Turn left (es)",
+      "label2": "Gire a la izquierda",
       "category": "Navigation"
     },
     {
       "label1": "Do you have this in another size?",
-      "label2": "Do you have this in another size? (es)",
+      "label2": "¿Tiene esto en otra talla?",
       "category": "Shopping"
     },
     {
       "label1": "Please",
-      "label2": "Please (es)",
+      "label2": "Por favor",
       "category": "Basics"
     },
     {
@@ -891,7 +891,7 @@
   "zh": [
     {
       "label1": "Turn left",
-      "label2": "Turn left (zh)",
+      "label2": "左转",
       "category": "Navigation"
     },
     {
@@ -910,43 +910,43 @@
       "category": "Help"
     },
     {
-      "label1": "I’m vegetarian",
-      "label2": "I’m vegetarian (zh)",
+      "label1": "I'm vegetarian",
+      "label2": "我是素食者",
       "category": "Dining"
     },
     {
       "label1": "Good night",
-      "label2": "Good night (zh)",
+      "label2": "晚安",
       "category": "Greetings"
     },
     {
       "label1": "Call an ambulance",
-      "label2": "Call an ambulance (zh)",
+      "label2": "叫救护车",
       "category": "Emergency"
     },
     {
       "label1": "Where is the bus stop?",
-      "label2": "Where is the bus stop? (zh)",
+      "label2": "公交车站在哪里？",
       "category": "Transportation"
     },
     {
       "label1": "Is breakfast included?",
-      "label2": "Is breakfast included? (zh)",
+      "label2": "包含早餐吗？",
       "category": "Accommodation"
     },
     {
       "label1": "Yesterday",
-      "label2": "Yesterday (zh)",
+      "label2": "昨天",
       "category": "Time & Dates"
     },
     {
       "label1": "Turn left",
-      "label2": "Turn left (zh)",
+      "label2": "左转",
       "category": "Navigation"
     },
     {
       "label1": "Do you accept credit cards?",
-      "label2": "Do you accept credit cards? (zh)",
+      "label2": "可以刷卡吗？",
       "category": "Shopping"
     },
     {
@@ -956,57 +956,57 @@
     },
     {
       "label1": "Call the police",
-      "label2": "Call the police (zh)",
+      "label2": "报警",
       "category": "Help"
     },
     {
       "label1": "Can I have water?",
-      "label2": "Can I have water? (zh)",
+      "label2": "可以给我水吗？",
       "category": "Dining"
     },
     {
       "label1": "Good morning",
-      "label2": "Good morning (zh)",
+      "label2": "早安",
       "category": "Greetings"
     },
     {
       "label1": "Call an ambulance",
-      "label2": "Call an ambulance (zh)",
+      "label2": "叫救护车",
       "category": "Emergency"
     },
     {
       "label1": "Where is the bus stop?",
-      "label2": "Where is the bus stop? (zh)",
+      "label2": "公交车站在哪里？",
       "category": "Transportation"
     },
     {
       "label1": "Is breakfast included?",
-      "label2": "Is breakfast included? (zh)",
+      "label2": "包含早餐吗？",
       "category": "Accommodation"
     },
     {
       "label1": "Yesterday",
-      "label2": "Yesterday (zh)",
+      "label2": "昨天",
       "category": "Time & Dates"
     },
     {
       "label1": "Is it far?",
-      "label2": "Is it far? (zh)",
+      "label2": "远吗？",
       "category": "Navigation"
     },
     {
       "label1": "Where is the changing room?",
-      "label2": "Where is the changing room? (zh)",
+      "label2": "试衣间在哪里？",
       "category": "Shopping"
     },
     {
       "label1": "Excuse me",
-      "label2": "Excuse me (zh)",
+      "label2": "劳驾",
       "category": "Basics"
     },
     {
       "label1": "Is there a doctor?",
-      "label2": "Is there a doctor? (zh)",
+      "label2": "有医生吗？",
       "category": "Help"
     },
     {
@@ -1018,12 +1018,12 @@
   "ru": [
     {
       "label1": "Is it far?",
-      "label2": "Is it far? (ru)",
+      "label2": "Это далеко?",
       "category": "Navigation"
     },
     {
       "label1": "Where is the changing room?",
-      "label2": "Where is the changing room? (ru)",
+      "label2": "Где примерочная?",
       "category": "Shopping"
     },
     {
@@ -1033,7 +1033,7 @@
     },
     {
       "label1": "Is there a doctor?",
-      "label2": "Is there a doctor? (ru)",
+      "label2": "Здесь есть врач?",
       "category": "Help"
     },
     {
@@ -1043,27 +1043,27 @@
     },
     {
       "label1": "Nice to meet you",
-      "label2": "Nice to meet you (ru)",
+      "label2": "Приятно познакомиться",
       "category": "Greetings"
     },
     {
-      "label1": "I’m lost",
-      "label2": "I’m lost (ru)",
+      "label1": "I'm lost",
+      "label2": "Я потерялся",
       "category": "Emergency"
     },
     {
       "label1": "I need a taxi",
-      "label2": "I need a taxi (ru)",
+      "label2": "Мне нужно такси",
       "category": "Transportation"
     },
     {
       "label1": "I have a reservation",
-      "label2": "I have a reservation (ru)",
+      "label2": "У меня бронь",
       "category": "Accommodation"
     },
     {
-      "label1": "What’s the date?",
-      "label2": "What’s the date? (ru)",
+      "label1": "What's the date?",
+      "label2": "Какое сегодня число?",
       "category": "Time & Dates"
     },
     {
@@ -1078,7 +1078,7 @@
     },
     {
       "label1": "Excuse me",
-      "label2": "Excuse me (ru)",
+      "label2": "Извините",
       "category": "Basics"
     },
     {
@@ -1088,7 +1088,7 @@
     },
     {
       "label1": "No spicy food",
-      "label2": "No spicy food (ru)",
+      "label2": "Без острой пищи",
       "category": "Dining"
     },
     {
@@ -1098,59 +1098,59 @@
     },
     {
       "label1": "I need a doctor",
-      "label2": "I need a doctor (ru)",
+      "label2": "Мне нужен врач",
       "category": "Emergency"
     },
     {
       "label1": "One ticket please",
-      "label2": "One ticket please (ru)",
+      "label2": "Один билет, пожалуйста",
       "category": "Transportation"
     },
     {
       "label1": "Do you have a room?",
-      "label2": "Do you have a room? (ru)",
+      "label2": "У вас есть комната?",
       "category": "Accommodation"
     },
     {
       "label1": "Tomorrow",
-      "label2": "Tomorrow (ru)",
+      "label2": "Завтра",
       "category": "Time & Dates"
     },
     {
       "label1": "Turn left",
-      "label2": "Turn left (ru)",
+      "label2": "Поверните налево",
       "category": "Navigation"
     },
     {
       "label1": "Do you accept credit cards?",
-      "label2": "Do you accept credit cards? (ru)",
+      "label2": "Вы принимаете кредитные карты?",
       "category": "Shopping"
     },
     {
       "label1": "Excuse me",
-      "label2": "Excuse me (ru)",
+      "label2": "Извините",
       "category": "Basics"
     },
     {
       "label1": "Is there a doctor?",
-      "label2": "Is there a doctor? (ru)",
+      "label2": "Здесь есть врач?",
       "category": "Help"
     },
     {
       "label1": "This is delicious",
-      "label2": "This is delicious (ru)",
+      "label2": "Это вкусно",
       "category": "Dining"
     }
   ],
   "ja": [
     {
       "label1": "Is it far?",
-      "label2": "Is it far? (ja)",
+      "label2": "遠いですか？",
       "category": "Navigation"
     },
     {
       "label1": "I want to buy this",
-      "label2": "I want to buy this (ja)",
+      "label2": "これを買いたいです",
       "category": "Shopping"
     },
     {
@@ -1165,52 +1165,52 @@
     },
     {
       "label1": "This is delicious",
-      "label2": "This is delicious (ja)",
+      "label2": "これは美味しいです",
       "category": "Dining"
     },
     {
       "label1": "Nice to meet you",
-      "label2": "Nice to meet you (ja)",
+      "label2": "はじめまして",
       "category": "Greetings"
     },
     {
-      "label1": "There’s been an accident",
-      "label2": "There’s been an accident (ja)",
+      "label1": "There's been an accident",
+      "label2": "事故がありました",
       "category": "Emergency"
     },
     {
       "label1": "One ticket please",
-      "label2": "One ticket please (ja)",
+      "label2": "切符を一枚ください",
       "category": "Transportation"
     },
     {
       "label1": "How much is it per night?",
-      "label2": "How much is it per night? (ja)",
+      "label2": "一泊いくらですか？",
       "category": "Accommodation"
     },
     {
       "label1": "What time is it?",
-      "label2": "What time is it? (ja)",
+      "label2": "今何時ですか？",
       "category": "Time & Dates"
     },
     {
       "label1": "Turn left",
-      "label2": "Turn left (ja)",
+      "label2": "左に曲がってください",
       "category": "Navigation"
     },
     {
       "label1": "Where is the changing room?",
-      "label2": "Where is the changing room? (ja)",
+      "label2": "試着室はどこですか？",
       "category": "Shopping"
     },
     {
       "label1": "Excuse me",
-      "label2": "Excuse me (ja)",
+      "label2": "すみません",
       "category": "Basics"
     },
     {
       "label1": "Is there a doctor?",
-      "label2": "Is there a doctor? (ja)",
+      "label2": "お医者さんはいますか？",
       "category": "Help"
     },
     {
@@ -1220,32 +1220,32 @@
     },
     {
       "label1": "Good morning",
-      "label2": "Good morning (ja)",
+      "label2": "おはようございます",
       "category": "Greetings"
     },
     {
       "label1": "Call an ambulance",
-      "label2": "Call an ambulance (ja)",
+      "label2": "救急車を呼んでください",
       "category": "Emergency"
     },
     {
       "label1": "What time is the train?",
-      "label2": "What time is the train? (ja)",
+      "label2": "電車は何時ですか？",
       "category": "Transportation"
     },
     {
       "label1": "I have a reservation",
-      "label2": "I have a reservation (ja)",
+      "label2": "予約しています",
       "category": "Accommodation"
     },
     {
-      "label1": "What’s the date?",
-      "label2": "What’s the date? (ja)",
+      "label1": "What's the date?",
+      "label2": "今日は何日ですか？",
       "category": "Time & Dates"
     },
     {
       "label1": "Go straight",
-      "label2": "Go straight (ja)",
+      "label2": "まっすぐ行ってください",
       "category": "Navigation"
     },
     {
@@ -1255,17 +1255,17 @@
     },
     {
       "label1": "Excuse me",
-      "label2": "Excuse me (ja)",
+      "label2": "すみません",
       "category": "Basics"
     },
     {
       "label1": "I need help",
-      "label2": "I need help (ja)",
+      "label2": "助けが必要です",
       "category": "Help"
     },
     {
       "label1": "Can I have water?",
-      "label2": "Can I have water? (ja)",
+      "label2": "お水をいただけますか？",
       "category": "Dining"
     }
   ]

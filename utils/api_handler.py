@@ -235,6 +235,11 @@ def login():
         encrypted_password = hashlib.sha256(login_details['password'].encode('utf-8')).hexdigest()
         if encrypted_password == user_from_db['password']:
             access_token = create_access_token(identity=user_from_db['username'])
+            # Update last_login to now
+            users_collection.update_one(
+                {'username': login_details['username']},
+                {'$set': {'last_login': datetime.datetime.now()}}
+            )
             return jsonify(access_token=access_token), 200
     return jsonify({'msg': 'Username or password is incorrect'}), 401
 
@@ -580,6 +585,73 @@ def get_daily_challenge_status():
     }), 200
 
 
+@app.route("/api/homepage", methods=["GET"])
+@jwt_required()
+def homepage_summary():
+    """
+    Get homepage summary for the user: name, daily challenge status, streak, quiz progress, target language, last login, etc.
+    """
+    current_user = get_jwt_identity()
+    user = users_collection.find_one({"username": current_user})
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    # User's name
+    name = user.get("username")
+    # Target language
+    target_language = user.get("target_language", "en")
+    # Daily challenge streak
+    streak = user.get("daily_challenge_streak", 0)
+    # Last challenge completion
+    last_completed_dt = user.get("last_challenge_completed_at")
+    # Quiz progress
+    quiz_index = user.get("quiz_index", 0)
+    language_name = target_language
+    language_map = {
+        'en': 'english', 'hi': 'hindi', 'gu': 'gujarati', 'kn': 'kannada', 'mr': 'marathi',
+        'fr': 'french', 'es': 'spanish', 'zh': 'chinese', 'ja': 'japanese', 'ru': 'russian'
+    }
+    language_name = language_map.get(target_language, 'english')
+    quiz_file_path = os.path.join('utils', 'quiz', f'{language_name}_quiz_dataset.json')
+    if not os.path.exists(quiz_file_path):
+        quiz_file_path = os.path.join('utils', 'quiz', f'{language_name}_quiz.json')
+    try:
+        with open(quiz_file_path, 'r', encoding='utf-8') as f:
+            all_questions = json.load(f)
+            total_quiz_questions = len(all_questions)
+    except Exception:
+        total_quiz_questions = 0
+    # Daily challenge status
+    from datetime import date
+    today = date.today()
+    daily_challenge_done = False
+    if last_completed_dt:
+        try:
+            # If already a datetime object
+            if hasattr(last_completed_dt, 'date'):
+                daily_challenge_done = last_completed_dt.date() == today
+            else:
+                # If string, try parsing
+                import dateutil.parser
+                dt = dateutil.parser.parse(last_completed_dt)
+                daily_challenge_done = dt.date() == today
+        except Exception:
+            daily_challenge_done = False
+    # Last login (if available)
+    last_login = user.get("last_login")
+    # Current quiz level (1-based)
+    current_level = quiz_index + 1 if total_quiz_questions else 0
+    return jsonify({
+        "name": name,
+        "target_language": target_language,
+        "daily_challenge_done": daily_challenge_done,
+        "daily_challenge_streak": streak,
+        "quiz_completed": quiz_index,
+        "quiz_total": total_quiz_questions,
+        "current_level": current_level,
+        "last_login": last_login
+    }), 200
+
 # =============================================================================
 # AI Detection and Speech Processing Endpoints
 # =============================================================================
@@ -750,6 +822,137 @@ def api_speech_config():
     return jsonify({
         "supported_languages": supported_languages
     }), 200
+
+@app.route("/api/phrases", methods=["GET"])
+@jwt_required()
+def get_phrases():
+    """
+    Get common phrases for the user's target language.
+    Query params: lang (optional) - override user's target language
+    Returns: JSON array of phrases with translations or error
+    """
+    current_user = get_jwt_identity()
+    
+    # Get language from query parameter or from user's settings
+    lang_param = request.args.get('lang')
+    
+    if lang_param:
+        # If language specified in query parameter, use that
+        target_language = lang_param
+    else:
+        # Otherwise get user's preferred language from database
+        user = users_collection.find_one({"username": current_user}, {"target_language": 1})
+        if not user:
+            return jsonify({"msg": "User not found"}), 404
+        
+        target_language = user.get('target_language', 'en')  # Default to English if not set
+    
+    # Path to phrases file
+    phrases_file_path = os.path.join('utils', 'phrases', 'phrases.json')
+    
+    try:
+        with open(phrases_file_path, 'r', encoding='utf-8') as f:
+            all_phrases = json.load(f)
+            
+        # Check if the requested language exists in the phrases
+        if target_language not in all_phrases:
+            return jsonify({
+                "msg": f"Phrases not available for language code: {target_language}",
+                "available_languages": list(all_phrases.keys())
+            }), 404
+            
+        # Return phrases for the target language
+        phrases = all_phrases[target_language]
+        
+        # Group phrases by category (optional)
+        phrases_by_category = {}
+        for phrase in phrases:
+            category = phrase.get('category', 'Uncategorized')
+            if category not in phrases_by_category:
+                phrases_by_category[category] = []
+            phrases_by_category[category].append(phrase)
+        
+        return jsonify({
+            "target_language": target_language,
+            "phrases": phrases,
+            "phrases_by_category": phrases_by_category
+        }), 200
+        
+    except FileNotFoundError:
+        return jsonify({"msg": "Phrases file not found"}), 500
+    except json.JSONDecodeError:
+        return jsonify({"msg": "Error parsing phrases file"}), 500
+    except Exception as e:
+        return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
+
+@app.route("/api/guidebook", methods=["GET"])
+@jwt_required()
+def get_guidebook():
+    """
+    Get travel guidebook phrases for the user's target language.
+    Query params: lang (optional) - override user's target language
+    Returns: JSON object with guidebook phrases organized by category or error
+    """
+    current_user = get_jwt_identity()
+    
+    # Get language from query parameter or from user's settings
+    lang_param = request.args.get('lang')
+    
+    if lang_param:
+        # If language specified in query parameter, use that
+        target_language = lang_param
+    else:
+        # Otherwise get user's preferred language from database
+        user = users_collection.find_one({"username": current_user}, {"target_language": 1})
+        if not user:
+            return jsonify({"msg": "User not found"}), 404
+        
+        target_language = user.get('target_language', 'en')  # Default to English if not set
+    
+    # Map language code to language name for guidebook file naming
+    language_names = {
+        'en': 'english',
+        'hi': 'hindi',
+        'gu': 'gujarati',
+        'kn': 'kannada',
+        'mr': 'marathi',
+        'fr': 'french',
+        'es': 'spanish',
+        'zh': 'chinese',
+        'ja': 'japanese',
+        'ru': 'russian'
+    }
+    
+    # Get the language name from the code
+    language_name = language_names.get(target_language)
+    if not language_name:
+        return jsonify({
+            "msg": f"Guidebook not available for language code: {target_language}",
+            "available_languages": list(language_names.keys())
+        }), 404
+    
+    # Path to guidebook file
+    guidebook_file_path = os.path.join('utils', 'guidebook', f'{language_name}_guidebook.json')
+    
+    try:
+        with open(guidebook_file_path, 'r', encoding='utf-8') as f:
+            guidebook = json.load(f)
+            
+        return jsonify({
+            "target_language": target_language,
+            "language_name": language_name,
+            "guidebook": guidebook
+        }), 200
+        
+    except FileNotFoundError:
+        return jsonify({
+            "msg": f"Guidebook file not found for language: {language_name}",
+            "available_languages": list(language_names.keys())
+        }), 404
+    except json.JSONDecodeError:
+        return jsonify({"msg": "Error parsing guidebook file"}), 500
+    except Exception as e:
+        return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
 
 # --- Phrase Generation Endpoint ---
 
