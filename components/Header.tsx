@@ -1,7 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
+import { API_URL } from '../config/constants';
+import SkeletonLoader from '../screens/HomePage/DailyQuiz';
 
 type HeaderProps = {
   title: string;
@@ -11,46 +13,66 @@ type HeaderProps = {
   onBackPress?: () => void;
 };
 
+function capitalizeFirstLetter(str: string) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export const Header = ({ 
   title, 
   showBackButton = false, 
   progress, 
-  rightElement,
+  rightElement, 
   onBackPress 
 }: HeaderProps) => {
   const router = useRouter();
-  
-  const handleBackPress = () => {
-    if (onBackPress) {
-      onBackPress();
-    } else {
-      router.back();
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{ name: string; level: number } | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchUser() {
+      setLoading(true);
+      try {
+        const token = await import('../services/Auth').then(m => m.getToken());
+        const res = await fetch(`${API_URL}/api/homepage`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error('Failed to fetch homepage');
+        const data = await res.json();
+        if (isMounted) setUser({ name: data.name, level: data.current_level });
+      } catch {
+        if (isMounted) setUser(null);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
     }
-  };
+    fetchUser();
+    return () => { isMounted = false; };
+  }, []);
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContent}>
-        <View style={styles.leftContainer}>
-          {showBackButton && (
-            <TouchableOpacity 
-              style={styles.backButton} 
-              onPress={handleBackPress}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <ArrowLeft size={24} color="#333" />
-            </TouchableOpacity>
-          )}
-          <Text style={styles.title} numberOfLines={1}>{title}</Text>
+        <View style={styles.leftLogoContainer}>
+          <Image source={require('../assets/images/logo-cat.png')} style={styles.logoCat} />
+          <Image source={require('../assets/images/logo-text.png')} style={styles.logoText} />
         </View>
-        
-        {rightElement && (
-          <View style={styles.rightContainer}>
-            {rightElement}
-          </View>
-        )}
+        <View style={styles.rightUserContainer}>
+          {loading ? (
+            <SkeletonLoader />
+          ) : user ? (
+            <>
+              <Text style={styles.helloText} numberOfLines={1}>
+                Hello, {capitalizeFirstLetter(user.name)}
+              </Text>
+              <Text style={styles.levelText}>Level {user.level}</Text>
+            </>
+          ) : (
+            <Text style={styles.helloText}>Hello</Text>
+          )}
+        </View>
       </View>
-
       {progress !== undefined && (
         <View style={styles.progressBarContainer}>
           <View 
@@ -79,6 +101,38 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     height: 48,
+  },
+  leftLogoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  logoCat: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
+    marginRight: 6,
+  },
+  logoText: {
+    width: 80,
+    height: 28,
+    resizeMode: 'contain',
+  },
+  rightUserContainer: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    minWidth: 100,
+  },
+  helloText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  levelText: {
+    fontSize: 13,
+    color: '#FF6B00',
+    fontWeight: '500',
+    marginTop: 2,
   },
   leftContainer: {
     flexDirection: 'row',

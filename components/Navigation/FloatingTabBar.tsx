@@ -134,7 +134,7 @@ const tabBarStyles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
     zIndex: 2,
-    width: '90%',
+    width: '100%',
     alignSelf: 'center',
   },
   tabButton: {

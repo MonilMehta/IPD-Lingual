@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
 import { Settings } from 'lucide-react-native';
 import { StyleSheet } from 'react-native';
@@ -10,22 +10,51 @@ import { MainFeatures } from '../../screens/HomePage/MainFeatures';
 import { QuickPhrases } from '../../screens/HomePage/QuickPhrases';
 import { TouristGuides } from '../../screens/HomePage/TouristGuides';
 import { FloatingTabBar } from '../../components/Navigation/FloatingTabBar';
+import { getToken } from '../../services/Auth'; // Reuse getToken for bearer token
 
 export const HomeScreen: React.FC = () => {
   const router = useRouter();
+  const [homepageData, setHomepageData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchHomepage() {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = await getToken();
+        const res = await fetch('https://lingual-yn5c.onrender.com/api/homepage', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error('Failed to fetch homepage');
+        const data = await res.json();
+        if (isMounted) setHomepageData(data);
+      } catch (err) {
+        if (isMounted) setError(err.message || 'Error fetching homepage');
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    fetchHomepage();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Memoize homepageData to avoid unnecessary re-renders
+  const homepage = useMemo(() => homepageData, [homepageData]);
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Header navigation={router} />
-        <DailyQuiz />
-        <MainFeatures navigation={router} />
+        <Header navigation={router} homepage={homepage} loading={loading} error={error} />
+        <DailyQuiz homepage={homepage} loading={loading} error={error} />
+        <MainFeatures navigation={router} homepage={homepage} />
       </ScrollView>
       <FloatingTabBar />
     </SafeAreaView>
   );
 };
-
 
 export const styles = StyleSheet.create({
     container: {

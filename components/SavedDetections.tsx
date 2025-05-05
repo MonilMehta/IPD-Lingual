@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
 import DetectionCard from './DetectionCard';
 import { Colors } from '../constants/Colors';
+import { getToken } from '../services/Auth';
 
 const mascots = [
   require('../assets/images/cat-smiling.png'),
@@ -69,12 +70,6 @@ const SavedDetections: React.FC = () => {
     </View>
   );
 };
-
-// Dummy getToken function, replace with your auth logic
-async function getToken() {
-  // e.g., from async storage or context
-  return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjQ1NzEyOSwianRpIjoiNDBhYTY1MjAtOWY1ZS00NTRkLThmMmUtYjlkOGY5YzM1OTQ4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im1vbmlsIiwibmJmIjoxNzQ2NDU3MTI5LCJjc3JmIjoiZjg4NjIxMzctZDM3Yi00YjhiLWJlNWMtNTZkMGI4Mjg4NjgxIiwiZXhwIjoxNzQ2NTQzNTI5fQ.qJ4XjZGC1WayYgzI-V25ZNGD5SWH46LJQHj4ydTvqU0';
-}
 
 const styles = StyleSheet.create({
   bg: {
