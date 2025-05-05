@@ -12,7 +12,7 @@ export const DailyQuiz = () => {
   useEffect(() => {
     fetch(API_URL, {
       headers: {
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjM3MzYwMCwianRpIjoiMjk1YmEwNjktMDc2ZC00ZTgyLWE4YWYtYjVhOThjYWY4YTRmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im1vbmlsIiwibmJmIjoxNzQ2MzczNjAwLCJjc3JmIjoiZTY4YzdhYzctNjhkMC00MzVlLTk1OWUtNjk0N2YwNDQzOGQ4IiwiZXhwIjoxNzQ2NDYwMDAwfQ.nZ2KMuiJ7TVPGENlzSKmTGwZYps_2P6X9-zvtU_J25I'
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjQ1NzEyOSwianRpIjoiNDBhYTY1MjAtOWY1ZS00NTRkLThmMmUtYjlkOGY5YzM1OTQ4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im1vbmlsIiwibmJmIjoxNzQ2NDU3MTI5LCJjc3JmIjoiZjg4NjIxMzctZDM3Yi00YjhiLWJlNWMtNTZkMGI4Mjg4NjgxIiwiZXhwIjoxNzQ2NTQzNTI5fQ.qJ4XjZGC1WayYgzI-V25ZNGD5SWH46LJQHj4ydTvqU0'
       }
     })
       .then(res => res.json())
@@ -59,8 +59,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   mascot: {
-    width: 64,
-    height: 64,
+    width: 100,
+    height: 100,
     marginBottom: 10,
   },
   title: {

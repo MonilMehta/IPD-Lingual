@@ -14,7 +14,7 @@ export default function PathwayScreen() {
     const fetchQuiz = async () => {
       try {
         // TODO: Replace with your actual method to get the token
-        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjM4ODY3OCwianRpIjoiM2I5ZTkxMTEtMmZlMy00OWU0LTlmYWYtZjIxMWUxM2M0NDQ0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im1vbmlsIiwibmJmIjoxNzQ2Mzg4Njc4LCJjc3JmIjoiOTA4NWQ4YjQtMGNhOS00ZTc5LWFhZWYtN2MwZjI1OWVlYjgwIiwiZXhwIjoxNzQ2NDc1MDc4fQ.V7TBTzY-bykdkNzULQIVptEwov5GZMYmHBx26KKYgtk';
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjQ1NzEyOSwianRpIjoiNDBhYTY1MjAtOWY1ZS00NTRkLThmMmUtYjlkOGY5YzM1OTQ4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im1vbmlsIiwibmJmIjoxNzQ2NDU3MTI5LCJjc3JmIjoiZjg4NjIxMzctZDM3Yi00YjhiLWJlNWMtNTZkMGI4Mjg4NjgxIiwiZXhwIjoxNzQ2NTQzNTI5fQ.qJ4XjZGC1WayYgzI-V25ZNGD5SWH46LJQHj4ydTvqU0';
         const response = await fetch('https://lingual-yn5c.onrender.com/api/quiz', {
           headers: {
             Authorization: `Bearer ${token}`,
