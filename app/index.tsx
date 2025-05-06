@@ -1,82 +1,73 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
+import React, { useEffect, useState, useCallback, memo } from 'react';
+import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MotiView } from 'moti';
+import { Easing } from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
+// Memoized character component to improve performance
+const CharBubble = memo(({ char }) => (
+  <MotiView
+    style={styles.charBubble}
+    from={{ opacity: 0, scale: 0.5 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ 
+      type: 'timing', 
+      duration: 300
+      // Removed invalid 'easing' property
+    }}
+  >
+    <Text style={styles.character}>{char}</Text>
+  </MotiView>
+));
+
 export default function SplashScreen() {
   const router = useRouter();
-  const [currentCharIndex, setCurrentCharIndex] = useState(0);
-  const fadeAnim = useState(new Animated.Value(0))[0];
-  
-  // Expanded language characters from different writing systems
+  const [displayedChars, setDisplayedChars] = useState([]);
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  // Reduced character set for better performance
   const languageCharacters = [
     { char: 'A', language: 'English' },
     { char: '你', language: 'Chinese' },
     { char: 'б', language: 'Russian' },
     { char: 'あ', language: 'Japanese' },
-    { char: 'ا', language: 'Arabic' },
-    { char: 'ก', language: 'Thai' },
-    { char: 'ਕ', language: 'Punjabi' },
     { char: 'Ñ', language: 'Spanish' },
-    { char: 'ש', language: 'Hebrew' },
-    { char: 'ε', language: 'Greek' },
     { char: 'ह', language: 'Hindi' },
     { char: '한', language: 'Korean' },
   ];
+  
+  // Memoized navigation function to prevent recreating it on every render
+  const navigateToLanding = useCallback(() => {
+    setIsNavigating(true);
+    router.replace('/(landing)');
+  }, [router]);
 
-  // Calculate total pairs for the animation
-  const totalPairs = Math.floor(languageCharacters.length / 2);
-
+  // Handle character addition
   useEffect(() => {
-    // Animate through language character pairs
-    const intervalId = setInterval(() => {
-      // Fade out
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200, // Faster fade out
-        useNativeDriver: true,
-      }).start(() => {
-        // Update character index
-        setCurrentCharIndex((prevIndex) => 
-          prevIndex < totalPairs - 1 ? prevIndex + 1 : prevIndex
-        );
-        
-        // Fade in
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200, // Faster fade in
-          useNativeDriver: true,
-        }).start();
-      });
-    }, 600); // Faster interval between changes
-
-    // Navigate to landing screen after showing all character pairs
-    const timer = setTimeout(() => {
-      clearInterval(intervalId);
-      router.replace('/(landing)');
-    }, totalPairs * 600 + 300); // Adjusted timing
+    let timer;
+    
+    if (isNavigating) return;
+    
+    // Add characters one by one with delay
+    if (displayedChars.length < languageCharacters.length) {
+      timer = setTimeout(() => {
+        setDisplayedChars(prevChars => [
+          ...prevChars, 
+          languageCharacters[displayedChars.length]
+        ]);
+      }, 250); // Slightly longer delay for smoother appearance
+    } else {
+      // All characters displayed, wait before navigating
+      timer = setTimeout(navigateToLanding, 800);
+    }
     
     return () => {
-      clearTimeout(timer);
-      clearInterval(intervalId);
+      if (timer) clearTimeout(timer);
     };
-  }, []);
+  }, [displayedChars, languageCharacters, navigateToLanding, isNavigating]);
 
-  // Start with fade-in animation
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 400,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-  
-  // Get the current pair of characters
-  const firstIndex = currentCharIndex * 2;
-  const secondIndex = firstIndex + 1;
-  
   return (
     <View style={styles.container}>
       {/* Background gradient circles */}
@@ -84,7 +75,7 @@ export default function SplashScreen() {
         style={[styles.gradientCircle, styles.topCircle]}
         from={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 0.1, scale: 1 }}
-        transition={{ type: 'timing', duration: 800, delay: 100 }}
+        transition={{ type: 'timing', duration: 800 }}
       />
       <MotiView
         style={[styles.gradientCircle, styles.bottomCircle]}
@@ -92,23 +83,25 @@ export default function SplashScreen() {
         animate={{ opacity: 0.1, scale: 1 }}
         transition={{ type: 'timing', duration: 800, delay: 200 }}
       />
-      
-      <Text style={styles.title}>Lingual</Text>
-      <Text style={styles.subtitle}>Learn languages through your camera</Text>
-      
-      <Animated.View style={[styles.charactersRow, { opacity: fadeAnim }]}>
-        <View style={styles.characterContainer}>
-          <Text style={styles.character}>{languageCharacters[firstIndex].char}</Text>
-          <Text style={styles.languageName}>{languageCharacters[firstIndex].language}</Text>
-        </View>
-        
-        {secondIndex < languageCharacters.length && (
-          <View style={styles.characterContainer}>
-            <Text style={styles.character}>{languageCharacters[secondIndex].char}</Text>
-            <Text style={styles.languageName}>{languageCharacters[secondIndex].language}</Text>
-          </View>
-        )}
-      </Animated.View>
+
+      {/* Logo images */}
+      <Image 
+        source={require('../assets/images/logo-cat.png')} 
+        style={styles.logoCat} 
+        resizeMode="contain" 
+      />
+      <Image 
+        source={require('../assets/images/logo-text.png')} 
+        style={styles.logoText} 
+        resizeMode="contain" 
+      />
+
+      {/* Sequential character display */}
+      <View style={styles.charactersContainer}>
+        {displayedChars.map((item, index) => (
+          <CharBubble key={index} char={item.char} />
+        ))}
+      </View>
     </View>
   );
 }
@@ -122,41 +115,40 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
-  title: {
-    color: '#FF6B00',
-    fontSize: 48,
-    fontWeight: 'bold',
+  logoCat: {
+    width: 120,
+    height: 120,
     marginBottom: 10,
     zIndex: 2,
   },
-  subtitle: {
-    fontSize: 18,
-    color: '#666',
-    textAlign: 'center',
-    paddingHorizontal: 40,
+  logoText: {
+    width: 180,
+    height: 50,
     marginBottom: 40,
     zIndex: 2,
   },
-  charactersRow: {
+  charactersContainer: {
+    width: width * 0.9,
+    height: 70,
+    marginTop: 20,
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 2,
   },
-  characterContainer: {
-    alignItems: 'center',
+  charBubble: {
+    backgroundColor: '#FF6B00',
+    borderRadius: 15,
+    width: 50,
+    height: 50,
     justifyContent: 'center',
-    marginHorizontal: 20,
+    alignItems: 'center',
+    marginHorizontal: 4,
   },
   character: {
-    fontSize: 72,
-    color: '#FF6B00',
-    marginBottom: 10,
-  },
-  languageName: {
-    fontSize: 18,
-    color: '#666',
+    fontSize: 28,
+    color: '#fff',
+    fontWeight: 'bold',
   },
   gradientCircle: {
     position: 'absolute',

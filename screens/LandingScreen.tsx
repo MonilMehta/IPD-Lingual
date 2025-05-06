@@ -12,33 +12,48 @@ import { MotiView } from 'moti';
 import { Easing } from 'react-native-reanimated';
 import LottieView from 'lottie-react-native';
 import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
 
-const LandingScreen: React.FC = ({ navigation }) => {
+const LandingScreen: React.FC = () => {
   const animationRef = useRef<LottieView>(null);
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Background gradient circles */}
+      {/* Dynamic blurred gradient circles */}
       <MotiView
         style={[styles.gradientCircle, styles.topCircle]}
         from={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 0.1, scale: 1 }}
-        transition={{ type: 'timing', duration: 1000, delay: 200 }}
-      />
+        animate={{ opacity: 0.18, scale: 1 }}
+        transition={{ type: 'timing', duration: 1200, delay: 100 }}
+      >
+        <LinearGradient
+          colors={["#FF6B00", "#FFD580"]}
+          style={StyleSheet.absoluteFill}
+          start={{ x: 0.2, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        />
+      </MotiView>
       <MotiView
         style={[styles.gradientCircle, styles.bottomCircle]}
         from={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 0.1, scale: 1 }}
-        transition={{ type: 'timing', duration: 1000, delay: 400 }}
-      />
+        animate={{ opacity: 0.15, scale: 1 }}
+        transition={{ type: 'timing', duration: 1200, delay: 300 }}
+      >
+        <LinearGradient
+          colors={["#FFD580", "#FF6B00"]}
+          style={StyleSheet.absoluteFill}
+          start={{ x: 1, y: 0 }}
+          end={{ x: 0, y: 1 }}
+        />
+      </MotiView>
 
       <View style={styles.contentContainer}>
         <MotiView
-          from={{ opacity: 0, translateY: -20 }}
+          from={{ opacity: 0, translateY: -30 }}
           animate={{ opacity: 1, translateY: 0 }}
-          transition={{ type: 'timing', duration: 1000, easing: Easing.out(Easing.ease) }}
+          transition={{ type: 'timing', duration: 1000, easing: Easing.out(Easing.exp) }}
           style={styles.upperSection}
         >
           <View style={styles.logoContainer}>
@@ -46,50 +61,60 @@ const LandingScreen: React.FC = ({ navigation }) => {
               ref={animationRef}
               source={require('../assets/animations/language.json')}
               autoPlay
-              loop
-              style={{ width: 250, height: 250 }}
+              loop={false}
+              onAnimationFinish={() => {
+                // Do nothing, keeps last frame
+              }}
+              style={{ width: '100%', height: width * 0.6, alignSelf: 'stretch' }}
+              resizeMode="cover"
             />
           </View>
-
           <MotiView
-            from={{ opacity: 0, translateY: 10 }}
+            from={{ opacity: 0, translateY: 20 }}
             animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'timing', duration: 800, delay: 300 }}
+            transition={{ type: 'timing', duration: 900, delay: 200 }}
           >
-            <Text style={styles.title}>Lingual</Text>
+            <Text style={styles.title}>Welcome to <Text style={styles.titleAccent}>Lingual</Text></Text>
           </MotiView>
           <MotiView
-            from={{ opacity: 0, translateY: 10 }}
+            from={{ opacity: 0, translateY: 20 }}
             animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'timing', duration: 800, delay: 400 }}
+            transition={{ type: 'timing', duration: 900, delay: 350 }}
           >
-            <Text style={styles.subtitle}>Learn languages through your camera</Text>
+            <Text style={styles.subtitle}>Snap. Learn. Speak. <Text style={styles.subtitleAccent}>Your camera is your new language teacher.</Text></Text>
           </MotiView>
         </MotiView>
 
         <MotiView
-          from={{ opacity: 0, translateY: 50 }}
+          from={{ opacity: 0, translateY: 60 }}
           animate={{ opacity: 1, translateY: 0 }}
-          transition={{ type: 'timing', duration: 1000, delay: 500, easing: Easing.out(Easing.ease) }}
+          transition={{ type: 'timing', duration: 1000, delay: 600, easing: Easing.out(Easing.exp) }}
           style={styles.lowerSection}
         >
           <TouchableOpacity
-            style={[styles.button, styles.loginButton]}
+            style={[styles.button, styles.getStartedButton]}
             onPress={() => router.navigate('/screens/auth/login')}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Get Started</Text>
+            <LinearGradient
+              colors={["#FF6B00", "#FF9A36"]}
+              style={styles.buttonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <Text style={styles.buttonText}>Get Started</Text>
+            </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, styles.signupButton]}
+            style={[styles.button, styles.createAccountButton]}
             onPress={() => router.navigate('/screens/auth/signup')}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            <Text style={[styles.buttonText, styles.signupText]}>Create Account</Text>
+            <Text style={[styles.buttonText, styles.createAccountText]}>Create Account</Text>
           </TouchableOpacity>
 
-          <Text style={styles.terms}>By continuing, you agree to our Terms of Service</Text>
+          <Text style={styles.terms}>By continuing, you agree to our <Text style={styles.termsLink}>Terms of Service</Text>.</Text>
         </MotiView>
       </View>
     </SafeAreaView>
@@ -116,26 +141,36 @@ const styles = StyleSheet.create({
     marginTop: Platform.OS === 'web' ? 50 : 0,
   },
   logoContainer: {
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Platform.OS === 'web' ? 10 : 20,
     marginTop: Platform.OS === 'web' ? 40 : 0,
   },
   title: {
-    fontSize: 38,
-    fontWeight: 'bold',
-    color: '#FF6B00',
+    fontSize: 40,
+    fontWeight: '900',
+    color: '#222',
     textAlign: 'center',
-    marginBottom: 5,
-    
+    marginBottom: 2,
+    letterSpacing: 1.2,
+  },
+  titleAccent: {
+    color: '#FF6B00',
+    fontWeight: '900',
   },
   subtitle: {
     fontSize: 18,
-    color: '#666',
+    color: '#444',
     textAlign: 'center',
-    paddingHorizontal: 40,
-    lineHeight: 24,
-    marginTop: 5,
+    paddingHorizontal: 32,
+    lineHeight: 26,
+    marginTop: 8,
+    marginBottom: 2,
+  },
+  subtitleAccent: {
+    color: '#FF6B00',
+    fontWeight: 'bold',
   },
   lowerSection: {
     padding: 30,
@@ -145,61 +180,64 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 56,
-    borderRadius: 16,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
+    overflow: 'hidden',
+  },
+  getStartedButton: {
+    backgroundColor: 'transparent',
+    padding: 0,
+    marginBottom: 14,
+    borderWidth: 0,
     shadowColor: '#FF6B00',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-    position: 'relative',
-    zIndex: 3,
-    ...(Platform.OS === 'web' && {
-      cursor: 'pointer',
-      ':hover': {
-        opacity: 0.9,
-      }
-      
-    }),
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 6,
   },
-  loginButton: {
-    backgroundColor: '#FF6B00',
-    ...(Platform.OS === 'web' && {
-      marginTop: 200,
-    }),
+  buttonGradient: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  signupButton: {
+  createAccountButton: {
     backgroundColor: '#FFF',
     borderWidth: 2,
     borderColor: '#FF6B00',
+    marginBottom: 8,
+  },
+  createAccountText: {
+    color: '#FF6B00',
+    fontWeight: 'bold',
   },
   buttonText: {
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: 'bold',
     color: '#FFF',
     textAlign: 'center',
-  },
-  signupText: {
-    color: '#FF6B00',
+    letterSpacing: 0.5,
   },
   terms: {
     textAlign: 'center',
-    color: '#666',
-    fontSize: 12,
-    marginTop: 20,
-    position: 'relative',
-    zIndex: 3,
+    color: '#888',
+    fontSize: 13,
+    marginTop: 18,
+    marginBottom: 2,
+  },
+  termsLink: {
+    color: '#FF6B00',
+    textDecorationLine: 'underline',
   },
   gradientCircle: {
     position: 'absolute',
-    backgroundColor: '#FF6B00',
     borderRadius: 1000,
-    zIndex: 1, // Keep circles behind content
+    zIndex: 1,
+    overflow: 'hidden',
+    filter: Platform.OS === 'web' ? 'blur(60px)' : undefined,
   },
   topCircle: {
     width: width * 1.5,
