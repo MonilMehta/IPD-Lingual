@@ -223,7 +223,8 @@ def register():
         if 'profile_image' in new_user:
             new_user['profile_image'] = new_user['profile_image']
         users_collection.insert_one(new_user)
-        return jsonify({'msg': 'User created successfully'}), 201
+        access_token = create_access_token(identity=new_user['username'])
+        return jsonify({'msg': 'User created successfully', 'access_token': access_token}), 201
     else:
         return jsonify({'msg': 'User already exists'}), 409
 
