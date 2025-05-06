@@ -6,9 +6,9 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { PaperProvider } from 'react-native-paper'; // <-- add this line
-import { ClerkProvider } from '@clerk/clerk-expo'
+
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { tokenCache } from '@clerk/clerk-expo/token-cache'
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -31,14 +31,11 @@ export default function RootLayout() {
     
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <PaperProvider> 
-        <ClerkProvider tokenCache={tokenCache}>
-
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(main)" />
         </Stack>
         <StatusBar style="auto" />
-        </ClerkProvider>
         </PaperProvider>
       </ThemeProvider>
     

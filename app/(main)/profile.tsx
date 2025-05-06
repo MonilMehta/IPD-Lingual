@@ -561,12 +561,14 @@ const styles = StyleSheet.create({
     color: '#FF6B00',
     fontSize: 13,
     flex: 1,
+    fontWeight: 'bold',
   },
   lastLogin: {
     fontSize: 12,
     color: '#888',
     marginTop: 10,
     alignSelf: 'center',
+    marginBottom:60,
   },
   centered: {
     flex: 1,
