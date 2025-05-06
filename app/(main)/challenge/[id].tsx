@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { Header } from '../../../components/Header';
+
 import { ChallengeQuiz } from '../../../components/Challenge/ChallengeQuiz';
 import { ChallengeComplete } from '../../../components/Challenge/ChallengeComplete';
 
@@ -130,7 +130,7 @@ export default function ChallengeScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <Header title={`Challenge ${id}`} showBackButton={true} />
+
         <View style={styles.loadingContent}>
           <ActivityIndicator size="large" color="#FF6B00" />
           <Text style={styles.loadingText}>Loading challenge...</Text>
@@ -141,11 +141,7 @@ export default function ChallengeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header 
-        title={challengeData.title} 
-        showBackButton={!completed} 
-        progress={!completed ? (currentStep / challengeData.questions.length) : 1}
-      />
+
       
       {!completed ? (
         <ChallengeQuiz

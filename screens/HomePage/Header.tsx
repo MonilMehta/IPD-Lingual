@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput,Animated,Easing } from 'react-native';
 import { MotiView } from 'moti';
-import SkeletonLoader from './DailyQuiz';
+
 import { API_URL } from '../../config/constants';
 import { Search } from 'lucide-react-native';
 
@@ -9,6 +9,34 @@ function capitalizeFirstLetter(str) {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+const SkeletonLoader = () => {
+  const animatedValue = React.useRef(new Animated.Value(0)).current;
+  React.useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(animatedValue, {
+          toValue: 1,
+          duration: 900,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
+        Animated.timing(animatedValue, {
+          toValue: 0,
+          duration: 900,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: false,
+        }),
+      ])
+    ).start();
+  }, [animatedValue]);
+  const bgColor = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['#FFE5CC', '#FFD1A3'],
+  });
+  return (
+    <Animated.View style={[styles.skeleton, { backgroundColor: bgColor }]} />
+  );
+};
 
 export const Header = ({ homepage, loading, error }) => {
   // If homepage/props loading is provided, use it, else fetch here

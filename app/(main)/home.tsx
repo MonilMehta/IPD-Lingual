@@ -1,14 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
-import { Settings } from 'lucide-react-native';
 import { StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Header } from '../../screens/HomePage/Header';
 import { DailyQuiz } from '../../screens/HomePage/DailyQuiz';
-import { LearningPathway } from '../../screens/HomePage/LearningCard';
 import { MainFeatures } from '../../screens/HomePage/MainFeatures';
-import { QuickPhrases } from '../../screens/HomePage/QuickPhrases';
-import { TouristGuides } from '../../screens/HomePage/TouristGuides';
 import { FloatingTabBar } from '../../components/Navigation/FloatingTabBar';
 import { getToken } from '../../services/Auth'; // Reuse getToken for bearer token
 
@@ -30,6 +26,7 @@ export const HomeScreen: React.FC = () => {
         });
         if (!res.ok) throw new Error('Failed to fetch homepage');
         const data = await res.json();
+        console.log('Homepage data:', data); // Debugging line
         if (isMounted) setHomepageData(data);
       } catch (err) {
         if (isMounted) setError(err.message || 'Error fetching homepage');

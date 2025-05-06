@@ -5,7 +5,7 @@ const MASCOT = require('../../assets/images/cat-pointing.png');
 const MASCOT_DONE = require('../../assets/images/cat-laughing.png');
 const MASCOT_CELEBRATE = require('../../assets/images/cat-celebrating.png');
 
-function getLast7DaysStreak(streak, daily_challenge_done) {
+function getLast7DaysStreak(streak:any, daily_challenge_done:any) {
   // Returns an array of 7 booleans, last is today
   // If streak >= 7, all true; else fill from end
   const arr = Array(7).fill(false);
