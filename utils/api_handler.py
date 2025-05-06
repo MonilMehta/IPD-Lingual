@@ -30,6 +30,11 @@ from groq import Groq # Added Groq import
 from datetime import date, timedelta # Added date and timedelta
 import logging 
 from flask import request
+import secrets
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import random
 
 # =============================================================================
 # Helper Functions and Constants
@@ -176,6 +181,12 @@ detection_service = DetectionService()
 model = None
 model_active = False
 
+# Password reset token expiry (in minutes)
+RESET_TOKEN_EXPIRY_MINUTES = 30
+
+# Password reset OTP expiry (in minutes)
+RESET_OTP_EXPIRY_MINUTES = 10
+
 # =============================================================================
 # Health Check Endpoints
 # =============================================================================
@@ -224,7 +235,9 @@ def register():
             new_user['profile_image'] = new_user['profile_image']
         users_collection.insert_one(new_user)
         access_token = create_access_token(identity=new_user['username'])
-        return jsonify({'msg': 'User created successfully', 'access_token': access_token}), 201
+        # Prepare user details to return (exclude password)
+        user_details = {k: v for k, v in new_user.items() if k != 'password'}
+        return jsonify({'msg': 'User created successfully', 'access_token': access_token, 'user': user_details}), 201
     else:
         return jsonify({'msg': 'User already exists'}), 409
 
@@ -260,6 +273,77 @@ def logout():
     jti = get_jwt()['jti']
     blacklist_collection.insert_one({'jti': jti, 'created_at': datetime.datetime.now()})
     return jsonify({"msg": "Successfully logged out"}), 200
+
+@app.route("/forgot_password", methods=["POST"])
+def forgot_password():
+    """
+    Request password reset. Sends an email with an OTP if the email exists.
+    Request body: {email: str}
+    Returns: Success message (even if email not found, for security)
+    """
+    data = request.get_json()
+    email = data.get("email")
+    if not email:
+        return jsonify({"msg": "Email is required"}), 400
+    user = users_collection.find_one({"email": email})
+    if user:
+        # Generate 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+        expiry = datetime.datetime.utcnow() + datetime.timedelta(minutes=RESET_OTP_EXPIRY_MINUTES)
+        users_collection.update_one({"email": email}, {"$set": {"reset_otp": otp, "reset_otp_expiry": expiry}})
+        # Send OTP email
+        send_password_reset_otp_email(email, otp)
+    # Always return success message (do not reveal if email exists)
+    return jsonify({"msg": "If the email exists, a password reset OTP has been sent."}), 200
+
+@app.route("/reset_password", methods=["POST"])
+def reset_password():
+    """
+    Reset password using OTP.
+    Request body: {email: str, otp: str, new_password: str}
+    Returns: Success or error
+    """
+    data = request.get_json()
+    email = data.get("email")
+    otp = data.get("otp")
+    new_password = data.get("new_password")
+    if not email or not otp or not new_password:
+        return jsonify({"msg": "Email, OTP, and new_password are required"}), 400
+    user = users_collection.find_one({"email": email, "reset_otp": otp})
+    if not user:
+        return jsonify({"msg": "Invalid OTP or email"}), 400
+    expiry = user.get("reset_otp_expiry")
+    if not expiry or datetime.datetime.utcnow() > expiry:
+        return jsonify({"msg": "OTP has expired"}), 400
+    # Update password
+    hashed_pw = hashlib.sha256(new_password.encode('utf-8')).hexdigest()
+    users_collection.update_one({"_id": user["_id"]}, {"$set": {"password": hashed_pw}, "$unset": {"reset_otp": "", "reset_otp_expiry": ""}})
+    return jsonify({"msg": "Password has been reset successfully"}), 200
+
+def send_password_reset_otp_email(email, otp):
+    """
+    Send a password reset OTP email.
+    """
+    SMTP_SERVER = 'smtp.gmail.com'
+    SMTP_PORT = 587
+    SMTP_USER = os.environ.get('SMTP_EMAIL')  # Replace with your email
+    SMTP_PASS = os.environ.get('SMTP_PASSWORD')     # Replace with your app password
+    subject = "Password Reset OTP"
+    body = f"""
+    Hello,\n\nYour password reset OTP is: {otp}\n\nThis OTP will expire in {RESET_OTP_EXPIRY_MINUTES} minutes.\nIf you did not request this, please ignore this email.\n"""
+    msg = MIMEMultipart()
+    msg['From'] = SMTP_USER
+    msg['To'] = email
+    msg['Subject'] = subject
+    msg.attach(MIMEText(body, 'plain'))
+    try:
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server.starttls()
+        server.login(SMTP_USER, SMTP_PASS)
+        server.sendmail(SMTP_USER, email, msg.as_string())
+        server.quit()
+    except Exception as e:
+        print(f"Failed to send password reset OTP email: {e}")
 
 # =============================================================================
 # User Management Endpoints
@@ -691,7 +775,7 @@ def api_detect():
 
     # Determine target language
     final_target_language = None
-    if target_language_param:
+    if (target_language_param):
         if target_language_param in ALLOWED_LANGUAGES:
             final_target_language = target_language_param
         else:
