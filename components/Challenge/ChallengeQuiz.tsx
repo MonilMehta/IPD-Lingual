@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { MotiView } from 'moti';
 import { useRouter } from 'expo-router';
+import { getToken } from '../../services/Auth';
+import { ChallengeComplete } from './ChallengeComplete';
 
 // Mascot images
 const mascots = [
@@ -31,8 +33,20 @@ type ChallengeQuizProps = {
   isLastQuestion: boolean;
   questionNumber: number;
   totalQuestions: number;
-  onCompleteQuiz?: () => Promise<void>; // <-- new prop for completion
 };
+
+async function completeQuiz(quizIndex: number) {
+  const token = await getToken();
+  const response = await fetch(`https://lingual-yn5c.onrender.com/api/complete_quiz?quiz_index=${quizIndex}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) throw new Error('Failed to complete quiz');
+  return true;
+}
 
 export const ChallengeQuiz = ({ 
   currentQuestion, 
@@ -42,11 +56,11 @@ export const ChallengeQuiz = ({
   isLastQuestion,
   questionNumber,
   totalQuestions,
-  onCompleteQuiz // <-- new prop for completion
 }: ChallengeQuizProps) => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showMilestone, setShowMilestone] = useState(false);
   const router = useRouter();
 
   // Pick a mascot based on question number for variety
@@ -59,10 +73,10 @@ export const ChallengeQuiz = ({
     setShowFeedback(true);
     onAnswer(currentQuestion.id, option);
     // If last question and correct, call complete endpoint
-    if (isLastQuestion && option === currentQuestion.correctAnswer && onCompleteQuiz) {
+    if (isLastQuestion && option === currentQuestion.correctAnswer) {
       setSubmitting(true);
       try {
-        await onCompleteQuiz();
+        await completeQuiz(currentQuestion.id); // Use question id as quiz index
       } catch {}
       setSubmitting(false);
     }
@@ -81,12 +95,16 @@ export const ChallengeQuiz = ({
 
   // Helper to call complete endpoint before navigating to main
   const handleGoToMain = async () => {
-    if (onCompleteQuiz) {
-      try {
-        await onCompleteQuiz();
-      } catch {}
+    try {
+      await completeQuiz(currentQuestion.id);
+      if ([10, 20, 30, 40, 50].includes(Number(currentQuestion.id))) {
+        setShowMilestone(true);
+      } else {
+        router.navigate('/(main)/home');
+      }
+    } catch {
+      router.navigate('/(main)/home');
     }
-    router.navigate('/(main)/home');
   };
 
   return (
@@ -166,6 +184,11 @@ export const ChallengeQuiz = ({
           </View>
         )}
       </MotiView>
+      {showMilestone && (
+        <View style={styles.overlay}>
+          <ChallengeComplete />
+        </View>
+      )}
     </View>
   );
 };
@@ -303,5 +326,16 @@ const styles = StyleSheet.create({
     height: 100,
     alignSelf: 'center',
     marginBottom: 16,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100,
   },
 });

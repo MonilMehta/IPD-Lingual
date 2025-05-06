@@ -98,7 +98,9 @@ function LanguageDropdown({ selected, onSelect, options }) {
 
 export default function TextTranslateScreen() {
   const [sourceText, setSourceText] = useState('');
-  const [translatedText, setTranslatedText] = useState('');
+  // Store all translations as an array
+  type Translation = { source: string; result: string; from: string; to: string };
+  const [translations, setTranslations] = useState<Translation[]>([]); // { source, result, from, to }
   const [sourceLanguage, setSourceLanguage] = useState(LANGUAGES[0]);
   const [targetLanguage, setTargetLanguage] = useState(LANGUAGES[1]);
   const [isTranslating, setIsTranslating] = useState(false);
@@ -109,11 +111,10 @@ export default function TextTranslateScreen() {
     const temp = sourceLanguage;
     setSourceLanguage(targetLanguage);
     setTargetLanguage(temp);
-    
     // Also swap text if there's translated content
-    if (translatedText) {
-      setSourceText(translatedText);
-      setTranslatedText('');
+    if (translations.length > 0) {
+      setSourceText(translations[translations.length - 1].result);
+      setTranslations([]);
     }
   };
   
@@ -121,13 +122,13 @@ export default function TextTranslateScreen() {
   const addPhrase = (phrase) => {
     let newText = sourceText ? sourceText + ' ' + phrase : phrase;
     setSourceText(newText);
-    setTranslatedText('');
+    setTranslations([]);
   };
   
   // Clear input text
   const clearText = () => {
     setSourceText('');
-    setTranslatedText('');
+    setTranslations([]);
   };
   
   // Perform translation using Google Translate API
@@ -139,16 +140,29 @@ export default function TextTranslateScreen() {
       const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLanguage.code}&dt=t&q=${encodeURIComponent(text)}`;
       const res = await fetch(url);
       const data = await res.json();
+      console.log('Translation response:', data);
       // Always extract translation as string
       let result = '';
       if (Array.isArray(data) && Array.isArray(data[0]) && Array.isArray(data[0][0])) {
         result = data[0][0][0] || '';
+        console.log('Translation result:', result);
       } else {
         result = 'Could not get translation.';
       }
-      setTranslatedText(result);
+      // Add new translation to the list
+      setTranslations(prev => [...prev, {
+        source: text,
+        result,
+        from: sourceLanguage.name,
+        to: targetLanguage.name
+      }]);
     } catch (e) {
-      setTranslatedText('Translation failed.');
+      setTranslations(prev => [...prev, {
+        source: text,
+        result: 'Translation failed.',
+        from: sourceLanguage.name,
+        to: targetLanguage.name
+      }]);
     }
     setIsTranslating(false);
   };
@@ -263,7 +277,7 @@ export default function TextTranslateScreen() {
               styles.translateButton,
               !sourceText.trim() && styles.translateButtonDisabled
             ]} 
-            onPress={translateText}
+            onPress={() => translateText(sourceText)}
             disabled={!sourceText.trim() || isTranslating}
           >
             {isTranslating ? (
@@ -273,15 +287,23 @@ export default function TextTranslateScreen() {
             )}
           </TouchableOpacity>
           
-          {/* Translation Result */}
-          {translatedText ? (
-            <View style={styles.translationResultContainer}>
-              <Text style={styles.translationResultTitle}>Translation</Text>
-              <View style={styles.translationTextContainer}>
-                <Text style={styles.translationText}>{translatedText}</Text>
-              </View>
+          {/* Translation Results List */}
+          {translations.length > 0 && (
+            <View style={{ marginBottom: 20 }}>
+              <Text style={styles.translationResultTitle}>Translations</Text>
+              {translations.map((t, idx) => (
+                <View key={idx} style={styles.translationResultContainer}>
+                  <Text style={{ color: '#888', fontSize: 13, marginBottom: 2 }}>
+                    {t.from} → {t.to}
+                  </Text>
+                  <View style={styles.translationTextContainer}>
+                    <Text style={{ color: '#333', fontWeight: 'bold' }}>{t.source}</Text>
+                    <Text style={styles.translationText}>{t.result}</Text>
+                  </View>
+                </View>
+              ))}
             </View>
-          ) : null}
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

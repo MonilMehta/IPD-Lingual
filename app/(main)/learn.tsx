@@ -22,7 +22,32 @@ export default function LearnScreen() {
         });
         if (!response.ok) throw new Error('Failed to fetch quiz');
         const data = await response.json();
-        setQuizData(data);
+
+        // Transform questions to have a numeric 'id' field from 'quiz_id'
+        const originalQuestions = data.questions || [];
+        const transformedApiQuestions = originalQuestions.map(q => ({
+          ...q,
+          id: parseInt(q.quiz_id, 10),
+        }));
+
+        // Determine the current level for the pathway display
+        // If API current_level is 12, pathway's currentLevel is 13
+        const pathwayCurrentLevel = (data.current_level || 0) + 1;
+
+        // Determine total questions for the entire pathway.
+        // The API response for /api/quiz (based on the snippet) doesn't provide an overall total.
+        // Using data.quiz_total if the API were to include it, otherwise defaulting to 50.
+        // This '50' is based on previous "Homepage data" logs (quiz_total: 50).
+        // This value should ideally come reliably from the API or app's state/config.
+        const pathwayTotalQuestions = data.quiz_total || 50; // Assuming quiz_total might be in data, else 50.
+
+        setQuizData({
+          questions: transformedApiQuestions,
+          current_level: pathwayCurrentLevel, // Used as currentLevel prop in LearningPathway
+          total_questions: pathwayTotalQuestions, // Used as totalQuestions prop in LearningPathway
+          // You might want to spread other original 'data' fields if they are needed elsewhere
+          // ...data, // Uncomment and adjust if other fields from 'data' are needed directly
+        });
       } catch (err) {
         setError(err.message || 'Error fetching quiz');
         Alert.alert('Error', err.message || 'Error fetching quiz');

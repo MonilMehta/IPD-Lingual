@@ -515,7 +515,7 @@ const ConversationScreen: React.FC = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <ArrowLeft size={24} color="#333" />
+          <ArrowLeft size={24} color="#FF6B00" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Bilingual Translation</Text>
         <TouchableOpacity 

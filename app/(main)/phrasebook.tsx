@@ -3,6 +3,7 @@ import { SafeAreaView, View, Text, FlatList, ActivityIndicator, StyleSheet, Touc
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { getToken } from '../../services/Auth';
 import * as Speech from 'expo-speech';
+import { router, useRouter } from 'expo-router';
 
 const mascots = [
   require('../../assets/images/cat-thinking.png'),
@@ -27,7 +28,7 @@ export default function Phrasebook({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-
+  const router=useRouter();
   useEffect(() => {
     const fetchDetections = async () => {
       setLoading(true);
@@ -61,7 +62,7 @@ export default function Phrasebook({ navigation }) {
   }, [search, detections]);
 
   const handleBack = () => {
-    if (navigation && navigation.goBack) navigation.goBack();
+    router.navigate('/home');
   };
 
   // Language code detection helper

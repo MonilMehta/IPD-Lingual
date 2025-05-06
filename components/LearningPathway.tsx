@@ -192,33 +192,72 @@ function renderMascotAvatars(nodes) {
 }
 
 export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestions }) => {
+  console.log("--- LearningPathway ---");
+  console.log("Props: questions.length:", questions.length, "currentLevel:", currentLevel, "totalQuestions:", totalQuestions);
+  if (questions.length > 0 && questions.length < 10) {
+    console.log("Sample questions:", JSON.stringify(questions.slice(0, 5).map(q => ({id: q.id})))); // Log only IDs for brevity
+  } else if (questions.length === 0) {
+    console.log("Props: questions array is empty.");
+  }
+
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const scrollRef = useRef(null);
-  const NODES_COUNT = questions.length;
-  const totalPathHeight = NODES_COUNT * VERTICAL_SPACING + 200;
+  const scrollRef = useRef<ScrollView>(null);
+  const NODES_COUNT = questions.length; // Total actual questions available in the passed array
+  const effectiveTotalQuestions = totalQuestions || NODES_COUNT;
 
-  // Reverse: lowest on top, highest at bottom
-  const nodes = Array.from({ length: NODES_COUNT }, (_, i) => {
-    const row = NODES_COUNT - 1 - i; // reverse order
+  // Clamp currentLevel to be within the bounds of effectiveTotalQuestions for window calculation
+  // This ensures that if currentLevel is, e.g., 13 but total questions is only 10, we use 10 for calculation,
+  // effectively showing the last available page.
+  const clampedCurrentLevelForWindowCalc = Math.max(1, Math.min(currentLevel, effectiveTotalQuestions));
+
+  // Calculate the current window of 10 nodes using the clamped level
+  const windowStart = Math.floor((clampedCurrentLevelForWindowCalc - 1) / 10) * 10 + 1;
+  const windowEnd = Math.min(windowStart + 9, effectiveTotalQuestions);
+  
+  const NODES_COUNT_WINDOW = Math.max(0, windowEnd - windowStart + 1);
+
+  console.log("Clamped Current Level for Window Calc:", clampedCurrentLevelForWindowCalc);
+  console.log("Recalculated Window: windowStart:", windowStart, "windowEnd:", windowEnd, "NODES_COUNT_WINDOW:", NODES_COUNT_WINDOW);
+
+  const totalPathHeight = NODES_COUNT_WINDOW * VERTICAL_SPACING + 200;
+  console.log("Path Height: totalPathHeight:", totalPathHeight);
+
+  // Generate nodes for the current window
+  const nodes = Array.from({ length: NODES_COUNT_WINDOW }, (_, i) => {
+    const nodeId = windowStart + i; 
+    const questionData = questions.find(q => q.id === nodeId);
+
     let horizontalPosition;
-    if (row % 2 === 0) {
+    if (i % 2 === 0) {
       horizontalPosition = Math.max(insets.left, 10) + width * (0.15 + (Math.random() * 0.1));
     } else {
       const rightEdge = width - Math.max(insets.right, 10);
       horizontalPosition = rightEdge - width * (0.15 + (Math.random() * 0.1));
     }
     const verticalOffset = (Math.random() * 30) - 15;
-    const y = 80 + (i * VERTICAL_SPACING) + verticalOffset;
-    let status = 'locked';
-    if (row + 1 < currentLevel) status = 'completed';
-    else if (row + 1 === currentLevel) status = 'current';
+    const y = 80 + (i * VERTICAL_SPACING) + verticalOffset; 
+
+    let status: 'locked' | 'current' | 'completed' = 'locked';
+    if (nodeId < currentLevel) status = 'completed';
+    else if (nodeId === currentLevel) status = 'current';
+
     return {
-      id: row + 1,
+      id: nodeId,
       position: { x: horizontalPosition, y },
       status,
+      question: questionData, 
     };
   });
+
+  console.log("Generated nodes.length:", nodes.length);
+  if (nodes.length > 0 && nodes.length < 5) { // Log sample of generated nodes
+    console.log("Sample generated nodes:", JSON.stringify(nodes.slice(0,3).map(n => ({id: n.id, status: n.status, questionId: n.question?.id }))));
+  } else if (nodes.length === 0 && NODES_COUNT_WINDOW > 0) {
+    console.error("WARNING: NODES_COUNT_WINDOW is > 0 but generated nodes array is empty. Check Array.from logic or question data.");
+  } else if (nodes.length === 0 && NODES_COUNT_WINDOW === 0) {
+    console.log("Generated nodes array is empty because NODES_COUNT_WINDOW is 0.");
+  }
 
   // Use all mascot images at different levels
   const mascotData = [
@@ -259,35 +298,48 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
     );
   });
 
-  // Auto-scroll to current node on mount
+  // Auto-scroll to current node on mount or when nodes/currentLevel change
   useEffect(() => {
-    if (!scrollRef.current) return;
+    if (!scrollRef.current || !nodes || nodes.length === 0) return;
+    
     const currentIdx = nodes.findIndex(n => n.status === 'current');
     if (currentIdx !== -1) {
-      const y = nodes[currentIdx].position.y - 200;
-      scrollRef.current.scrollTo({ y: Math.max(0, y), animated: true });
+      // Ensure the node exists before trying to access its position
+      const currentNode = nodes[currentIdx];
+      if (currentNode && currentNode.position) {
+        const y = currentNode.position.y - 200; // Scroll to bring it into view
+        scrollRef.current.scrollTo({ y: Math.max(0, y), animated: true });
+      }
+    } else if (nodes.length > 0) {
+      // If no current node in this window (e.g. currentLevel is outside this window after some logic error)
+      // scroll to top of this window. Or, if currentLevel is before this window, scroll to top.
+      // If currentLevel is after this window, scroll to bottom (or last node).
+      // For simplicity, if current is not found, scroll to the top of the current window's content.
+      scrollRef.current.scrollTo({ y: 0, animated: true });
     }
-  }, [NODES_COUNT]);
+  }, [nodes, currentLevel]); // Depend on 'nodes' array and currentLevel
 
-  // Progress indicator (5 boxes, with arrows if more levels)
-  const totalBoxes = 5;
-  let startIdx = Math.max(0, currentLevel - 3);
-  if (startIdx + totalBoxes > NODES_COUNT) startIdx = Math.max(0, NODES_COUNT - totalBoxes);
-  const progressBoxes = Array.from({ length: totalBoxes }, (_, i) => {
-    const level = startIdx + i + 1;
+  // Progress indicator (boxes for each node in the window)
+  const progressBoxes = Array.from({ length: NODES_COUNT_WINDOW }, (_, i) => {
+    const level = windowStart + i;
     const isCompleted = level < currentLevel;
     const isCurrent = level === currentLevel;
     return (
       <View key={i} style={{
-        width: 22, height: 22, borderRadius: 6, marginHorizontal: 3,
-        backgroundColor: isCompleted || isCurrent ? '#FF6B00' : '#F0F0F0',
-        borderWidth: isCurrent ? 2 : 0,
-        borderColor: isCurrent ? '#222' : undefined,
-        alignItems: 'center', justifyContent: 'center',
+        alignItems: 'center', marginHorizontal: 1
       }}>
-        {isCompleted && <Ionicons name="checkmark" size={16} color="#fff" />}
-        {isCurrent && !isCompleted && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#fff' }} />}
-        {!isCompleted && !isCurrent && <View />}
+        <View style={{
+          width: 22, height: 22, borderRadius: 6, marginHorizontal: 3,
+          backgroundColor: isCompleted || isCurrent ? '#FF6B00' : '#F0F0F0',
+          borderWidth: isCurrent ? 2 : 0,
+          borderColor: isCurrent ? '#222' : undefined,
+          alignItems: 'center', justifyContent: 'center',
+        }}>
+          {isCompleted && <Ionicons name="checkmark" size={16} color="#fff" />}
+          {isCurrent && !isCompleted && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#fff' }} />}
+          {!isCompleted && !isCurrent && <View />}
+        </View>
+        <Text style={{ fontSize: 13, color: '#FF6B00', fontWeight: 'bold', marginTop: 1 }}>{level}</Text>
       </View>
     );
   });
@@ -322,18 +374,8 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
         </View>
         {/* Progress indicator row with arrows and numbers */}
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginVertical: 6 }}>
-          {startIdx > 0 && (
-            <Ionicons name="chevron-back" size={22} color="#FF6B00" style={{ marginRight: 2 }} />
-          )}
-          {progressBoxes.map((box, i) => (
-            <View key={i} style={{ alignItems: 'center', marginHorizontal: 1 }}>
-              {box}
-              <Text style={{ fontSize: 13, color: '#FF6B00', fontWeight: 'bold', marginTop: 1 }}>{startIdx + i + 1}</Text>
-            </View>
-          ))}
-          {startIdx + totalBoxes < NODES_COUNT && (
-            <Ionicons name="chevron-forward" size={22} color="#FF6B00" style={{ marginLeft: 2 }} />
-          )}
+          {/* Optionally add navigation arrows here if you want to allow window navigation */}
+          {progressBoxes}
         </View>
       </View>
       <ScrollView
@@ -346,6 +388,7 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        {console.log("Rendering ScrollView content... Nodes to map:", nodes.length)}
         {/* Mascot avatars at various levels */}
         {mascotAvatars}
         {/* Path segments */}
@@ -365,27 +408,39 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
         })}
         {/* Pathway nodes */}
         {nodes.map((node, index) => (
-          <MotiView
+          <View // Replaced MotiView with a regular View for debugging
             key={`node-${node.id}`}
             style={[styles.nodeContainer, { left: node.position.x, top: node.position.y }]}
-            from={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{
-              type: 'spring',
-              delay: 300 + index * 100,
-              damping: 15
-            }}
+            // from={{ opacity: 0, scale: 0 }} // MotiView props removed
+            // animate={{ opacity: 1, scale: 1 }} // MotiView props removed
+            // transition={{ // MotiView props removed
+            //   type: 'spring',
+            //   delay: 300 + index * 100,
+            //   damping: 15
+            // }}
           >
             <PathwayNode
               id={node.id}
               status={node.status}
               onPress={() => {
-                if (node.status !== 'locked') {
-                  router.navigate(`/challenge/${node.id}`);
+                if (node.status !== 'locked' && node.question) { // Ensure question exists before navigating
+                  router.navigate({
+                    pathname: `/challenge/${node.id}`,
+                    params: {
+                      question: JSON.stringify(node.question),
+                      allQuestions: JSON.stringify(questions), // Pass the original full questions list
+                      currentLevel: currentLevel,
+                    },
+                  });
+                } else if (node.status !== 'locked') {
+                  // Fallback or error logging if question is missing for an unlocked node
+                  console.warn(`Node ${node.id} is active but has no question data.`);
+                  // Optionally, still navigate or show a message
+                  // router.navigate(`/challenge/${node.id}`); // Or some other behavior
                 }
               }}
             />
-          </MotiView>
+          </View>
         ))}
       </ScrollView>
     </SafeAreaView>

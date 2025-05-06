@@ -1,90 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import { getToken } from '../../../services/Auth';
 
 import { ChallengeQuiz } from '../../../components/Challenge/ChallengeQuiz';
 import { ChallengeComplete } from '../../../components/Challenge/ChallengeComplete';
 
-// Mock fetch function - replace with actual API call
-const fetchChallengeData = async (challengeId) => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  return {
+// Fetch questions from API and memoize
+const fetchChallengeData = async (challengeId, memoRef) => {
+  if (memoRef.current) return memoRef.current;
+  const token = await getToken();
+  const response = await fetch('https://lingual-yn5c.onrender.com/api/quiz', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) throw new Error('Failed to fetch challenge data');
+  const data = await response.json();
+  console.log('Fetched challenge data:');
+  // Map API questions to ChallengeQuiz format
+  const questions = data.questions.map((q, idx) => ({
+    id: Number(q.quiz_id) || idx + 1,
+    type: q.type === 'fill_in_the_blank' ? 'fill' : (q.type || 'multipleChoice'),
+    question: q.question,
+    options: q.options,
+    correctAnswer: q.options[q.answer_index],
+  }));
+  const challengeData = {
     title: `Challenge ${challengeId}`,
-    description: "Test your language skills with these questions!",
-    questions: [
-      {
-        id: 1,
-        type: 'multipleChoice',
-        question: 'How do you say "hello" in Spanish?',
-        options: ['Bonjour', 'Hola', 'Ciao', 'Guten tag'],
-        correctAnswer: 'Hola',
-      },
-      {
-        id: 2,
-        type: 'translation',
-        question: 'Translate "I am hungry" to Spanish',
-        correctAnswer: 'Tengo hambre',
-      },
-      {
-        id: 3,
-        type: 'multipleChoice',
-        question: 'Which word means "dog"?',
-        options: ['Gato', 'Perro', 'Pájaro', 'Pez'],
-        correctAnswer: 'Perro',
-      },
-      {
-        id: 4,
-        type: 'fill',
-        question: 'Complete the sentence: Yo ___ estudiante.',
-        options: ['soy', 'eres', 'es', 'son'],
-        correctAnswer: 'soy',
-      },
-      {
-        id: 5,
-        type: 'multipleChoice',
-        question: 'How do you say "thank you"?',
-        options: ['Gracias', 'Por favor', 'De nada', 'Lo siento'],
-        correctAnswer: 'Gracias',
-      },
-    ],
+    description: 'Test your language skills with these questions!',
+    questions,
   };
-};
-
-const completeQuiz = async (challengeId) => {
-  try {
-    // TODO: Replace with your actual method to get the token
-    const token = '';
-    const response = await fetch('https://lingual-yn5c.onrender.com/api/quiz/complete', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ challenge_id: challengeId }),
-    });
-    if (!response.ok) throw new Error('Failed to complete quiz');
-    return true;
-  } catch (err) {
-    Alert.alert('Error', err.message || 'Failed to complete quiz');
-    return false;
-  }
+  memoRef.current = challengeData;
+  return challengeData;
 };
 
 export default function ChallengeScreen() {
-  const { id } = useLocalSearchParams();
+  const { id, questionNumber } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [challengeData, setChallengeData] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [completed, setCompleted] = useState(false);
   const [score, setScore] = useState(0);
+  const memoRef = useRef(null);
 
   useEffect(() => {
     const loadChallenge = async () => {
       try {
-        const data = await fetchChallengeData(id);
+        const data = await fetchChallengeData(id, memoRef);
         setChallengeData(data);
       } catch (error) {
         console.error('Failed to load challenge:', error);
@@ -107,23 +73,22 @@ export default function ChallengeScreen() {
     if (currentStep < challengeData.questions.length - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
-      // Calculate score
-      let correctCount = 0;
-      challengeData.questions.forEach(question => {
-        if (answers[question.id] === question.correctAnswer) {
-          correctCount++;
-        }
-      });
-      setScore(Math.round((correctCount / challengeData.questions.length) * 100));
-      // Call complete endpoint if all correct
-      if (correctCount === challengeData.questions.length) {
-        await completeQuiz(id);
+      // If last question is 10, 20, 30, 40, or 50, show special message
+      const lastIndex = currentStep + 1;
+      let specialMessage = '';
+      if ([10, 20, 30, 40, 50].includes(lastIndex)) {
+        specialMessage = `Congratulations! You've completed ${lastIndex} questions!`;
       }
       setCompleted(true);
+      setScore(prevScore => prevScore);
+      if (specialMessage) {
+        Alert.alert('Milestone!', specialMessage);
+      }
     }
   };
 
-  const handleComplete = () => {
+  // When returning to home/pageway, just navigate
+  const handleComplete = async () => {
     router.navigate('/pathway');
   };
 
@@ -150,9 +115,8 @@ export default function ChallengeScreen() {
           onNext={handleNext}
           userAnswer={answers[challengeData.questions[currentStep].id]}
           isLastQuestion={currentStep === challengeData.questions.length - 1}
-          questionNumber={currentStep + 1}
+          questionNumber={questionNumber ? Number(questionNumber) : currentStep + 1}
           totalQuestions={challengeData.questions.length}
-          onCompleteQuiz={() => completeQuiz(id)}
         />
       ) : (
         <ChallengeComplete 

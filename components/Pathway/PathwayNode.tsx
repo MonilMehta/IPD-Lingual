@@ -8,9 +8,10 @@ type PathwayNodeProps = {
   id: number;
   status: 'locked' | 'current' | 'completed';
   onPress: () => void;
+  question?: any; // Add question prop
 };
 
-export const PathwayNode = ({ id, status, onPress }: PathwayNodeProps) => {
+export const PathwayNode = ({ id, status, onPress}: PathwayNodeProps) => {
   const nodeContent = () => {
     switch (status) {
       case 'locked':
@@ -28,7 +29,6 @@ export const PathwayNode = ({ id, status, onPress }: PathwayNodeProps) => {
         return <Text style={styles.nodeText}>{id}</Text>;
     }
   };
-
   const getNodeStyle = () => {
     switch (status) {
       case 'locked':
