@@ -1,19 +1,62 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { Trophy, BookMarked, ArrowRight } from 'lucide-react-native';
 import { MotiView } from 'moti';
 
 const { width } = Dimensions.get('window');
 
-export const LearningPathway = ({ navigation }) => {
-  const progress = {
-    level: 'Beginner',
-    lessonsCompleted: 12,
-    totalLessons: 30,
-    streak: 5,
-  };
+const mascotImages = [
+  require('../../assets/images/cat-reading.png'),
+  require('../../assets/images/cat-thinking.png'),
+  require('../../assets/images/cat-laughing.png'),
+  require('../../assets/images/cat-celebrating.png'),
+  require('../../assets/images/cat-photo.png'),
+];
+const mascotMessages = [
+  'Keep going, you are doing great! 🐾',
+  'Ollie says: Every word is a step closer! 📚',
+  'Almost there! Ollie is proud of you! 😸',
+  'Celebrate your progress! 🎉',
+  'Let’s learn something new today! ✨',
+];
+const levelEmojis = ['🌱', '📖', '📝', '🎯', '🏅', '🚀', '🌟', '🦉', '🎓', '🏆'];
 
+export const LearningPathway = ({ navigation, homepage }) => {
+  // Use homepage data if available, else fallback
+  const progress = homepage
+    ? {
+        level: homepage.current_level ? `Level ${homepage.current_level}` : 'Beginner',
+        lessonsCompleted: homepage.quiz_completed || 0,
+        totalLessons: homepage.quiz_total || 1,
+        currentLevel: homepage.current_level || 1,
+      }
+    : {
+        level: 'Beginner',
+        lessonsCompleted: 0,
+        totalLessons: 1,
+        currentLevel: 1,
+      };
+
+  // 10 levels, each 5 lessons (or spread evenly)
+  const levels = 10;
+  const lessonsPerLevel = Math.max(1, Math.floor(progress.totalLessons / levels));
+  const levelDots = Array.from({ length: levels }, (_, i) => {
+    const lessonNum = (i + 1) * lessonsPerLevel;
+    const isActive = progress.lessonsCompleted >= lessonNum;
+    return {
+      emoji: levelEmojis[i % levelEmojis.length],
+      isActive,
+      lessonNum,
+    };
+  });
+  // Always show a dot at the end for 100%
+  levelDots[levels - 1].lessonNum = progress.totalLessons;
+
+  // Progress dot (2%) at the end
   const progressPercentage = (progress.lessonsCompleted / progress.totalLessons) * 100;
+  const mascotIndex = Math.min(Math.floor(progressPercentage / 20), mascotImages.length - 1);
+  const mascotImage = mascotImages[mascotIndex];
+  const mascotMessage = mascotMessages[mascotIndex];
 
   return (
     <MotiView 
@@ -22,32 +65,51 @@ export const LearningPathway = ({ navigation }) => {
       animate={{ opacity: 1, translateY: 0 }}
       transition={{ type: 'timing', duration: 800 }}
     >
-      <Text style={styles.title}>Your Learning Pathway</Text>
+      <Text style={styles.title}>Continue Learning 📚 </Text>
       <View style={styles.card}>
         <View style={styles.progressInfo}>
           <View style={styles.levelBadge}>
-            <Text style={styles.levelText}>{progress.level}</Text>
-          </View>
-          <View style={styles.streakContainer}>
-            <Trophy size={16} color="#FFD700" />
-            <Text style={styles.streakText}>{progress.streak} day streak!</Text>
+            <Text style={styles.levelText}>{progress.level} {levelEmojis[(progress.currentLevel-1)%levelEmojis.length]}</Text>
           </View>
         </View>
-        
         <View style={styles.progressBarContainer}>
           <View style={styles.progressBar}>
+            {/* Level dots */}
+            {levelDots.map((dot, idx) => (
+              <View key={idx} style={{
+                position: 'absolute',
+                left: `${(dot.lessonNum / progress.totalLessons) * 100}%`,
+                top: -10,
+                alignItems: 'center',
+                width: 28,
+              }}>
+                <Text style={{ fontSize: 18, opacity: dot.isActive ? 1 : 0.3 }}>{dot.emoji}</Text>
+              </View>
+            ))}
+            {/* Progress fill */}
             <MotiView 
               style={[styles.progressFill]}
               from={{ width: 0 }}
               animate={{ width: `${progressPercentage}%` }}
               transition={{ type: 'timing', duration: 1000, delay: 300 }}
             />
-            <MotiView 
-              style={styles.progressIndicator}
-              from={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: 'spring', delay: 1000 }}
-            />
+            {/* Progress indicator dot at the actual progress position */}
+            <View style={{
+              position: 'absolute',
+              left: `calc(${progressPercentage}% - 10px)`, // Position dot at progress
+              top: -6,
+              width: 20,
+              height: 20,
+              borderRadius: 10,
+              backgroundColor: '#FF6B00',
+              borderWidth: 2,
+              borderColor: '#FFF',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 2,
+            }}>
+              <Text style={{ color: '#FFF', fontWeight: 'bold', fontSize: 10 }}>{Math.round(progressPercentage)}%</Text>
+            </View>
           </View>
           <View style={styles.progressLabels}>
             <Text style={styles.progressText}>
@@ -56,10 +118,13 @@ export const LearningPathway = ({ navigation }) => {
             <Text style={styles.progressPercentage}>{Math.round(progressPercentage)}%</Text>
           </View>
         </View>
-        
+        <View style={{ alignItems: 'center', marginBottom: 12 }}>
+          <Image source={mascotImage} style={{ width: 70, height: 70, marginBottom: 4 }} resizeMode="contain" />
+          <Text style={{ color: '#FF6B00', fontWeight: '600', fontSize: 15, textAlign: 'center' }}>{mascotMessage}</Text>
+        </View>
         <TouchableOpacity 
           style={styles.continueButton}
-          onPress={() => navigation.navigate('pathway')}
+          onPress={() => navigation.navigate('/learn')}
         >
           <BookMarked size={20} color="#FFF" />
           <Text style={styles.continueButtonText}>Continue Learning</Text>
@@ -72,8 +137,9 @@ export const LearningPathway = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
+    marginBottom: 160,
     paddingHorizontal: 4,
+    marginHorizontal: 24,
   },
   title: {
     fontSize: 20,

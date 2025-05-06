@@ -205,9 +205,9 @@ export const PathwayMap = ({ questions = [], currentLevel = 1 }) => {
     })
   );
 
-  // Generate an array of challenge nodes with varying positions
+  // Generate an array of challenge nodes with varying positions (flipped: lowest at top, highest at bottom)
   const nodes = Array.from({ length: NODES_COUNT }, (_, i) => {
-    const row = i;
+    const row = NODES_COUNT - 1 - i; // reverse order
     let horizontalPosition;
     if (row % 2 === 0) {
       horizontalPosition = Math.max(insets.left, 10) + width * (0.15 + (Math.random() * 0.1));
@@ -216,12 +216,12 @@ export const PathwayMap = ({ questions = [], currentLevel = 1 }) => {
       horizontalPosition = rightEdge - width * (0.15 + (Math.random() * 0.1));
     }
     const verticalOffset = (Math.random() * 30) - 15;
-    const y = 80 + (row * VERTICAL_SPACING) + verticalOffset;
+    const y = 80 + (i * VERTICAL_SPACING) + verticalOffset;
     let status = 'locked';
-    if (i + 1 < currentLevel) status = 'completed';
-    else if (i + 1 === currentLevel) status = 'current';
+    if (row + 1 < currentLevel) status = 'completed';
+    else if (row + 1 === currentLevel) status = 'current';
     return {
-      id: i + 1,
+      id: row + 1,
       position: { x: horizontalPosition, y },
       status,
     };

@@ -123,7 +123,7 @@ export const DailyQuiz = () => {
           <>
             <Image source={MASCOT} style={styles.celebrateMascot} />
             <Text style={styles.instruction}>
-              Find and point your camera at a <Text style={styles.word}>{challengeWord}</Text>!
+              Ollie says find a <Text style={styles.word}>{challengeWord}</Text> and snap a photo!
             </Text>
             <Text style={styles.streakLabel}>Streak</Text>
             <View style={styles.streakRow}>

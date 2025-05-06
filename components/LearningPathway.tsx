@@ -2,8 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, Dimensions, ScrollView, Image, Text, Pressable } from 'react-native';
 import { PathwayNode } from './Pathway/PathwayNode';
 import { PathSegment } from './Pathway/PathSegment';
-import { FloatingText } from './Pathway/FloatingText';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { MotiView } from 'moti';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -11,10 +10,22 @@ import { useRouter } from 'expo-router';
 const { width } = Dimensions.get('window');
 const NODE_SIZE = 70;
 const VERTICAL_SPACING = 180;
-const MASCOT_IMAGE = require('../assets/images/cat-smiling.png');
-import catSayingHi from '../assets/images/cat-sayinghi.png';
-import catThinking from '../assets/images/cat-thinking.png';
-import catLaughing from '../assets/images/cat-laughing.png';
+const catSayingHi = require('../assets/images/cat-sayinghi.png');
+const catThinking = require('../assets/images/cat-thinking.png');
+const catLaughing = require('../assets/images/cat-laughing.png');
+const catSleeping = require('../assets/images/cat-sleeping.png');
+const catLicking = require('../assets/images/cat-licking.png');
+const catTranslating = require('../assets/images/cat-translating.png');
+const catPointing = require('../assets/images/cat-pointing.png');
+const catMeowing = require('../assets/images/cat-meowing.png');
+const catPhoto = require('../assets/images/cat-photo.png');
+const catSleeping2 = require('../assets/images/cat-sleeping2.png');
+const catCelebrating = require('../assets/images/cat-celebrating.png');
+const catFixing = require('../assets/images/cat-fixing.png');
+const catPointing2 = require('../assets/images/cat-pointing2.png');
+const catReading = require('../assets/images/cat-reading.png');
+const catSmiling = require('../assets/images/cat-smiling.png');
+
 
 // Sample phrases for floating text
 const samplePhrases = [
@@ -29,15 +40,8 @@ const samplePhrases = [
   { text: 'Olá', language: 'Portuguese' },
   { text: 'Привет', language: 'Russian' },
   { text: 'नमस्ते', language: 'Hindi' },
-  { text: 'مرحبا', language: 'Arabic' },
-  { text: 'Sawubona', language: 'Zulu' },
   { text: 'Γεια σας', language: 'Greek' },
-  { text: 'สวัสดี', language: 'Thai' },
-  { text: 'Xin chào', language: 'Vietnamese' },
   { text: 'Salam', language: 'Farsi' },
-  { text: 'Здраво', language: 'Serbian' },
-  { text: 'Merhaba', language: 'Turkish' },
-  { text: 'שלום', language: 'Hebrew' },
 ];
 
 const wouldOverlap = (newPos, existingPositions, phraseSize = 80, minDistance = 100) => {
@@ -149,6 +153,13 @@ function renderMascotAvatars(nodes) {
     { level: 9, image: catLaughing, side: 'right' },
     { level: 6, image: catThinking, side: 'left' },
     { level: 1, image: catSayingHi, side: 'right' },
+    { level: 7, image: catLicking, side: 'right' },
+    { level: 3, image: catSleeping, side: 'right' },
+    { level: 10, image: catPointing, side: 'left' },
+    { level: 8, image: catSleeping2, side: 'left' },
+    { level: 5, image: catPhoto, side: 'right' },
+    { level: 4, image: catMeowing, side: 'left' },
+    { level: 2, image: catTranslating, side: 'left' },
   ];
   mascotData.forEach(({ level, image, side }) => {
     const node = nodes.find(n => n.id === level);
@@ -186,14 +197,8 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
   const scrollRef = useRef(null);
   const NODES_COUNT = questions.length;
   const totalPathHeight = NODES_COUNT * VERTICAL_SPACING + 200;
-  const [floatingPhrases] = useState(() =>
-    generateFloatingPhrases(40, {
-      left: Math.max(insets.left, 10),
-      right: Math.max(insets.right, 10)
-    }, totalPathHeight, { left: 0.0, right: 0.82 })
-  );
 
-  // Reverse nodes: start at bottom, move up
+  // Reverse: lowest on top, highest at bottom
   const nodes = Array.from({ length: NODES_COUNT }, (_, i) => {
     const row = NODES_COUNT - 1 - i; // reverse order
     let horizontalPosition;
@@ -204,7 +209,6 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
       horizontalPosition = rightEdge - width * (0.15 + (Math.random() * 0.1));
     }
     const verticalOffset = (Math.random() * 30) - 15;
-    // Start at bottom, move up
     const y = 80 + (i * VERTICAL_SPACING) + verticalOffset;
     let status = 'locked';
     if (row + 1 < currentLevel) status = 'completed';
@@ -216,77 +220,122 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
     };
   });
 
-  // Remove mascot bubbles from floating text, only render avatars at nodes
-  const mascotAvatars = renderMascotAvatars(nodes);
+  // Use all mascot images at different levels
+  const mascotData = [
+    { level: 1, image: catSayingHi, side: 'right' },
+    { level: 2, image: catThinking, side: 'left' },
+    { level: 3, image: catLaughing, side: 'right' },
+    { level: 4, image: catSleeping, side: 'left' },
+    { level: 5, image: catLicking, side: 'right' },
+    { level: 6, image: catTranslating, side: 'left' },
+    { level: 7, image: catPointing, side: 'right' },
+    { level: 8, image: catMeowing, side: 'left' },
+    { level: 9, image: catPhoto, side: 'right' },
+    { level: 10, image: catSleeping2, side: 'left' },
+    { level: 11, image: catCelebrating, side: 'right' },
+    { level: 12, image: catFixing, side: 'left' },
+    { level: 13, image: catPointing2, side: 'right' },
+    { level: 14, image: catReading, side: 'left' },
+    { level: 15, image: catSmiling, side: 'right' },
+  ];
+
+  const mascotAvatars = mascotData.map(({ level, image, side }) => {
+    const node = nodes.find(n => n.id === level);
+    if (!node) return null;
+    return (
+      <Image
+        key={`mascot-avatar-${level}`}
+        source={image}
+        style={{
+          position: 'absolute',
+          top: node.position.y + 10,
+          [side]: 18,
+          width: 70,
+          height: 70,
+          zIndex: 5,
+        }}
+        resizeMode="contain"
+      />
+    );
+  });
 
   // Auto-scroll to current node on mount
   useEffect(() => {
     if (!scrollRef.current) return;
     const currentIdx = nodes.findIndex(n => n.status === 'current');
     if (currentIdx !== -1) {
-      const y = nodes[currentIdx].position.y - 200; // scroll so current node is visible, with some offset
+      const y = nodes[currentIdx].position.y - 200;
       scrollRef.current.scrollTo({ y: Math.max(0, y), animated: true });
     }
   }, [NODES_COUNT]);
 
-  // Progress bar width
-  const progress = NODES_COUNT > 0 ? (currentLevel / NODES_COUNT) : 0;
+  // Progress indicator (5 boxes, with arrows if more levels)
+  const totalBoxes = 5;
+  let startIdx = Math.max(0, currentLevel - 3);
+  if (startIdx + totalBoxes > NODES_COUNT) startIdx = Math.max(0, NODES_COUNT - totalBoxes);
+  const progressBoxes = Array.from({ length: totalBoxes }, (_, i) => {
+    const level = startIdx + i + 1;
+    const isCompleted = level < currentLevel;
+    const isCurrent = level === currentLevel;
+    return (
+      <View key={i} style={{
+        width: 22, height: 22, borderRadius: 6, marginHorizontal: 3,
+        backgroundColor: isCompleted || isCurrent ? '#FF6B00' : '#F0F0F0',
+        borderWidth: isCurrent ? 2 : 0,
+        borderColor: isCurrent ? '#222' : undefined,
+        alignItems: 'center', justifyContent: 'center',
+      }}>
+        {isCompleted && <Ionicons name="checkmark" size={16} color="#fff" />}
+        {isCurrent && !isCompleted && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#fff' }} />}
+        {!isCompleted && !isCurrent && <View />}
+      </View>
+    );
+  });
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      {/* App Bar/Header - fixed at top, respects safe area */}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }} edges={['top', 'left', 'right']}> 
+      {/* App Bar/Header */}
       <View style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingTop: insets.top + 8,
-        paddingBottom: 10,
-        paddingHorizontal: 12,
         backgroundColor: '#fff',
         borderBottomWidth: 0.5,
         borderBottomColor: '#eee',
         zIndex: 10,
+        paddingTop: 8,
+        paddingBottom: 0,
+        paddingHorizontal: 0,
       }}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={{ marginRight: 8 }}>
-          <Ionicons name="arrow-back" size={26} color="#222" />
-        </Pressable>
-        <Text style={{ fontSize: 21, fontWeight: 'bold', color: '#222', flex: 1 }} numberOfLines={1}>
-          Your Language Journey
-        </Text>
-      </View>
-      {/* Vertical progress bar, always visible on the right */}
-      {NODES_COUNT > 0 && (
-        <View style={{
-          position: 'absolute',
-          right: 8,
-          top: insets.top + 60,
-          bottom: 24,
-          width: 12,
-          justifyContent: 'flex-start',
-          alignItems: 'center',
-          zIndex: 20,
-          pointerEvents: 'none',
-        }}>
-          <View style={{
-            width: 6,
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, marginBottom: 2 }}>
+       
+          <Text style={{
+            fontSize: 28,
+            fontWeight: 'bold',
+            color: '#FF6B00',
             flex: 1,
-            backgroundColor: '#F0F0F0',
-            borderRadius: 3,
-            overflow: 'hidden',
-            marginVertical: 8,
-            justifyContent: 'flex-end',
-          }}>
-            <View style={{
-              width: 6,
-              height: `${progress * 100}%`,
-              backgroundColor: '#FF6B00',
-              borderRadius: 3,
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-            }} />
-          </View>
+            textAlign: 'center',
+            letterSpacing: 0.5,
+            textShadowColor: '#fff2',
+            textShadowOffset: { width: 0, height: 2 },
+            textShadowRadius: 4,
+          }} numberOfLines={1}>
+            Your Language Learning
+          </Text>
         </View>
-      )}
+        {/* Progress indicator row with arrows and numbers */}
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginVertical: 6 }}>
+          {startIdx > 0 && (
+            <Ionicons name="chevron-back" size={22} color="#FF6B00" style={{ marginRight: 2 }} />
+          )}
+          {progressBoxes.map((box, i) => (
+            <View key={i} style={{ alignItems: 'center', marginHorizontal: 1 }}>
+              {box}
+              <Text style={{ fontSize: 13, color: '#FF6B00', fontWeight: 'bold', marginTop: 1 }}>{startIdx + i + 1}</Text>
+            </View>
+          ))}
+          {startIdx + totalBoxes < NODES_COUNT && (
+            <Ionicons name="chevron-forward" size={22} color="#FF6B00" style={{ marginLeft: 2 }} />
+          )}
+        </View>
+      </View>
       <ScrollView
         ref={scrollRef}
         style={styles.container}
@@ -297,21 +346,8 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Floating phrases as simple rectangles */}
-        {floatingPhrases.map((phrase) => (
-          <FloatingText
-            key={phrase.id}
-            text={phrase.text}
-            language={phrase.language}
-            position={phrase.position}
-            size={phrase.size}
-            rotation={phrase.rotation}
-            color={phrase.color}
-          />
-        ))}
-        {/* Mascot avatars at top, middle, bottom */}
+        {/* Mascot avatars at various levels */}
         {mascotAvatars}
-
         {/* Path segments */}
         {nodes.map((node, index) => {
           if (index === nodes.length - 1) return null;
@@ -327,8 +363,7 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
             />
           );
         })}
-
-        {/* Pathway nodes and mascot */}
+        {/* Pathway nodes */}
         {nodes.map((node, index) => (
           <MotiView
             key={`node-${node.id}`}
@@ -346,7 +381,6 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
               status={node.status}
               onPress={() => {
                 if (node.status !== 'locked') {
-                  // Use correct route for your file structure
                   router.navigate(`/challenge/${node.id}`);
                 }
               }}
@@ -354,7 +388,7 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
           </MotiView>
         ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

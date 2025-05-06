@@ -70,7 +70,7 @@ export const MainFeatures = ({ navigation, homepage }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Main Features</Text>
+      <Text style={styles.sectionTitle}>Ollie's Picks ⚒️</Text>
       <View style={styles.featureCardWrapper}>
         <View style={styles.grid}>
           {isLoading
@@ -105,9 +105,8 @@ export const MainFeatures = ({ navigation, homepage }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 24,
+    marginTop: 24,
     paddingHorizontal: 24,
-    marginBottom: 100,
   },
   sectionTitle: {
     fontSize: 20,

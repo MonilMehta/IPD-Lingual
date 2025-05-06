@@ -7,6 +7,7 @@ import { DailyQuiz } from '../../screens/HomePage/DailyQuiz';
 import { MainFeatures } from '../../screens/HomePage/MainFeatures';
 import { FloatingTabBar } from '../../components/Navigation/FloatingTabBar';
 import { getToken } from '../../services/Auth'; // Reuse getToken for bearer token
+import { LearningPathway as LearningCard } from '../../screens/HomePage/LearningCard';
 
 export const HomeScreen: React.FC = () => {
   const router = useRouter();
@@ -47,6 +48,10 @@ export const HomeScreen: React.FC = () => {
         <Header navigation={router} homepage={homepage} loading={loading} error={error} />
         <DailyQuiz homepage={homepage} loading={loading} error={error} />
         <MainFeatures navigation={router} homepage={homepage} />
+        {/* Show the summary learning card only */}
+        <View style={{ marginTop: 24 }}>
+          <LearningCard navigation={router} homepage={homepage} />
+        </View>
       </ScrollView>
       <FloatingTabBar />
     </SafeAreaView>
