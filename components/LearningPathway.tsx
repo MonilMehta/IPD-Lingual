@@ -250,15 +250,8 @@ export const LearningPathway = ({ questions = [], currentLevel = 1, totalQuestio
     };
   });
 
-  console.log("Generated nodes.length:", nodes.length);
-  if (nodes.length > 0 && nodes.length < 5) { // Log sample of generated nodes
-    console.log("Sample generated nodes:", JSON.stringify(nodes.slice(0,3).map(n => ({id: n.id, status: n.status, questionId: n.question?.id }))));
-  } else if (nodes.length === 0 && NODES_COUNT_WINDOW > 0) {
-    console.error("WARNING: NODES_COUNT_WINDOW is > 0 but generated nodes array is empty. Check Array.from logic or question data.");
-  } else if (nodes.length === 0 && NODES_COUNT_WINDOW === 0) {
-    console.log("Generated nodes array is empty because NODES_COUNT_WINDOW is 0.");
-  }
-
+  
+  
   // Use all mascot images at different levels
   const mascotData = [
     { level: 1, image: catSayingHi, side: 'right' },

@@ -1,0 +1,17 @@
+{
+  "cli": {
+    "version": ">= 7.6.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "production": {
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {}
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
