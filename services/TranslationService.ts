@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { getToken } from './Auth'; // Adjust the import path as necessary
 interface LanguageInfo {
   name: string;
   code: string;
@@ -51,13 +51,6 @@ class TranslationService {
     language2: null
   };
 
-  private static async getAuthToken(): Promise<string | null> {
-    try {
-      return await AsyncStorage.getItem('userToken');
-    } catch {
-      return null;
-    }
-  }
 
   static async getSupportedLanguagesFromAPI(): Promise<SupportedLanguages> {
     // Remove API call, return static mapping
@@ -81,7 +74,8 @@ class TranslationService {
   }
 
   static async processConversationAudioAPI(audioUri: string, lang1: string, lang2: string, format: string = 'mp3') {
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjQ1NzEyOSwianRpIjoiNDBhYTY1MjAtOWY1ZS00NTRkLThmMmUtYjlkOGY5YzM1OTQ4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im1vbmlsIiwibmJmIjoxNzQ2NDU3MTI5LCJjc3JmIjoiZjg4NjIxMzctZDM3Yi00YjhiLWJlNWMtNTZkMGI4Mjg4NjgxIiwiZXhwIjoxNzQ2NTQzNTI5fQ.qJ4XjZGC1WayYgzI-V25ZNGD5SWH46LJQHj4ydTvqU0'
+    const token = await getToken();
+    console.log('[processConversationAudioAPI] Token:', token);
     const formData = new FormData();
     // Use the file extension from the uri if possible
     let fileName = 'audio.mp3';
@@ -116,15 +110,21 @@ class TranslationService {
         headers: {
           'Accept': 'application/json',
           ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-          // Do NOT set 'Content-Type' for FormData!
         },
       });
       if (!res.ok) {
         const errorText = await res.text();
         console.error('[processConversationAudioAPI] API error:', res.status, errorText);
+        if (res.status === 401) {
+          // Token expired, clear it
+          await AsyncStorage.getItem('userToken');
+          console.error('[processConversationAudioAPI] Token:', token, 'expired. Clearing it.');
+        }
         throw new Error(`Failed to process audio: ${res.status} ${errorText}`);
       }
-      return res.json();
+      const json = await res.json();
+      console.log('[processConversationAudioAPI] API success:', json);
+      return json;
     } catch (err) {
       console.error('[processConversationAudioAPI] Network or fetch error:', err);
       throw err;

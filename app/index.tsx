@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Dimensions, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { MotiView } from 'moti';
 import { Easing } from 'react-native-reanimated';
-
 const { width } = Dimensions.get('window');
 
 // Memoized character component to improve performance

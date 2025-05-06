@@ -8,13 +8,16 @@ import {
   KeyboardAvoidingView, 
   Platform,
   ScrollView,
-  Alert 
+  Alert,
+  Image 
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import CatPasswordToggle from '../components/CatPasswordToggle';
 
 interface FormData {
   name: string;
@@ -29,6 +32,7 @@ interface FormData {
 interface Language {
   code: string;
   name: string;
+  icon: string;
 }
 
 interface ProficiencyLevel {
@@ -63,49 +67,38 @@ type SignupScreenProps = {
 };
 
 const LANGUAGES: Language[] = [
-  { code: 'en', name: 'English' },
-  { code: 'es', name: 'Spanish' },
-  { code: 'fr', name: 'French' },
-  { code: 'de', name: 'German' },
-  { code: 'it', name: 'Italian' },
-  { code: 'pt', name: 'Portuguese' },
-  { code: 'ja', name: 'Japanese' },
-  { code: 'ko', name: 'Korean' },
-  { code: 'zh', name: 'Chinese' }
+  { code: 'en', name: 'English', icon: 'A' },
+  { code: 'hi', name: 'Hindi', icon: 'क' },
+  { code: 'kn', name: 'Kannada', icon: 'ಅ' },
+  { code: 'mr', name: 'Marathi', icon: 'म' },
+  { code: 'gu', name: 'Gujarati', icon: 'અ' },
+  { code: 'es', name: 'Spanish', icon: 'ñ' },
+  { code: 'fr', name: 'French', icon: 'ç' },
+  { code: 'ru', name: 'Russian', icon: 'Я' },
+  { code: 'zh', name: 'Chinese', icon: '文' },
+  { code: 'ja', name: 'Japanese', icon: 'あ' },
 ];
 
-const PROFICIENCY_LEVELS: ProficiencyLevel[] = [
-  { id: 'beginner', label: 'Beginner', description: 'Little to no knowledge' },
-  { id: 'elementary', label: 'Elementary', description: 'Basic communication' },
-  { id: 'intermediate', label: 'Intermediate', description: 'Can handle most situations' },
-  { id: 'advanced', label: 'Advanced', description: 'Fluent in most contexts' },
-  { id: 'native', label: 'Native', description: 'Native-like proficiency' }
-];
-
-const LEARNING_GOALS: LearningGoal[] = [
-  { id: 'travel', label: 'Travel', icon: '✈️' },
-  { id: 'business', label: 'Business', icon: '💼' },
-  { id: 'academic', label: 'Academic', icon: '📚' },
-  { id: 'cultural', label: 'Cultural', icon: '🎭' },
-  { id: 'social', label: 'Social', icon: '👥' }
+const USER_PROFILES = [
+  { id: 'kids', label: 'For a child or young learner', emoji: '🧒' },
+  { id: 'casual', label: 'For casual everyday use', emoji: '😃' },
+  { id: 'tourist', label: 'For travel or tourism', emoji: '🧳' },
 ];
 
 const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    nativeLanguage: '',
     learningLanguages: [],
-    proficiencyLevels: {},
-    learningGoals: []
+    userProfile: '',
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState<boolean>(false);
 
-  const updateFormData = (data: Partial<FormData>): void => {
+  const updateFormData = (data: Partial<FormData & { userProfile?: string }>): void => {
     setFormData(prev => ({ ...prev, ...data }));
     setErrors({});
   };
@@ -124,47 +117,22 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 
   const validateStep2 = (): boolean => {
     const newErrors: FormErrors = {};
-    if (!formData.nativeLanguage) {
-      newErrors.nativeLanguage = 'Please select your native language';
-    }
     if (!formData.learningLanguages.length) {
-      newErrors.learningLanguages = 'Please select at least one language to learn';
+      newErrors.learningLanguages = 'Please select a language to learn';
+    }
+    if (!formData.userProfile) {
+      newErrors.nativeLanguage = 'Please select who will use the app';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateStep3 = (): boolean => {
-    const newErrors: FormErrors = {};
-    if (formData.learningLanguages.some(lang => !formData.proficiencyLevels[lang])) {
-      newErrors.proficiency = 'Please select proficiency level for all languages';
-    }
-    if (!formData.learningGoals.length) {
-      newErrors.goals = 'Please select at least one learning goal';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleNext = (): void => {
-    let isValid = false;
-    switch (currentStep) {
-      case 1:
-        isValid = validateStep1();
-        break;
-      case 2:
-        isValid = validateStep2();
-        break;
-      case 3:
-        isValid = validateStep3();
-        break;
-    }
-
-    if (isValid) {
-      if (currentStep < 3) {
-        setCurrentStep(prev => prev + 1);
-      } else {
-        handleSubmit();
+  const handleNext = async (): Promise<void> => {
+    if (currentStep === 1) {
+      if (validateStep1()) setCurrentStep(2);
+    } else if (currentStep === 2) {
+      if (validateStep2()) {
+        await handleSubmit();
       }
     }
   };
@@ -184,58 +152,58 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
         username: formData.name,
         email: formData.email,
         password: formData.password,
-        nativeLanguage: formData.nativeLanguage,
-        learningLanguages: formData.learningLanguages,
-        proficiencyLevels: formData.proficiencyLevels,
-        learningGoals: formData.learningGoals
+        target_language: formData.learningLanguages[0],
+        profile: formData.userProfile,
       };
-
-      const response = await axios.post('https://lingual-e8b7.onrender.com/signup/', signupData, {
+      const response = await axios.post('https://lingual-yn5c.onrender.com/register', signupData, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
+          'Accept': 'application/json',
+        },
       });
-
-      if (response.data) {
-        Alert.alert('Success', 'Account created successfully', [
-          {
-            text: 'OK',
-            onPress: () => router.replace('/(auth)/login')
-          }
-        ]);
+      if (response.data && response.data.access_token) {
+        // Save token and go to home
+        await AsyncStorage.setItem('userToken', response.data.access_token);
+        router.replace('/(main)/home');
+      } else {
+        Alert.alert('Signup Failed', response.data?.msg || 'Unknown error');
       }
     } catch (error) {
-      console.error('Signup error:', error);
+console.error('Signup error:', error);
       Alert.alert(
-        'Signup Failed',
-        error.response?.data?.message || 'An error occurred during signup'
-      );
+'Signup Failed',
+error.response?.data?.message || 'An error occurred during signup'
+);
     } finally {
       setLoading(false);
     }
   };
 
   const renderStep1 = () => (
-    <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Create Your Account</Text>
-      <Text style={styles.stepSubtitle}>Let's get started with your language journey</Text>
-
-      <View style={styles.form}>
-        <View style={styles.inputContainer}>
-          <Ionicons name="person-outline" size={24} color="#FF6B00" style={styles.inputIcon} />
+    <View style={styles.centered}>
+      <Image 
+        source={require('../assets/images/logo-cat.png')} 
+        style={styles.mascot}
+        resizeMode="contain"
+      />
+      <View style={styles.card}>
+        <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.subtitle}>Start your language journey!</Text>
+        <View style={{ height: 24 }} />
+        <View style={styles.inputWrapper}>
+          <Ionicons name="person-outline" size={22} color="#FF6B00" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
-            placeholder="Full Name"
+            placeholder="Username"
             value={formData.name}
             onChangeText={(text) => updateFormData({ name: text })}
-            autoCapitalize="words"
+            autoCapitalize="none"
+            placeholderTextColor="#aaa"
           />
         </View>
         {errors.name && <Text style={styles.error}>{errors.name}</Text>}
-
-        <View style={styles.inputContainer}>
-          <Ionicons name="mail-outline" size={24} color="#FF6B00" style={styles.inputIcon} />
+        <View style={styles.inputWrapper}>
+          <Ionicons name="mail-outline" size={22} color="#FF6B00" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Email"
@@ -243,187 +211,105 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
             onChangeText={(text) => updateFormData({ email: text })}
             keyboardType="email-address"
             autoCapitalize="none"
+            placeholderTextColor="#aaa"
           />
         </View>
         {errors.email && <Text style={styles.error}>{errors.email}</Text>}
-
-        <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed-outline" size={24} color="#FF6B00" style={styles.inputIcon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={formData.password}
-            onChangeText={(text) => updateFormData({ password: text })}
-            secureTextEntry={!showPassword}
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
-              size={24}
-              color="#FF6B00"
-            />
-          </TouchableOpacity>
-        </View>
+        <CatPasswordToggle
+          value={formData.password}
+          onChangeText={(text) => updateFormData({ password: text })}
+          placeholder="Password"
+        />
         {errors.password && <Text style={styles.error}>{errors.password}</Text>}
+        <TouchableOpacity 
+          style={[styles.loginButton, loading && styles.disabledButton]}
+          onPress={handleNext}
+          disabled={loading}
+        >
+          <Text style={styles.loginButtonText}>
+            {loading ? 'Loading...' : 'Next'}
+          </Text>
+        </TouchableOpacity>
       </View>
+      <TouchableOpacity 
+        style={styles.signupLink}
+        onPress={() => router.replace('/(auth)/login')}
+      >
+        <Text style={styles.signupText}>
+          Already have an account? <Text style={styles.signupTextBold}>Sign In</Text>
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 
   const renderStep2 = () => (
-    <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Language Preferences</Text>
-      
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Your Native Language</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.languageList}>
+    <View style={[styles.centered, { justifyContent: 'flex-start', paddingTop: 40 }]}>
+      <View style={styles.card}>
+        <Text style={styles.title}>Choose Your Language</Text>
+        <Text style={styles.subtitle}>Which language do you want to learn?</Text>
+        <View style={{ height: 10 }} />
+        <View style={styles.languageGridWrap}>
           {LANGUAGES.map(lang => (
             <TouchableOpacity
               key={lang.code}
               style={[
-                styles.languageCard,
-                formData.nativeLanguage === lang.code && styles.selectedCard
+                styles.languageCardSmall,
+                formData.learningLanguages.includes(lang.code) && styles.selectedCard
               ]}
-              onPress={() => updateFormData({ nativeLanguage: lang.code })}
+              onPress={() => {
+                setFormData(prev => ({ ...prev, learningLanguages: [lang.code] }));
+              }}
             >
               <Text style={[
-                styles.languageText,
-                formData.nativeLanguage === lang.code && styles.selectedText
+                styles.languageTextSmall,
+                formData.learningLanguages.includes(lang.code) && styles.selectedText
               ]}>
-                {lang.name}
+                {lang.name} <Text style={{fontWeight:'bold'}}>{lang.icon}</Text>
               </Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
-        {errors.nativeLanguage && <Text style={styles.error}>{errors.nativeLanguage}</Text>}
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Languages You Want to Learn</Text>
-        <ScrollView style={styles.languageGrid}>
-          <View style={styles.gridContent}>
-            {LANGUAGES.filter(lang => lang.code !== formData.nativeLanguage).map(lang => (
-              <TouchableOpacity
-                key={lang.code}
-                style={[
-                  styles.languageCard,
-                  formData.learningLanguages.includes(lang.code) && styles.selectedCard
-                ]}
-                onPress={() => {
-                  const updated = formData.learningLanguages.includes(lang.code)
-                    ? formData.learningLanguages.filter(code => code !== lang.code)
-                    : [...formData.learningLanguages, lang.code];
-                  updateFormData({ learningLanguages: updated });
-                }}
-              >
-                <Text style={[
-                  styles.languageText,
-                  formData.learningLanguages.includes(lang.code) && styles.selectedText
-                ]}>
-                  {lang.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
+        </View>
         {errors.learningLanguages && <Text style={styles.error}>{errors.learningLanguages}</Text>}
-      </View>
-    </View>
-  );
-
-  const renderStep3 = () => (
-    <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Your Language Journey</Text>
-
-      <ScrollView>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Current Proficiency Levels</Text>
-          {formData.learningLanguages.map(langCode => (
-            <View key={langCode} style={styles.proficiencySection}>
-              <Text style={styles.languageTitle}>
-                {LANGUAGES.find(l => l.code === langCode)?.name}
+        <View style={{ height: 16 }} />
+        <Text style={styles.subtitle}>Who will be using the app?</Text>
+        <View style={styles.profileGridWrap}>
+          {USER_PROFILES.map(profile => (
+            <TouchableOpacity
+              key={profile.id}
+              style={[
+                styles.profileCardSmall,
+                formData.userProfile === profile.id && styles.selectedCard
+              ]}
+              onPress={() => setFormData(prev => ({ ...prev, userProfile: profile.id }))}
+            >
+              <Text style={[
+                styles.profileTextSmall,
+                formData.userProfile === profile.id && styles.selectedText
+              ]}>
+                <Text style={{fontSize:18}}>{profile.emoji}</Text> {profile.label}
               </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {PROFICIENCY_LEVELS.map(level => (
-                  <TouchableOpacity
-                    key={level.id}
-                    style={[
-                      styles.proficiencyCard,
-                      formData.proficiencyLevels[langCode] === level.id && styles.selectedCard
-                    ]}
-                    onPress={() => {
-                      const updated = { ...formData.proficiencyLevels, [langCode]: level.id };
-                      updateFormData({ proficiencyLevels: updated });
-                    }}
-                  >
-                    <Text style={[
-                      styles.proficiencyLabel,
-                      formData.proficiencyLevels[langCode] === level.id && styles.selectedText
-                    ]}>
-                      {level.label}
-                    </Text>
-                    <Text style={[
-                      styles.proficiencyDescription,
-                      formData.proficiencyLevels[langCode] === level.id && styles.selectedText
-                    ]}>
-                      {level.description}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
+            </TouchableOpacity>
           ))}
-          {errors.proficiency && <Text style={styles.error}>{errors.proficiency}</Text>}
         </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Learning Goals</Text>
-          <View style={styles.goalsGrid}>
-            {LEARNING_GOALS.map(goal => (
-              <TouchableOpacity
-                key={goal.id}
-                style={[
-                  styles.goalCard,
-                  formData.learningGoals.includes(goal.id) && styles.selectedCard
-                ]}
-                onPress={() => {
-                  const updated = formData.learningGoals.includes(goal.id)
-                    ? formData.learningGoals.filter(g => g !== goal.id)
-                    : [...formData.learningGoals, goal.id];
-                  updateFormData({ learningGoals: updated });
-                }}
-              >
-                <Text style={styles.goalIcon}>{goal.icon}</Text>
-                <Text style={[
-                  styles.goalLabel,
-                  formData.learningGoals.includes(goal.id) && styles.selectedText
-                ]}>
-                  {goal.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          {errors.goals && <Text style={styles.error}>{errors.goals}</Text>}
-        </View>
-      </ScrollView>
+        {errors.nativeLanguage && <Text style={styles.error}>{errors.nativeLanguage}</Text>}
+        <TouchableOpacity 
+          style={[styles.loginButton, loading && styles.disabledButton, { marginTop: 18 }]}
+          onPress={handleNext}
+          disabled={loading}
+        >
+          <Text style={styles.loginButtonText}>
+            {loading ? 'Loading...' : 'Sign Up'}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
-        <View style={styles.header}>
-
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#FF6B00" />
-          </TouchableOpacity>
-          <Text style={styles.stepIndicator}>Step {currentStep} of 3</Text>
-        </View>
-
+      {currentStep < 3 && (
         <View style={styles.progressBar}>
-          {[1, 2, 3].map((step) => (
+          {[1, 2].map((step) => (
             <View
               key={step}
               style={[
@@ -433,24 +319,9 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
             />
           ))}
         </View>
-
-        <ScrollView style={styles.content}>
-          {currentStep === 1 && renderStep1()}
-          {currentStep === 2 && renderStep2()}
-          {currentStep === 3 && renderStep3()}
-        </ScrollView>
-
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.nextButton}
-            onPress={handleNext}
-          >
-            <Text style={styles.nextButtonText}>
-              {currentStep === 3 ? 'Create Account' : 'Next'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+      )}
+      {currentStep === 1 && renderStep1()}
+      {currentStep === 2 && renderStep2()}
     </SafeAreaView>
   );
 };
@@ -458,7 +329,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFF6F0',
   },
   keyboardView: {
     flex: 1,
@@ -644,6 +515,132 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  mascot: {
+    width: 150,
+    height: 150,
+    marginBottom: 24,
+  },
+  card: {
+    width: '100%',
+    maxWidth: 400,
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#DDD',
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    height: 55,
+    marginBottom: 16,
+  },
+  loginButton: {
+    backgroundColor: '#FF6B00',
+    borderRadius: 12,
+    height: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  loginButtonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    backgroundColor: '#FF6B00AA',
+  },
+  signupLink: {
+    marginTop: 24,
+  },
+  signupText: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+  },
+  signupTextBold: {
+    fontWeight: 'bold',
+    color: '#FF6B00',
+  },
+  languageGridRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  languageGridWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  languageCardSmall: {
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    margin: 4,
+    minWidth: 90,
+    alignItems: 'center',
+  },
+  languageTextSmall: {
+    fontSize: 15,
+    color: '#333',
+    textAlign: 'center',
+  },
+  profileGridWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  profileCardSmall: {
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    margin: 4,
+    minWidth: 200,
+    alignItems: 'center',
+  },
+  profileTextSmall: {
+    fontSize: 14,
+    color: '#333',
+    textAlign: 'center',
   },
 });
 

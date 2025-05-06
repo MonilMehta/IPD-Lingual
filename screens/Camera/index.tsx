@@ -27,6 +27,7 @@ import { API_URL } from '../../config/constants';
 // Import styles and THEME_COLOR from styles.ts
 import styles, { THEME_COLOR } from './styles';
 import { Marker } from './marker';
+import { getToken } from '@/services/Auth';
 
 // Define the structure for API detection results
 interface ApiDetectionObject {
@@ -67,9 +68,6 @@ const MAX_QUEUE_SIZE =2; // Keep this for managing concurrent requests
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-// Fallback token provided by the user
-const FALLBACK_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NjQ1NzEyOSwianRpIjoiNDBhYTY1MjAtOWY1ZS00NTRkLThmMmUtYjlkOGY5YzM1OTQ4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im1vbmlsIiwibmJmIjoxNzQ2NDU3MTI5LCJjc3JmIjoiZjg4NjIxMzctZDM3Yi00YjhiLWJlNWMtNTZkMGI4Mjg4NjgxIiwiZXhwIjoxNzQ2NTQzNTI5fQ.qJ4XjZGC1WayYgzI-V25ZNGD5SWH46LJQHj4ydTvqU0';
-
 // Mascot images
 const mascotSmiling = require('../../assets/images/cat-smiling.png');
 const mascotSleeping = require('../../assets/images/cat-sleeping.png');
@@ -91,6 +89,7 @@ export default function CameraScreen({ navigation }: any) {
   const [flashEnabled, setFlashEnabled] = useState(false);
   const [challengeNotified, setChallengeNotified] = useState(false);
   const [showChallengeSnackbar, setShowChallengeSnackbar] = useState(false);
+  const [ShowSaveSnackbar, setShowSaveSnackbar] = useState(false);
   const [learnMoreData, setLearnMoreData] = useState<PhraseApiResponse | null>(null);
   const [showMascotTip, setShowMascotTip] = useState(false);
   const router = useRouter();
@@ -153,16 +152,14 @@ export default function CameraScreen({ navigation }: any) {
         } else {
           setUsername('monil'); // Default username
         }
-        setAuthToken(FALLBACK_TOKEN); 
         // Retrieve the auth token
-        // const token = await SecureStore.getItemAsync('jwtToken'); // Assuming 'jwtToken' is the key used during login
-        // if (token) {
-        //   setAuthToken(token);
-        //   console.log('Auth token loaded from SecureStore.');
-        // } else {
-        //   console.log('No auth token found in SecureStore, using fallback.');
-        //   setAuthToken(FALLBACK_TOKEN); // Use fallback if no token found
-        // }
+        const token =await getToken(); // Assuming 'jwtToken' is the key used during login
+        if (token) {
+          setAuthToken(token);
+          console.log('Auth token loaded from SecureStore.');
+        } else {
+          console.log('No auth token found in SecureStore, using fallback.');
+        }
         // Check if challenge notification was already shown
         const notified = await AsyncStorage.getItem('challengeNotified');
         setChallengeNotified(!!notified);
@@ -170,7 +167,6 @@ export default function CameraScreen({ navigation }: any) {
         console.error('Error retrieving user data or token:', err);
         setUsername('monil');
         console.log('Using fallback token due to error.');
-        setAuthToken(FALLBACK_TOKEN); // Use fallback on error too
       }
     })();
   }, [permission]);
@@ -492,8 +488,8 @@ export default function CameraScreen({ navigation }: any) {
 
   const handleSaveDetection = async (detection: Detection) => {
     if (!detection || !authToken) {
-        if (!authToken) console.warn('Auth token not available for saving detection.');
-        return;
+      if (!authToken) console.warn('Auth token not available for saving detection.');
+      return;
     }
     console.log('Saving detection:', detection.label_en);
     try {
@@ -501,15 +497,17 @@ export default function CameraScreen({ navigation }: any) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`, // Add Authorization header
+          'Authorization': `Bearer ${authToken}`,
         },
         body: JSON.stringify({
-          username: username,
-          label_en: detection.label_en,
-          label_translated: detection.label, // Assuming 'label' is the translated one
-          confidence: detection.confidence,
-          // box: detection.box, // Removed box coordinates as requested
-          target_language: language,
+          detections: [
+            {
+              data: `Object: ${detection.label_en}`,
+              label: detection.label_en,
+              translated_label: detection.label,
+              confidence: detection.confidence,
+            }
+          ]
         }),
       });
 
@@ -520,7 +518,16 @@ export default function CameraScreen({ navigation }: any) {
 
       const result = await response.json();
       console.log('Save result:', result);
-      Alert.alert('Saved', `${detection.label_en} (${detection.label}) saved successfully.`);
+      setShowChallengeSnackbar(false); // Hide any previous challenge snackbar
+      // Show a custom orange Snackbar for save success
+       <Snackbar
+              visible={ShowSaveSnackbar}
+              onDismiss={() => setShowSaveSnackbar(false)}
+              duration={2000}
+              style={{ backgroundColor: '#4CD964', borderRadius: 12, margin: 16 }}
+            >
+              Detection saved!
+            </Snackbar>
       hideBottomSheet();
 
     } catch (error) {

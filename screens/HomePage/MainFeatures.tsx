@@ -106,7 +106,7 @@ export const MainFeatures = ({ navigation, homepage }) => {
 const styles = StyleSheet.create({
   container: {
     marginTop: 24,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
   },
   sectionTitle: {
     fontSize: 20,

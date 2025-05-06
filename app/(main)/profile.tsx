@@ -5,6 +5,7 @@ import { FloatingTabBar } from '../../components/Navigation/FloatingTabBar';
 import { Feather } from '@expo/vector-icons';
 import { ProgressBar } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
 const SERVER = process.env.EXPO_PUBLIC_SERVER || 'https://lingual-yn5c.onrender.com';
 
 const LANGUAGES = [
@@ -142,6 +143,7 @@ export default function ProfileScreen() {
     fetch(`${SERVER}/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } })
       .then(() => {
         Alert.alert('Logged out', 'You have been logged out.');
+        router.replace('/login');
       })
       .catch(() => Alert.alert('Error', 'Failed to logout'));
   };

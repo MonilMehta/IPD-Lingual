@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef,useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -11,12 +11,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MotiView } from 'moti';
 import { Easing } from 'react-native-reanimated';
 import LottieView from 'lottie-react-native';
-import { router } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-
+import { getToken } from '@/services/Auth';
 const { width, height } = Dimensions.get('window');
 
+
 const LandingScreen: React.FC = () => {
+    const router = useRouter();
+  
+    useEffect(() => {
+      (async () => {
+        const token = await getToken();
+        if (token) {
+          router.replace('/home');
+        }
+      })();
+    }, []);
+  
   const animationRef = useRef<LottieView>(null);
 
   return (
@@ -93,7 +105,7 @@ const LandingScreen: React.FC = () => {
         >
           <TouchableOpacity
             style={[styles.button, styles.getStartedButton]}
-            onPress={() => router.navigate('/screens/auth/login')}
+            onPress={() => router.navigate('/login')}
             activeOpacity={0.8}
           >
             <LinearGradient
@@ -108,7 +120,7 @@ const LandingScreen: React.FC = () => {
 
           <TouchableOpacity
             style={[styles.button, styles.createAccountButton]}
-            onPress={() => router.navigate('/screens/auth/signup')}
+            onPress={() => router.navigate('/signup')}
             activeOpacity={0.8}
           >
             <Text style={[styles.buttonText, styles.createAccountText]}>Create Account</Text>

@@ -3,6 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-nativ
 import DetectionCard from './DetectionCard';
 import { Colors } from '../constants/Colors';
 import { getToken } from '../services/Auth';
+import { Snackbar } from 'react-native-paper';
 
 const mascots = [
   require('../assets/images/cat-smiling.png'),
@@ -26,6 +27,7 @@ const SavedDetections: React.FC = () => {
   const [detections, setDetections] = useState<Detection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showSaved, setShowSaved] = useState(false);
 
   useEffect(() => {
     const fetchDetections = async () => {
@@ -67,6 +69,7 @@ const SavedDetections: React.FC = () => {
         )}
         contentContainerStyle={{ paddingVertical: 16 }}
       />
+     
     </View>
   );
 };

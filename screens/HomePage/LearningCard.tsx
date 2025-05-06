@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 160,
     paddingHorizontal: 4,
-    marginHorizontal: 24,
+    marginHorizontal: 20,
   },
   title: {
     fontSize: 20,
