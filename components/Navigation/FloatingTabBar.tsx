@@ -124,7 +124,9 @@ const tabBarStyles = StyleSheet.create({
     position: 'relative',
     flexDirection: 'row',
     backgroundColor: '#fff',
-    borderRadius: 30,
+    borderTopLeftRadius:30,
+    borderTopRightRadius:30,
+
     padding: 10,
     justifyContent: 'space-around',
     alignItems: 'center',
