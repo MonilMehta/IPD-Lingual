@@ -49,13 +49,17 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
 const PhrasesList: React.FC<PhrasesListProps> = ({ phrases, showSearch = true }) => {
   const [search, setSearch] = useState('');
   const grouped = useMemo(() => groupByCategory(phrases, search), [phrases, search]);
+  // Sort categories by number of phrases (descending)
+  const sortedCategories = Object.keys(grouped).sort((a, b) => grouped[b].length - grouped[a].length);
 
   const handleSpeak = (text: string) => {
     Speech.speak(text, { language: 'hi-IN' });
   };
 
   return (
-    <View>
+    <View style={styles.wrapper}>
+      <Text style={styles.mainHeader}>Quick Phrases 🚀</Text>
+      <Text style={styles.description}>Quick phrases to zip you through any situation <Text>🏎️</Text></Text>
       {showSearch && (
         <TextInput
           style={styles.searchInput}
@@ -65,7 +69,7 @@ const PhrasesList: React.FC<PhrasesListProps> = ({ phrases, showSearch = true })
           placeholderTextColor="#999"
         />
       )}
-      {Object.keys(grouped).map(category => (
+      {sortedCategories.map(category => (
         <View key={category} style={{ marginBottom: 24 }}>
           <Text style={[styles.categoryHeader, { color: categoryColors[category] || '#333' }]}>{category}</Text>
           {chunkArray(grouped[category], 2).map((row, idx) => (
@@ -91,6 +95,24 @@ const PhrasesList: React.FC<PhrasesListProps> = ({ phrases, showSearch = true })
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    paddingHorizontal: 16,
+    paddingTop: 32,
+    paddingBottom:120,
+  },
+  mainHeader: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FF6B00',
+    marginBottom: 4,
+    marginTop: 8,
+    letterSpacing: 0.2,
+  },
+  description: {
+    fontSize: 15,
+    color: '#666',
+    marginBottom: 12,
+  },
   searchInput: {
     backgroundColor: '#fff',
     borderRadius: 10,

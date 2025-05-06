@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Animated, Easing } from 'react-native';
+import { getToken } from '../../services/Auth';
 
 const MASCOT = require('../../assets/images/cat-pointing.png');
-const MASCOT_DONE = require('../../assets/images/cat-laughing.png');
 const MASCOT_CELEBRATE = require('../../assets/images/cat-celebrating.png');
+
+// Type for daily challenge API response
+interface DailyChallenge {
+  challenge_word?: string;
+  daily_challenge_word?: string;
+  daily_challenge_streak?: number;
+  daily_challenge_done?: boolean;
+}
 
 function getLast7DaysStreak(streak:any, daily_challenge_done:any) {
   // Returns an array of 7 booleans, last is today
@@ -49,13 +57,39 @@ const SkeletonLoader = () => {
   );
 };
 
-export const DailyQuiz = ({ homepage, loading, error }) => {
-  const challengeWord = homepage?.challenge_word || homepage?.daily_challenge_word || null;
-  const streak = homepage?.daily_challenge_streak || 0;
-  const dailyDone = homepage?.daily_challenge_done;
+export const DailyQuiz = () => {
+  const [challenge, setChallenge] = useState<DailyChallenge | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchChallenge = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const token = await getToken();
+        const res = await fetch('https://lingual-yn5c.onrender.com/api/daily_challenge', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error('Failed to fetch daily challenge');
+        const data = await res.json();
+        setChallenge(data);
+      } catch (err) {
+        let msg = 'Error fetching challenge';
+        if (err instanceof Error) msg = err.message;
+        setError(msg);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchChallenge();
+  }, []);
+
+  const challengeWord = challenge?.challenge_word || challenge?.daily_challenge_word || null;
+  const streak = challenge?.daily_challenge_streak || 0;
+  const dailyDone = challenge?.daily_challenge_done;
   const streakArr = getLast7DaysStreak(streak, dailyDone);
 
-  // Always show mascot and title at the bottom
   return (
     <View style={styles.container}>
       {/* Main content */}
@@ -87,6 +121,7 @@ export const DailyQuiz = ({ homepage, loading, error }) => {
           </View>
         ) : (
           <>
+            <Image source={MASCOT} style={styles.celebrateMascot} />
             <Text style={styles.instruction}>
               Find and point your camera at a <Text style={styles.word}>{challengeWord}</Text>!
             </Text>
@@ -102,7 +137,6 @@ export const DailyQuiz = ({ homepage, loading, error }) => {
           </>
         )}
       </View>
-
     </View>
   );
 };

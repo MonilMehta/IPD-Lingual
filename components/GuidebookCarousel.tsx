@@ -33,7 +33,10 @@ const GuidebookCarousel = ({ guidebook }) => {
 
   return (
     <View style={styles.sectionContainer}>
-      <Text style={styles.sectionTitle}>Tourist Guides</Text>
+      <Text style={styles.sectionTitle}>Explore Tourist Guides 🗺️</Text>
+      <Text style={styles.sectionDescription}>
+        Handy guides for markets, restaurants, transport, and more—tailored for travelers.
+      </Text>
       <FlatList
         data={guides}
         keyExtractor={item => item.key}
@@ -47,7 +50,9 @@ const GuidebookCarousel = ({ guidebook }) => {
             activeOpacity={0.9}
           >
             <Image source={item.image} style={styles.image} />
-            <View style={styles.overlay}>
+            {/* Stronger overlay, always above image, below text */}
+            <View style={styles.strongOverlay} />
+            <View style={styles.overlayTextContainer}>
               <Text style={styles.cardTitle}>{item.title}</Text>
             </View>
           </TouchableOpacity>
@@ -59,15 +64,22 @@ const GuidebookCarousel = ({ guidebook }) => {
 
 const styles = StyleSheet.create({
   sectionContainer: {
-    marginTop: 28,
+    marginTop: 44,
     marginBottom: 8,
     paddingLeft: 16,
+    paddingTop: 16,
   },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#222',
+    color: '#FF6B00',
+    marginBottom: 4,
+  },
+  sectionDescription: {
+    fontSize: 15,
+    color: '#555',
     marginBottom: 12,
+    marginRight: 32,
   },
   carouselContent: {
     paddingRight: 16,
@@ -85,18 +97,36 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
     justifyContent: 'flex-end',
+    position: 'relative', // Ensure overlays are positioned correctly
   },
   image: {
     width: '100%',
     height: '100%',
     position: 'absolute',
+    top: 0,
+    left: 0,
     resizeMode: 'cover',
+    zIndex: 1, // Ensure image is below overlays
   },
-  overlay: {
+  strongOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(148, 118, 73, 0.32)', // Make overlay a bit darker
+    zIndex: 2,
+  },
+  overlayTextContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: '100%',
     backgroundColor: 'rgba(0,0,0,0.35)',
     padding: 16,
     borderBottomLeftRadius: 18,
     borderBottomRightRadius: 18,
+    zIndex: 3,
   },
   cardTitle: {
     fontSize: 20,
