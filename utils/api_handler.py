@@ -204,18 +204,24 @@ def root_health_check():
 def register():
     """
     Register a new user
-    Request body: {username, password}
+    Request body: {username, password, target_language, profile, profile_image (optional)}
     Returns: Success message or error if user already exists
     """
     new_user = request.get_json()
+    required_fields = ["username","email", "password", "target_language", "profile"]
+    for field in required_fields:
+        if field not in new_user:
+            return jsonify({"msg": f"Missing required field: {field}"}), 400
     new_user['password'] = hashlib.sha256(new_user['password'].encode('utf-8')).hexdigest()
     doc = users_collection.find_one({'username': new_user['username']})
 
     if not doc:
-        new_user['target_language'] = 'en'  # Default to English
         new_user['quiz_index'] = 0
         new_user['daily_challenge_streak'] = 0 # Initialize streak
         new_user['last_challenge_completed_at'] = None # Initialize completion date (as None initially)
+        # Store profile image if provided (e.g., from Clerk/Google)
+        if 'profile_image' in new_user:
+            new_user['profile_image'] = new_user['profile_image']
         users_collection.insert_one(new_user)
         return jsonify({'msg': 'User created successfully'}), 201
     else:
@@ -1065,6 +1071,42 @@ async def generate_phrase(): # Make the function async
 
 # --- End Phrase Generation Endpoint ---
 
+# Feedback collection endpoint
+@app.route("/api/feedback", methods=["POST"])
+def collect_feedback():
+    """
+    Collect user feedback.
+    Request body: {
+        email: str,
+        satisfaction: int (1-5),
+        recommendation: int (1-5),
+        comments: str (optional)
+    }
+    Returns: Success message
+    """
+    data = request.get_json()
+    required_fields = ["email", "satisfaction", "recommendation"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"msg": f"Missing required field: {field}"}), 400
+    # Optionally validate satisfaction and recommendation are 1-5
+    try:
+        satisfaction = int(data["satisfaction"])
+        recommendation = int(data["recommendation"])
+        if not (1 <= satisfaction <= 5) or not (1 <= recommendation <= 5):
+            return jsonify({"msg": "Satisfaction and recommendation must be between 1 and 5"}), 400
+    except Exception:
+        return jsonify({"msg": "Satisfaction and recommendation must be integers between 1 and 5"}), 400
+    feedback_doc = {
+        "email": data["email"],
+        "satisfaction": satisfaction,
+        "recommendation": recommendation,
+        "comments": data.get("comments", ""),
+        "created_at": datetime.datetime.now()
+    }
+    # Store in a new collection 'feedback'
+    db['feedback'].insert_one(feedback_doc)
+    return jsonify({"msg": "Feedback submitted successfully"}), 201
 # =============================================================================
 # Test Endpoints
 # =============================================================================
