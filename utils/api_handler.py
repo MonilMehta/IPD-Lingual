@@ -1107,6 +1107,48 @@ def collect_feedback():
     # Store in a new collection 'feedback'
     db['feedback'].insert_one(feedback_doc)
     return jsonify({"msg": "Feedback submitted successfully"}), 201
+
+@app.route("/feedbacks", methods=["GET"])
+def get_feedbacks():
+    """
+    Get all user feedback and return as an HTML table.
+    Returns: HTML table of feedback
+    """
+    feedbacks = list(db['feedback'].find().sort("created_at", -1))
+    html = """
+    <html><head><title>User Feedback</title>
+    <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #f2f2f2; }
+    </style>
+    </head><body>
+    <h2>User Feedback</h2>
+    <table>
+      <tr>
+        <th>Email</th>
+        <th>Satisfaction</th>
+        <th>Recommendation</th>
+        <th>Comments</th>
+        <th>Date</th>
+      </tr>
+    """
+    for fb in feedbacks:
+        html += f"<tr>"
+        html += f"<td>{fb.get('email','')}</td>"
+        html += f"<td>{fb.get('satisfaction','')}</td>"
+        html += f"<td>{fb.get('recommendation','')}</td>"
+        html += f"<td>{fb.get('comments','').replace('<','&lt;').replace('>','&gt;')}</td>"
+        date_str = fb.get('created_at')
+        if date_str:
+            if hasattr(date_str, 'strftime'):
+                date_str = date_str.strftime('%Y-%m-%d %H:%M')
+            else:
+                date_str = str(date_str)
+        html += f"<td>{date_str}</td>"
+        html += "</tr>"
+    html += "</table></body></html>"
+    return html, 200, {'Content-Type': 'text/html'}
 # =============================================================================
 # Test Endpoints
 # =============================================================================
