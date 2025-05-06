@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   Text,
   View,
@@ -28,6 +28,8 @@ import { API_URL } from '../../config/constants';
 import styles, { THEME_COLOR } from './styles';
 import { Marker } from './marker';
 import { getToken } from '@/services/Auth';
+import * as Speech from 'expo-speech';
+import { Ionicons } from '@expo/vector-icons';
 
 // Define the structure for API detection results
 interface ApiDetectionObject {
@@ -71,6 +73,9 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 // Mascot images
 const mascotSmiling = require('../../assets/images/cat-smiling.png');
 const mascotSleeping = require('../../assets/images/cat-sleeping.png');
+
+// Memoize Marker to avoid unnecessary re-renders
+const MemoizedMarker = React.memo(Marker);
 
 export default function CameraScreen({ navigation }: any) {
   const [permission, requestPermission] = useCameraPermissions();
@@ -479,14 +484,13 @@ export default function CameraScreen({ navigation }: any) {
     setSelectedDetection(null);
   };
 
-  const handleDetectionPress = (detection: Detection) => {
+  // Memoize handlers to avoid unnecessary re-renders
+  const handleDetectionPress = useCallback((detection: Detection) => {
     setSelectedDetection(detection);
     showBottomSheet();
-  };
+  }, [showBottomSheet]);
 
-  // --- New API Call Functions ---
-
-  const handleSaveDetection = async (detection: Detection) => {
+  const handleSaveDetection = useCallback(async (detection: Detection) => {
     if (!detection || !authToken) {
       if (!authToken) console.warn('Auth token not available for saving detection.');
       return;
@@ -535,9 +539,9 @@ export default function CameraScreen({ navigation }: any) {
       console.error('Error saving detection:', errorMessage);
       Alert.alert('Save Failed', `Could not save detection: ${errorMessage}`);
     }
-  };
+  }, [authToken, hideBottomSheet, ShowSaveSnackbar]);
 
-  const handleLearnMore = async (word: string) => {
+  const handleLearnMore = useCallback(async (word: string) => {
     if (!word || !authToken) {
         if (!authToken) console.warn('Auth token not available for fetching phrases.');
         return;
@@ -572,6 +576,32 @@ export default function CameraScreen({ navigation }: any) {
       console.error('Error fetching phrases:', errorMessage);
       Alert.alert('Learn More Failed', `Could not fetch phrases: ${errorMessage}`);
     }
+  }, [authToken, language]);
+
+  // Helper to map language code to TTS-compatible code
+  const getTTSLang = (lang: string) => {
+    const map: Record<string, string> = {
+      hi: 'hi-IN',
+      en: 'en-US',
+      kn: 'kn-IN',
+      mr: 'mr-IN',
+      gu: 'gu-IN',
+      es: 'es-ES',
+      fr: 'fr-FR',
+      ru: 'ru-RU',
+      zh: 'zh-CN',
+      ja: 'ja-JP',
+    };
+    return map[lang] || 'en-US';
+  };
+
+  const handleSpeak = (text: string) => {
+    if (!text) return;
+    Speech.speak(text, {
+      language: getTTSLang(language),
+      rate: 0.95,
+      pitch: 1.0,
+    });
   };
 
   // Helper: Render grid overlay
@@ -631,6 +661,10 @@ export default function CameraScreen({ navigation }: any) {
     });
   };
 
+  // Memoize grid and debug box overlays
+  const gridOverlay = useMemo(() => renderGrid(), [showGrid, cameraDimensions]);
+  const debugBoxesOverlay = useMemo(() => renderDebugBoxes(), [debugMode, detections, cameraDimensions]);
+
   // --- Render Logic ---
 
   if (!permission) {
@@ -670,6 +704,8 @@ export default function CameraScreen({ navigation }: any) {
     }),
     pan
   );
+
+ 
 
   return (
     <View style={styles.container}>
@@ -721,7 +757,7 @@ export default function CameraScreen({ navigation }: any) {
         </View>
 
         {/* Grid Overlay */}
-        {renderGrid()}
+        {gridOverlay}
 
         {/* Mascot floating button */}
         <TouchableOpacity
@@ -757,7 +793,7 @@ export default function CameraScreen({ navigation }: any) {
           </View>
         )}
 
-        {/* Render detection markers using Marker component */}
+        {/* Render detection markers using MemoizedMarker component */}
         {detections.map((detection, index) => {
           // Scale the centre coordinates for marker positioning
           const apiWidth = 1280; // Assume API processes 1280x960 images
@@ -773,7 +809,7 @@ export default function CameraScreen({ navigation }: any) {
           const markerOffsetY = 16;
 
           return (
-            <Marker
+            <MemoizedMarker
               key={`${index}-${detection.label_en}`}
               position={{ x: markerX - markerOffsetX, y: markerY - markerOffsetY }}
               isSelected={selectedDetection?.label_en === detection.label_en}
@@ -784,7 +820,7 @@ export default function CameraScreen({ navigation }: any) {
         })}
 
         {/* Render debug boxes overlay */}
-        {renderDebugBoxes()}
+        {debugBoxesOverlay}
 
         {/* Mascot in empty state (no detections, not processing, not detecting) */}
         {(!isProcessing && detections.length === 0 && !isDetecting) && (
@@ -891,10 +927,20 @@ export default function CameraScreen({ navigation }: any) {
               {/* Learn More Section */}
               {learnMoreData && learnMoreData.original_word === selectedDetection.label_en && (
                 <View style={{ backgroundColor: '#eaf6ff', borderRadius: 8, padding: 14, marginBottom: 8 }}>
-                  <Text style={{ color: '#007AFF', fontWeight: 'bold', marginBottom: 8, fontSize: 16 }}>Learn More</Text>
-                  <Text style={{ color: '#333', fontSize: 15, marginBottom: 6 }}>{learnMoreData.sentence1}</Text>
-                  <Text style={{ color: '#333', fontSize: 15 }}>{learnMoreData.sentence2}</Text>
+                <Text style={{ color: '#007AFF', fontWeight: 'bold', marginBottom: 8, fontSize: 16 }}>Learn More</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                  <Text style={{ color: '#333', fontSize: 15, flex: 1 }}>{learnMoreData.sentence1}</Text>
+                  <TouchableOpacity onPress={() => handleSpeak(learnMoreData.sentence1, language)}>
+                    <Ionicons name="volume-high" size={22} color="#FF6B00" />
+                  </TouchableOpacity>
                 </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={{ color: '#333', fontSize: 15, flex: 1 }}>{learnMoreData.sentence2}</Text>
+                  <TouchableOpacity onPress={() => handleSpeak(learnMoreData.sentence2, language)}>
+                    <Ionicons name="volume-high" size={22} color="#FF6B00" />
+                  </TouchableOpacity>
+                </View>
+              </View>
               )}
               <View style={{ flexDirection: 'row', gap: 12, marginTop: 18 }}>
                 <TouchableOpacity

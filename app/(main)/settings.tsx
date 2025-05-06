@@ -11,7 +11,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { Collapsible } from '@/components/Collapsible';
-import mascotImg from '../../assets/images/cat-sayinghi.png';
+const mascotImg= require('../../assets/images/cat-fixing.png');
 import { FloatingTabBar } from '../../components/Navigation/FloatingTabBar';
 import { View as RNView } from 'react-native';
 
