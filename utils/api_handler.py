@@ -170,7 +170,7 @@ app.config['JWT_SECRET_KEY'] = config('JWT_SECRET', default='default_secret_key'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
 
 # MongoDB Configuration
-client = MongoClient(config('MONGODB_URL'))
+client = MongoClient(os.environ.get('MONGODB_URL'))
 db = client['IPDatabase']
 users_collection = db['users']
 detection_collection = db['detectionResults']
@@ -235,8 +235,8 @@ def register():
             new_user['profile_image'] = new_user['profile_image']
         users_collection.insert_one(new_user)
         access_token = create_access_token(identity=new_user['username'])
-        # Prepare user details to return (exclude password)
-        user_details = {k: v for k, v in new_user.items() if k != 'password'}
+        # Prepare user details to return (exclude password and convert ObjectId to string)
+        user_details = {k: (str(v) if k == '_id' else v) for k, v in new_user.items() if k != 'password'}
         return jsonify({'msg': 'User created successfully', 'access_token': access_token, 'user': user_details}), 201
     else:
         return jsonify({'msg': 'User already exists'}), 409
@@ -328,9 +328,8 @@ def send_password_reset_otp_email(email, otp):
     SMTP_PORT = 587
     SMTP_USER = os.environ.get('SMTP_EMAIL')  # Replace with your email
     SMTP_PASS = os.environ.get('SMTP_PASSWORD')     # Replace with your app password
-    subject = "Password Reset OTP"
-    body = f"""
-    Hello,\n\nYour password reset OTP is: {otp}\n\nThis OTP will expire in {RESET_OTP_EXPIRY_MINUTES} minutes.\nIf you did not request this, please ignore this email.\n"""
+    subject = "Lingual Password Reset OTP"
+    body = f"""Hello,\nYour password reset OTP is: {otp}\n\nThis OTP will expire in {RESET_OTP_EXPIRY_MINUTES} minutes.\nIf you did not request this, please ignore this email.\n"""
     msg = MIMEMultipart()
     msg['From'] = SMTP_USER
     msg['To'] = email
