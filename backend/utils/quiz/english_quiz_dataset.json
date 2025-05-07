@@ -1,0 +1,652 @@
+[
+  {
+    "quiz_id": "1",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "She ___ to school every day.",
+    "options": [
+      "go",
+      "goes",
+      "gone",
+      "going"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "2",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Pick the synonym for 'happy'",
+    "options": [
+      "sad",
+      "joyful",
+      "angry",
+      "tired"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "3",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Pick the opposite of 'hot'",
+    "options": [
+      "warm",
+      "boiling",
+      "cold",
+      "spicy"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "4",
+    "level": "A1",
+    "type": "grammar",
+    "question": "Which sentence uses the correct past tense?",
+    "options": [
+      "She eat dinner last night.",
+      "She ate dinner last night.",
+      "She eats dinner last night.",
+      "She eating dinner last night."
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "5",
+    "level": "A1",
+    "type": "expression",
+    "question": "How do you say 'Good night' in a polite way?",
+    "options": [
+      "Bye",
+      "Goodbye",
+      "Sleep tight",
+      "Have a good night"
+    ],
+    "answer_index": 3
+  },
+  {
+    "quiz_id": "6",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "I ___ pizza on Fridays.",
+    "options": [
+      "eat",
+      "eats",
+      "ate",
+      "eating"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "7",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Pick the synonym for 'fast'",
+    "options": [
+      "slow",
+      "quick",
+      "lazy",
+      "weak"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "8",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Pick the opposite of 'happy'",
+    "options": [
+      "angry",
+      "glad",
+      "sad",
+      "cheerful"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "9",
+    "level": "A1",
+    "type": "grammar",
+    "question": "Which sentence is correct?",
+    "options": [
+      "They was going home.",
+      "They is going home.",
+      "They are going home.",
+      "They going home."
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "10",
+    "level": "A1",
+    "type": "expression",
+    "question": "What\u2019s a natural way to respond to 'Thank you'?",
+    "options": [
+      "Yes",
+      "You're welcome",
+      "Okay",
+      "Please"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "11",
+    "level": "A1",
+    "type": "fill_in_the_blank",
+    "question": "They ___ a movie last night.",
+    "options": [
+      "watch",
+      "watched",
+      "watches",
+      "watching"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "12",
+    "level": "A1",
+    "type": "synonym",
+    "question": "Pick the synonym for 'cold'",
+    "options": [
+      "freezing",
+      "hot",
+      "boiling",
+      "warm"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "13",
+    "level": "A1",
+    "type": "antonym",
+    "question": "Pick the opposite of 'fast'",
+    "options": [
+      "quick",
+      "slow",
+      "rapid",
+      "hasty"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "14",
+    "level": "A1",
+    "type": "grammar",
+    "question": "Choose the grammatically correct sentence.",
+    "options": [
+      "I has a car.",
+      "I have a car.",
+      "I having a car.",
+      "I had have a car."
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "15",
+    "level": "A1",
+    "type": "expression",
+    "question": "How do you say you\u2019re hungry?",
+    "options": [
+      "I am thirst",
+      "I am sleepy",
+      "I am hungry",
+      "I am eat"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "16",
+    "level": "A2",
+    "type": "fill_in_the_blank",
+    "question": "He has ___ his homework.",
+    "options": [
+      "do",
+      "did",
+      "done",
+      "doing"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "17",
+    "level": "A2",
+    "type": "synonym",
+    "question": "Pick the synonym for 'small'",
+    "options": [
+      "tiny",
+      "huge",
+      "wide",
+      "long"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "18",
+    "level": "A2",
+    "type": "antonym",
+    "question": "Pick the opposite of 'early'",
+    "options": [
+      "late",
+      "soon",
+      "before",
+      "punctual"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "19",
+    "level": "A2",
+    "type": "grammar",
+    "question": "Which is correct?",
+    "options": [
+      "He don't like apples.",
+      "He doesn't like apples.",
+      "He not like apples.",
+      "He isn't likes apples."
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "20",
+    "level": "A2",
+    "type": "expression",
+    "question": "How do you offer help?",
+    "options": [
+      "Do you help me?",
+      "Can I help you?",
+      "Help me!",
+      "Should I helped?"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "21",
+    "level": "A2",
+    "type": "fill_in_the_blank",
+    "question": "We were ___ when the phone rang.",
+    "options": [
+      "eat",
+      "eating",
+      "ate",
+      "eaten"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "22",
+    "level": "A2",
+    "type": "synonym",
+    "question": "Pick the synonym for 'strong'",
+    "options": [
+      "weak",
+      "fit",
+      "fragile",
+      "tiny"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "23",
+    "level": "A2",
+    "type": "antonym",
+    "question": "Pick the opposite of 'strong'",
+    "options": [
+      "tough",
+      "fit",
+      "weak",
+      "firm"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "24",
+    "level": "A2",
+    "type": "grammar",
+    "question": "Pick the correct sentence.",
+    "options": [
+      "She can sings well.",
+      "She can sing well.",
+      "She cans sing well.",
+      "She can sang well."
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "25",
+    "level": "A2",
+    "type": "expression",
+    "question": "How do you ask for directions?",
+    "options": [
+      "Where is the bathroom?",
+      "I go where?",
+      "What place is this?",
+      "How go?"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "26",
+    "level": "A2",
+    "type": "fill_in_the_blank",
+    "question": "She ___ to school every day.",
+    "options": [
+      "go",
+      "goes",
+      "gone",
+      "going"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "27",
+    "level": "A2",
+    "type": "synonym",
+    "question": "Pick the synonym for 'happy'",
+    "options": [
+      "sad",
+      "joyful",
+      "angry",
+      "tired"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "28",
+    "level": "A2",
+    "type": "antonym",
+    "question": "Pick the opposite of 'hot'",
+    "options": [
+      "warm",
+      "boiling",
+      "cold",
+      "spicy"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "29",
+    "level": "A2",
+    "type": "grammar",
+    "question": "Which sentence uses the correct past tense?",
+    "options": [
+      "She eat dinner last night.",
+      "She ate dinner last night.",
+      "She eats dinner last night.",
+      "She eating dinner last night."
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "30",
+    "level": "A2",
+    "type": "expression",
+    "question": "How do you say 'Good night' in a polite way?",
+    "options": [
+      "Bye",
+      "Goodbye",
+      "Sleep tight",
+      "Have a good night"
+    ],
+    "answer_index": 3
+  },
+  {
+    "quiz_id": "31",
+    "level": "B1",
+    "type": "fill_in_the_blank",
+    "question": "I ___ pizza on Fridays.",
+    "options": [
+      "eat",
+      "eats",
+      "ate",
+      "eating"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "32",
+    "level": "B1",
+    "type": "synonym",
+    "question": "Pick the synonym for 'fast'",
+    "options": [
+      "slow",
+      "quick",
+      "lazy",
+      "weak"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "33",
+    "level": "B1",
+    "type": "antonym",
+    "question": "Pick the opposite of 'happy'",
+    "options": [
+      "angry",
+      "glad",
+      "sad",
+      "cheerful"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "34",
+    "level": "B1",
+    "type": "grammar",
+    "question": "Which sentence is correct?",
+    "options": [
+      "They was going home.",
+      "They is going home.",
+      "They are going home.",
+      "They going home."
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "35",
+    "level": "B1",
+    "type": "expression",
+    "question": "What\u2019s a natural way to respond to 'Thank you'?",
+    "options": [
+      "Yes",
+      "You're welcome",
+      "Okay",
+      "Please"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "36",
+    "level": "B1",
+    "type": "fill_in_the_blank",
+    "question": "They ___ a movie last night.",
+    "options": [
+      "watch",
+      "watched",
+      "watches",
+      "watching"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "37",
+    "level": "B1",
+    "type": "synonym",
+    "question": "Pick the synonym for 'cold'",
+    "options": [
+      "freezing",
+      "hot",
+      "boiling",
+      "warm"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "38",
+    "level": "B1",
+    "type": "antonym",
+    "question": "Pick the opposite of 'fast'",
+    "options": [
+      "quick",
+      "slow",
+      "rapid",
+      "hasty"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "39",
+    "level": "B1",
+    "type": "grammar",
+    "question": "Choose the grammatically correct sentence.",
+    "options": [
+      "I has a car.",
+      "I have a car.",
+      "I having a car.",
+      "I had have a car."
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "40",
+    "level": "B1",
+    "type": "expression",
+    "question": "How do you say you\u2019re hungry?",
+    "options": [
+      "I am thirst",
+      "I am sleepy",
+      "I am hungry",
+      "I am eat"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "41",
+    "level": "B1",
+    "type": "fill_in_the_blank",
+    "question": "He has ___ his homework.",
+    "options": [
+      "do",
+      "did",
+      "done",
+      "doing"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "42",
+    "level": "B1",
+    "type": "synonym",
+    "question": "Pick the synonym for 'small'",
+    "options": [
+      "tiny",
+      "huge",
+      "wide",
+      "long"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "43",
+    "level": "B1",
+    "type": "antonym",
+    "question": "Pick the opposite of 'early'",
+    "options": [
+      "late",
+      "soon",
+      "before",
+      "punctual"
+    ],
+    "answer_index": 0
+  },
+  {
+    "quiz_id": "44",
+    "level": "B1",
+    "type": "grammar",
+    "question": "Which is correct?",
+    "options": [
+      "He don't like apples.",
+      "He doesn't like apples.",
+      "He not like apples.",
+      "He isn't likes apples."
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "45",
+    "level": "B1",
+    "type": "expression",
+    "question": "How do you offer help?",
+    "options": [
+      "Do you help me?",
+      "Can I help you?",
+      "Help me!",
+      "Should I helped?"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "46",
+    "level": "B2",
+    "type": "fill_in_the_blank",
+    "question": "We were ___ when the phone rang.",
+    "options": [
+      "eat",
+      "eating",
+      "ate",
+      "eaten"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "47",
+    "level": "B2",
+    "type": "synonym",
+    "question": "Pick the synonym for 'strong'",
+    "options": [
+      "weak",
+      "fit",
+      "fragile",
+      "tiny"
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "48",
+    "level": "B2",
+    "type": "antonym",
+    "question": "Pick the opposite of 'strong'",
+    "options": [
+      "tough",
+      "fit",
+      "weak",
+      "firm"
+    ],
+    "answer_index": 2
+  },
+  {
+    "quiz_id": "49",
+    "level": "B2",
+    "type": "grammar",
+    "question": "Pick the correct sentence.",
+    "options": [
+      "She can sings well.",
+      "She can sing well.",
+      "She cans sing well.",
+      "She can sang well."
+    ],
+    "answer_index": 1
+  },
+  {
+    "quiz_id": "50",
+    "level": "B2",
+    "type": "expression",
+    "question": "How do you ask for directions?",
+    "options": [
+      "Where is the bathroom?",
+      "I go where?",
+      "What place is this?",
+      "How go?"
+    ],
+    "answer_index": 0
+  }
+]

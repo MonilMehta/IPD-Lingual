@@ -1,0 +1,552 @@
+[
+  {
+    "question": "她每天___学校。 (Tā měitiān ___ xuéxiào.)",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "去 (qù)",
+      "走 (zǒu)",
+      "来 (lái)",
+      "到 (dào)"
+    ],
+    "answer": "去 (qù)"
+  },
+  {
+    "question": "选择“高兴”的近义词。 (Xuǎnzé “gāoxìng” de jìnyìcí.)",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "伤心 (shāngxīn)",
+      "快乐 (kuàilè)",
+      "生气 (shēngqì)",
+      "累 (lèi)"
+    ],
+    "answer": "快乐 (kuàilè)"
+  },
+  {
+    "question": "选择“热”的反义词。 (Xuǎnzé “rè” de fǎnyìcí.)",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "温暖 (wēnnuǎn)",
+      "冷 (lěng)",
+      "辣 (là)",
+      "烫 (tàng)"
+    ],
+    "answer": "冷 (lěng)"
+  },
+  {
+    "question": "哪句话使用了正确的过去式？ (Nǎ jù huà shǐyòngle zhèngquè de guòqù shì?)",
+    "translation": "Which sentence uses the correct past tense?",
+    "options": [
+      "她吃晚饭昨天。 (Tā chī wǎnfàn zuótiān.)",
+      "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)",
+      "她吃着晚饭昨天。 (Tā chīzhe wǎnfàn zuótiān.)",
+      "她吃晚饭了昨天。 (Tā chī wǎnfàn le zuótiān.)"
+    ],
+    "answer": "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)"
+  },
+  {
+    "question": "如何礼貌地说“晚安”？ (Rúhé lǐmào de shuō “wǎn'ān”?)",
+    "translation": "How do you politely say 'Good night'?",
+    "options": [
+      "再见 (zàijiàn)",
+      "拜拜 (bàibài)",
+      "晚安 (wǎn'ān)",
+      "晚安了 (wǎn'ān le)"
+    ],
+    "answer": "晚安 (wǎn'ān)"
+  },
+  {
+    "question": "她每天___学校。 (Tā měitiān ___ xuéxiào.)",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "去 (qù)",
+      "走 (zǒu)",
+      "来 (lái)",
+      "到 (dào)"
+    ],
+    "answer": "去 (qù)"
+  },
+  {
+    "question": "选择“高兴”的近义词。 (Xuǎnzé “gāoxìng” de jìnyìcí.)",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "伤心 (shāngxīn)",
+      "快乐 (kuàilè)",
+      "生气 (shēngqì)",
+      "累 (lèi)"
+    ],
+    "answer": "快乐 (kuàilè)"
+  },
+  {
+    "question": "选择“热”的反义词。 (Xuǎnzé “rè” de fǎnyìcí.)",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "温暖 (wēnnuǎn)",
+      "冷 (lěng)",
+      "辣 (là)",
+      "烫 (tàng)"
+    ],
+    "answer": "冷 (lěng)"
+  },
+  {
+    "question": "哪句话使用了正确的过去式？ (Nǎ jù huà shǐyòngle zhèngquè de guòqù shì?)",
+    "translation": "Which sentence uses the correct past tense?",
+    "options": [
+      "她吃晚饭昨天。 (Tā chī wǎnfàn zuótiān.)",
+      "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)",
+      "她吃着晚饭昨天。 (Tā chīzhe wǎnfàn zuótiān.)",
+      "她吃晚饭了昨天。 (Tā chī wǎnfàn le zuótiān.)"
+    ],
+    "answer": "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)"
+  },
+  {
+    "question": "如何礼貌地说“晚安”？ (Rúhé lǐmào de shuō “wǎn'ān”?)",
+    "translation": "How do you politely say 'Good night'?",
+    "options": [
+      "再见 (zàijiàn)",
+      "拜拜 (bàibài)",
+      "晚安 (wǎn'ān)",
+      "晚安了 (wǎn'ān le)"
+    ],
+    "answer": "晚安 (wǎn'ān)"
+  },
+  {
+    "question": "她每天___学校。 (Tā měitiān ___ xuéxiào.)",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "去 (qù)",
+      "走 (zǒu)",
+      "来 (lái)",
+      "到 (dào)"
+    ],
+    "answer": "去 (qù)"
+  },
+  {
+    "question": "选择“高兴”的近义词。 (Xuǎnzé “gāoxìng” de jìnyìcí.)",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "伤心 (shāngxīn)",
+      "快乐 (kuàilè)",
+      "生气 (shēngqì)",
+      "累 (lèi)"
+    ],
+    "answer": "快乐 (kuàilè)"
+  },
+  {
+    "question": "选择“热”的反义词。 (Xuǎnzé “rè” de fǎnyìcí.)",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "温暖 (wēnnuǎn)",
+      "冷 (lěng)",
+      "辣 (là)",
+      "烫 (tàng)"
+    ],
+    "answer": "冷 (lěng)"
+  },
+  {
+    "question": "哪句话使用了正确的过去式？ (Nǎ jù huà shǐyòngle zhèngquè de guòqù shì?)",
+    "translation": "Which sentence uses the correct past tense?",
+    "options": [
+      "她吃晚饭昨天。 (Tā chī wǎnfàn zuótiān.)",
+      "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)",
+      "她吃着晚饭昨天。 (Tā chīzhe wǎnfàn zuótiān.)",
+      "她吃晚饭了昨天。 (Tā chī wǎnfàn le zuótiān.)"
+    ],
+    "answer": "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)"
+  },
+  {
+    "question": "如何礼貌地说“晚安”？ (Rúhé lǐmào de shuō “wǎn'ān”?)",
+    "translation": "How do you politely say 'Good night'?",
+    "options": [
+      "再见 (zàijiàn)",
+      "拜拜 (bàibài)",
+      "晚安 (wǎn'ān)",
+      "晚安了 (wǎn'ān le)"
+    ],
+    "answer": "晚安 (wǎn'ān)"
+  },
+  {
+    "question": "她每天___学校。 (Tā měitiān ___ xuéxiào.)",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "去 (qù)",
+      "走 (zǒu)",
+      "来 (lái)",
+      "到 (dào)"
+    ],
+    "answer": "去 (qù)"
+  },
+  {
+    "question": "选择“高兴”的近义词。 (Xuǎnzé “gāoxìng” de jìnyìcí.)",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "伤心 (shāngxīn)",
+      "快乐 (kuàilè)",
+      "生气 (shēngqì)",
+      "累 (lèi)"
+    ],
+    "answer": "快乐 (kuàilè)"
+  },
+  {
+    "question": "选择“热”的反义词。 (Xuǎnzé “rè” de fǎnyìcí.)",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "温暖 (wēnnuǎn)",
+      "冷 (lěng)",
+      "辣 (là)",
+      "烫 (tàng)"
+    ],
+    "answer": "冷 (lěng)"
+  },
+  {
+    "question": "哪句话使用了正确的过去式？ (Nǎ jù huà shǐyòngle zhèngquè de guòqù shì?)",
+    "translation": "Which sentence uses the correct past tense?",
+    "options": [
+      "她吃晚饭昨天。 (Tā chī wǎnfàn zuótiān.)",
+      "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)",
+      "她吃着晚饭昨天。 (Tā chīzhe wǎnfàn zuótiān.)",
+      "她吃晚饭了昨天。 (Tā chī wǎnfàn le zuótiān.)"
+    ],
+    "answer": "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)"
+  },
+  {
+    "question": "如何礼貌地说“晚安”？ (Rúhé lǐmào de shuō “wǎn'ān”?)",
+    "translation": "How do you politely say 'Good night'?",
+    "options": [
+      "再见 (zàijiàn)",
+      "拜拜 (bàibài)",
+      "晚安 (wǎn'ān)",
+      "晚安了 (wǎn'ān le)"
+    ],
+    "answer": "晚安 (wǎn'ān)"
+  },
+  {
+    "question": "她每天___学校。 (Tā měitiān ___ xuéxiào.)",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "去 (qù)",
+      "走 (zǒu)",
+      "来 (lái)",
+      "到 (dào)"
+    ],
+    "answer": "去 (qù)"
+  },
+  {
+    "question": "选择“高兴”的近义词。 (Xuǎnzé “gāoxìng” de jìnyìcí.)",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "伤心 (shāngxīn)",
+      "快乐 (kuàilè)",
+      "生气 (shēngqì)",
+      "累 (lèi)"
+    ],
+    "answer": "快乐 (kuàilè)"
+  },
+  {
+    "question": "选择“热”的反义词。 (Xuǎnzé “rè” de fǎnyìcí.)",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "温暖 (wēnnuǎn)",
+      "冷 (lěng)",
+      "辣 (là)",
+      "烫 (tàng)"
+    ],
+    "answer": "冷 (lěng)"
+  },
+  {
+    "question": "哪句话使用了正确的过去式？ (Nǎ jù huà shǐyòngle zhèngquè de guòqù shì?)",
+    "translation": "Which sentence uses the correct past tense?",
+    "options": [
+      "她吃晚饭昨天。 (Tā chī wǎnfàn zuótiān.)",
+      "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)",
+      "她吃着晚饭昨天。 (Tā chīzhe wǎnfàn zuótiān.)",
+      "她吃晚饭了昨天。 (Tā chī wǎnfàn le zuótiān.)"
+    ],
+    "answer": "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)"
+  },
+  {
+    "question": "如何礼貌地说“晚安”？ (Rúhé lǐmào de shuō “wǎn'ān”?)",
+    "translation": "How do you politely say 'Good night'?",
+    "options": [
+      "再见 (zàijiàn)",
+      "拜拜 (bàibài)",
+      "晚安 (wǎn'ān)",
+      "晚安了 (wǎn'ān le)"
+    ],
+    "answer": "晚安 (wǎn'ān)"
+  },
+  {
+    "question": "她每天___学校。 (Tā měitiān ___ xuéxiào.)",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "去 (qù)",
+      "走 (zǒu)",
+      "来 (lái)",
+      "到 (dào)"
+    ],
+    "answer": "去 (qù)"
+  },
+  {
+    "question": "选择“高兴”的近义词。 (Xuǎnzé “gāoxìng” de jìnyìcí.)",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "伤心 (shāngxīn)",
+      "快乐 (kuàilè)",
+      "生气 (shēngqì)",
+      "累 (lèi)"
+    ],
+    "answer": "快乐 (kuàilè)"
+  },
+  {
+    "question": "选择“热”的反义词。 (Xuǎnzé “rè” de fǎnyìcí.)",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "温暖 (wēnnuǎn)",
+      "冷 (lěng)",
+      "辣 (là)",
+      "烫 (tàng)"
+    ],
+    "answer": "冷 (lěng)"
+  },
+  {
+    "question": "哪句话使用了正确的过去式？ (Nǎ jù huà shǐyòngle zhèngquè de guòqù shì?)",
+    "translation": "Which sentence uses the correct past tense?",
+    "options": [
+      "她吃晚饭昨天。 (Tā chī wǎnfàn zuótiān.)",
+      "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)",
+      "她吃着晚饭昨天。 (Tā chīzhe wǎnfàn zuótiān.)",
+      "她吃晚饭了昨天。 (Tā chī wǎnfàn le zuótiān.)"
+    ],
+    "answer": "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)"
+  },
+  {
+    "question": "如何礼貌地说“晚安”？ (Rúhé lǐmào de shuō “wǎn'ān”?)",
+    "translation": "How do you politely say 'Good night'?",
+    "options": [
+      "再见 (zàijiàn)",
+      "拜拜 (bàibài)",
+      "晚安 (wǎn'ān)",
+      "晚安了 (wǎn'ān le)"
+    ],
+    "answer": "晚安 (wǎn'ān)"
+  },
+  {
+    "question": "她每天___学校。 (Tā měitiān ___ xuéxiào.)",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "去 (qù)",
+      "走 (zǒu)",
+      "来 (lái)",
+      "到 (dào)"
+    ],
+    "answer": "去 (qù)"
+  },
+  {
+    "question": "选择“高兴”的近义词。 (Xuǎnzé “gāoxìng” de jìnyìcí.)",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "伤心 (shāngxīn)",
+      "快乐 (kuàilè)",
+      "生气 (shēngqì)",
+      "累 (lèi)"
+    ],
+    "answer": "快乐 (kuàilè)"
+  },
+  {
+    "question": "选择“热”的反义词。 (Xuǎnzé “rè” de fǎnyìcí.)",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "温暖 (wēnnuǎn)",
+      "冷 (lěng)",
+      "辣 (là)",
+      "烫 (tàng)"
+    ],
+    "answer": "冷 (lěng)"
+  },
+  {
+    "question": "哪句话使用了正确的过去式？ (Nǎ jù huà shǐyòngle zhèngquè de guòqù shì?)",
+    "translation": "Which sentence uses the correct past tense?",
+    "options": [
+      "她吃晚饭昨天。 (Tā chī wǎnfàn zuótiān.)",
+      "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)",
+      "她吃着晚饭昨天。 (Tā chīzhe wǎnfàn zuótiān.)",
+      "她吃晚饭了昨天。 (Tā chī wǎnfàn le zuótiān.)"
+    ],
+    "answer": "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)"
+  },
+  {
+    "question": "如何礼貌地说“晚安”？ (Rúhé lǐmào de shuō “wǎn'ān”?)",
+    "translation": "How do you politely say 'Good night'?",
+    "options": [
+      "再见 (zàijiàn)",
+      "拜拜 (bàibài)",
+      "晚安 (wǎn'ān)",
+      "晚安了 (wǎn'ān le)"
+    ],
+    "answer": "晚安 (wǎn'ān)"
+  },
+  {
+    "question": "她每天___学校。 (Tā měitiān ___ xuéxiào.)",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "去 (qù)",
+      "走 (zǒu)",
+      "来 (lái)",
+      "到 (dào)"
+    ],
+    "answer": "去 (qù)"
+  },
+  {
+    "question": "选择“高兴”的近义词。 (Xuǎnzé “gāoxìng” de jìnyìcí.)",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "伤心 (shāngxīn)",
+      "快乐 (kuàilè)",
+      "生气 (shēngqì)",
+      "累 (lèi)"
+    ],
+    "answer": "快乐 (kuàilè)"
+  },
+  {
+    "question": "选择“热”的反义词。 (Xuǎnzé “rè” de fǎnyìcí.)",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "温暖 (wēnnuǎn)",
+      "冷 (lěng)",
+      "辣 (là)",
+      "烫 (tàng)"
+    ],
+    "answer": "冷 (lěng)"
+  },
+  {
+    "question": "哪句话使用了正确的过去式？ (Nǎ jù huà shǐyòngle zhèngquè de guòqù shì?)",
+    "translation": "Which sentence uses the correct past tense?",
+    "options": [
+      "她吃晚饭昨天。 (Tā chī wǎnfàn zuótiān.)",
+      "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)",
+      "她吃着晚饭昨天。 (Tā chīzhe wǎnfàn zuótiān.)",
+      "她吃晚饭了昨天。 (Tā chī wǎnfàn le zuótiān.)"
+    ],
+    "answer": "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)"
+  },
+  {
+    "question": "如何礼貌地说“晚安”？ (Rúhé lǐmào de shuō “wǎn'ān”?)",
+    "translation": "How do you politely say 'Good night'?",
+    "options": [
+      "再见 (zàijiàn)",
+      "拜拜 (bàibài)",
+      "晚安 (wǎn'ān)",
+      "晚安了 (wǎn'ān le)"
+    ],
+    "answer": "晚安 (wǎn'ān)"
+  },
+  {
+    "question": "她每天___学校。 (Tā měitiān ___ xuéxiào.)",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "去 (qù)",
+      "走 (zǒu)",
+      "来 (lái)",
+      "到 (dào)"
+    ],
+    "answer": "去 (qù)"
+  },
+  {
+    "question": "选择“高兴”的近义词。 (Xuǎnzé “gāoxìng” de jìnyìcí.)",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "伤心 (shāngxīn)",
+      "快乐 (kuàilè)",
+      "生气 (shēngqì)",
+      "累 (lèi)"
+    ],
+    "answer": "快乐 (kuàilè)"
+  },
+  {
+    "question": "选择“热”的反义词。 (Xuǎnzé “rè” de fǎnyìcí.)",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "温暖 (wēnnuǎn)",
+      "冷 (lěng)",
+      "辣 (là)",
+      "烫 (tàng)"
+    ],
+    "answer": "冷 (lěng)"
+  },
+  {
+    "question": "哪句话使用了正确的过去式？ (Nǎ jù huà shǐyòngle zhèngquè de guòqù shì?)",
+    "translation": "Which sentence uses the correct past tense?",
+    "options": [
+      "她吃晚饭昨天。 (Tā chī wǎnfàn zuótiān.)",
+      "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)",
+      "她吃着晚饭昨天。 (Tā chīzhe wǎnfàn zuótiān.)",
+      "她吃晚饭了昨天。 (Tā chī wǎnfàn le zuótiān.)"
+    ],
+    "answer": "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)"
+  },
+  {
+    "question": "如何礼貌地说“晚安”？ (Rúhé lǐmào de shuō “wǎn'ān”?)",
+    "translation": "How do you politely say 'Good night'?",
+    "options": [
+      "再见 (zàijiàn)",
+      "拜拜 (bàibài)",
+      "晚安 (wǎn'ān)",
+      "晚安了 (wǎn'ān le)"
+    ],
+    "answer": "晚安 (wǎn'ān)"
+  },
+  {
+    "question": "她每天___学校。 (Tā měitiān ___ xuéxiào.)",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "去 (qù)",
+      "走 (zǒu)",
+      "来 (lái)",
+      "到 (dào)"
+    ],
+    "answer": "去 (qù)"
+  },
+  {
+    "question": "选择“高兴”的近义词。 (Xuǎnzé “gāoxìng” de jìnyìcí.)",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "伤心 (shāngxīn)",
+      "快乐 (kuàilè)",
+      "生气 (shēngqì)",
+      "累 (lèi)"
+    ],
+    "answer": "快乐 (kuàilè)"
+  },
+  {
+    "question": "选择“热”的反义词。 (Xuǎnzé “rè” de fǎnyìcí.)",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "温暖 (wēnnuǎn)",
+      "冷 (lěng)",
+      "辣 (là)",
+      "烫 (tàng)"
+    ],
+    "answer": "冷 (lěng)"
+  },
+  {
+    "question": "哪句话使用了正确的过去式？ (Nǎ jù huà shǐyòngle zhèngquè de guòqù shì?)",
+    "translation": "Which sentence uses the correct past tense?",
+    "options": [
+      "她吃晚饭昨天。 (Tā chī wǎnfàn zuótiān.)",
+      "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)",
+      "她吃着晚饭昨天。 (Tā chīzhe wǎnfàn zuótiān.)",
+      "她吃晚饭了昨天。 (Tā chī wǎnfàn le zuótiān.)"
+    ],
+    "answer": "她昨天吃了晚饭。 (Tā zuótiān chīle wǎnfàn.)"
+  },
+  {
+    "question": "如何礼貌地说“晚安”？ (Rúhé lǐmào de shuō “wǎn'ān”?)",
+    "translation": "How do you politely say 'Good night'?",
+    "options": [
+      "再见 (zàijiàn)",
+      "拜拜 (bàibài)",
+      "晚安 (wǎn'ān)",
+      "晚安了 (wǎn'ān le)"
+    ],
+    "answer": "晚安 (wǎn'ān)"
+  }
+]

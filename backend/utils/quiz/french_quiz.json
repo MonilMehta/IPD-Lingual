@@ -1,0 +1,552 @@
+[
+  {
+    "question": "Elle ___ à l'école tous les jours.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "va",
+      "vais",
+      "aller",
+      "allé"
+    ],
+    "answer": "va"
+  },
+  {
+    "question": "Choisissez le synonyme de 'heureux'.",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "triste",
+      "joyeux",
+      "fâché",
+      "fatigué"
+    ],
+    "answer": "joyeux"
+  },
+  {
+    "question": "Choisissez le contraire de 'chaud'.",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "tiède",
+      "brûlant",
+      "froid",
+      "épicé"
+    ],
+    "answer": "froid"
+  },
+  {
+    "question": "Quelle phrase utilise le passé composé correctement ?",
+    "translation": "Which sentence correctly uses the past tense?",
+    "options": [
+      "Elle mange le dîner hier soir.",
+      "Elle a mangé le dîner hier soir.",
+      "Elle mangeait le dîner hier soir.",
+      "Elle mange le dîner hier soir."
+    ],
+    "answer": "Elle a mangé le dîner hier soir."
+  },
+  {
+    "question": "Comment répondre poliment à 'Merci' ?",
+    "translation": "How do you politely respond to 'Thank you'?",
+    "options": [
+      "Oui",
+      "De rien",
+      "D'accord",
+      "S'il vous plaît"
+    ],
+    "answer": "De rien"
+  },
+  {
+    "question": "Elle ___ à l'école tous les jours.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "va",
+      "vais",
+      "aller",
+      "allé"
+    ],
+    "answer": "va"
+  },
+  {
+    "question": "Choisissez le synonyme de 'heureux'.",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "triste",
+      "joyeux",
+      "fâché",
+      "fatigué"
+    ],
+    "answer": "joyeux"
+  },
+  {
+    "question": "Choisissez le contraire de 'chaud'.",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "tiède",
+      "brûlant",
+      "froid",
+      "épicé"
+    ],
+    "answer": "froid"
+  },
+  {
+    "question": "Quelle phrase utilise le passé composé correctement ?",
+    "translation": "Which sentence correctly uses the past tense?",
+    "options": [
+      "Elle mange le dîner hier soir.",
+      "Elle a mangé le dîner hier soir.",
+      "Elle mangeait le dîner hier soir.",
+      "Elle mange le dîner hier soir."
+    ],
+    "answer": "Elle a mangé le dîner hier soir."
+  },
+  {
+    "question": "Comment répondre poliment à 'Merci' ?",
+    "translation": "How do you politely respond to 'Thank you'?",
+    "options": [
+      "Oui",
+      "De rien",
+      "D'accord",
+      "S'il vous plaît"
+    ],
+    "answer": "De rien"
+  },
+  {
+    "question": "Elle ___ à l'école tous les jours.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "va",
+      "vais",
+      "aller",
+      "allé"
+    ],
+    "answer": "va"
+  },
+  {
+    "question": "Choisissez le synonyme de 'heureux'.",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "triste",
+      "joyeux",
+      "fâché",
+      "fatigué"
+    ],
+    "answer": "joyeux"
+  },
+  {
+    "question": "Choisissez le contraire de 'chaud'.",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "tiède",
+      "brûlant",
+      "froid",
+      "épicé"
+    ],
+    "answer": "froid"
+  },
+  {
+    "question": "Quelle phrase utilise le passé composé correctement ?",
+    "translation": "Which sentence correctly uses the past tense?",
+    "options": [
+      "Elle mange le dîner hier soir.",
+      "Elle a mangé le dîner hier soir.",
+      "Elle mangeait le dîner hier soir.",
+      "Elle mange le dîner hier soir."
+    ],
+    "answer": "Elle a mangé le dîner hier soir."
+  },
+  {
+    "question": "Comment répondre poliment à 'Merci' ?",
+    "translation": "How do you politely respond to 'Thank you'?",
+    "options": [
+      "Oui",
+      "De rien",
+      "D'accord",
+      "S'il vous plaît"
+    ],
+    "answer": "De rien"
+  },
+  {
+    "question": "Elle ___ à l'école tous les jours.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "va",
+      "vais",
+      "aller",
+      "allé"
+    ],
+    "answer": "va"
+  },
+  {
+    "question": "Choisissez le synonyme de 'heureux'.",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "triste",
+      "joyeux",
+      "fâché",
+      "fatigué"
+    ],
+    "answer": "joyeux"
+  },
+  {
+    "question": "Choisissez le contraire de 'chaud'.",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "tiède",
+      "brûlant",
+      "froid",
+      "épicé"
+    ],
+    "answer": "froid"
+  },
+  {
+    "question": "Quelle phrase utilise le passé composé correctement ?",
+    "translation": "Which sentence correctly uses the past tense?",
+    "options": [
+      "Elle mange le dîner hier soir.",
+      "Elle a mangé le dîner hier soir.",
+      "Elle mangeait le dîner hier soir.",
+      "Elle mange le dîner hier soir."
+    ],
+    "answer": "Elle a mangé le dîner hier soir."
+  },
+  {
+    "question": "Comment répondre poliment à 'Merci' ?",
+    "translation": "How do you politely respond to 'Thank you'?",
+    "options": [
+      "Oui",
+      "De rien",
+      "D'accord",
+      "S'il vous plaît"
+    ],
+    "answer": "De rien"
+  },
+  {
+    "question": "Elle ___ à l'école tous les jours.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "va",
+      "vais",
+      "aller",
+      "allé"
+    ],
+    "answer": "va"
+  },
+  {
+    "question": "Choisissez le synonyme de 'heureux'.",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "triste",
+      "joyeux",
+      "fâché",
+      "fatigué"
+    ],
+    "answer": "joyeux"
+  },
+  {
+    "question": "Choisissez le contraire de 'chaud'.",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "tiède",
+      "brûlant",
+      "froid",
+      "épicé"
+    ],
+    "answer": "froid"
+  },
+  {
+    "question": "Quelle phrase utilise le passé composé correctement ?",
+    "translation": "Which sentence correctly uses the past tense?",
+    "options": [
+      "Elle mange le dîner hier soir.",
+      "Elle a mangé le dîner hier soir.",
+      "Elle mangeait le dîner hier soir.",
+      "Elle mange le dîner hier soir."
+    ],
+    "answer": "Elle a mangé le dîner hier soir."
+  },
+  {
+    "question": "Comment répondre poliment à 'Merci' ?",
+    "translation": "How do you politely respond to 'Thank you'?",
+    "options": [
+      "Oui",
+      "De rien",
+      "D'accord",
+      "S'il vous plaît"
+    ],
+    "answer": "De rien"
+  },
+  {
+    "question": "Elle ___ à l'école tous les jours.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "va",
+      "vais",
+      "aller",
+      "allé"
+    ],
+    "answer": "va"
+  },
+  {
+    "question": "Choisissez le synonyme de 'heureux'.",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "triste",
+      "joyeux",
+      "fâché",
+      "fatigué"
+    ],
+    "answer": "joyeux"
+  },
+  {
+    "question": "Choisissez le contraire de 'chaud'.",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "tiède",
+      "brûlant",
+      "froid",
+      "épicé"
+    ],
+    "answer": "froid"
+  },
+  {
+    "question": "Quelle phrase utilise le passé composé correctement ?",
+    "translation": "Which sentence correctly uses the past tense?",
+    "options": [
+      "Elle mange le dîner hier soir.",
+      "Elle a mangé le dîner hier soir.",
+      "Elle mangeait le dîner hier soir.",
+      "Elle mange le dîner hier soir."
+    ],
+    "answer": "Elle a mangé le dîner hier soir."
+  },
+  {
+    "question": "Comment répondre poliment à 'Merci' ?",
+    "translation": "How do you politely respond to 'Thank you'?",
+    "options": [
+      "Oui",
+      "De rien",
+      "D'accord",
+      "S'il vous plaît"
+    ],
+    "answer": "De rien"
+  },
+  {
+    "question": "Elle ___ à l'école tous les jours.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "va",
+      "vais",
+      "aller",
+      "allé"
+    ],
+    "answer": "va"
+  },
+  {
+    "question": "Choisissez le synonyme de 'heureux'.",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "triste",
+      "joyeux",
+      "fâché",
+      "fatigué"
+    ],
+    "answer": "joyeux"
+  },
+  {
+    "question": "Choisissez le contraire de 'chaud'.",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "tiède",
+      "brûlant",
+      "froid",
+      "épicé"
+    ],
+    "answer": "froid"
+  },
+  {
+    "question": "Quelle phrase utilise le passé composé correctement ?",
+    "translation": "Which sentence correctly uses the past tense?",
+    "options": [
+      "Elle mange le dîner hier soir.",
+      "Elle a mangé le dîner hier soir.",
+      "Elle mangeait le dîner hier soir.",
+      "Elle mange le dîner hier soir."
+    ],
+    "answer": "Elle a mangé le dîner hier soir."
+  },
+  {
+    "question": "Comment répondre poliment à 'Merci' ?",
+    "translation": "How do you politely respond to 'Thank you'?",
+    "options": [
+      "Oui",
+      "De rien",
+      "D'accord",
+      "S'il vous plaît"
+    ],
+    "answer": "De rien"
+  },
+  {
+    "question": "Elle ___ à l'école tous les jours.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "va",
+      "vais",
+      "aller",
+      "allé"
+    ],
+    "answer": "va"
+  },
+  {
+    "question": "Choisissez le synonyme de 'heureux'.",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "triste",
+      "joyeux",
+      "fâché",
+      "fatigué"
+    ],
+    "answer": "joyeux"
+  },
+  {
+    "question": "Choisissez le contraire de 'chaud'.",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "tiède",
+      "brûlant",
+      "froid",
+      "épicé"
+    ],
+    "answer": "froid"
+  },
+  {
+    "question": "Quelle phrase utilise le passé composé correctement ?",
+    "translation": "Which sentence correctly uses the past tense?",
+    "options": [
+      "Elle mange le dîner hier soir.",
+      "Elle a mangé le dîner hier soir.",
+      "Elle mangeait le dîner hier soir.",
+      "Elle mange le dîner hier soir."
+    ],
+    "answer": "Elle a mangé le dîner hier soir."
+  },
+  {
+    "question": "Comment répondre poliment à 'Merci' ?",
+    "translation": "How do you politely respond to 'Thank you'?",
+    "options": [
+      "Oui",
+      "De rien",
+      "D'accord",
+      "S'il vous plaît"
+    ],
+    "answer": "De rien"
+  },
+  {
+    "question": "Elle ___ à l'école tous les jours.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "va",
+      "vais",
+      "aller",
+      "allé"
+    ],
+    "answer": "va"
+  },
+  {
+    "question": "Choisissez le synonyme de 'heureux'.",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "triste",
+      "joyeux",
+      "fâché",
+      "fatigué"
+    ],
+    "answer": "joyeux"
+  },
+  {
+    "question": "Choisissez le contraire de 'chaud'.",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "tiède",
+      "brûlant",
+      "froid",
+      "épicé"
+    ],
+    "answer": "froid"
+  },
+  {
+    "question": "Quelle phrase utilise le passé composé correctement ?",
+    "translation": "Which sentence correctly uses the past tense?",
+    "options": [
+      "Elle mange le dîner hier soir.",
+      "Elle a mangé le dîner hier soir.",
+      "Elle mangeait le dîner hier soir.",
+      "Elle mange le dîner hier soir."
+    ],
+    "answer": "Elle a mangé le dîner hier soir."
+  },
+  {
+    "question": "Comment répondre poliment à 'Merci' ?",
+    "translation": "How do you politely respond to 'Thank you'?",
+    "options": [
+      "Oui",
+      "De rien",
+      "D'accord",
+      "S'il vous plaît"
+    ],
+    "answer": "De rien"
+  },
+  {
+    "question": "Elle ___ à l'école tous les jours.",
+    "translation": "She ___ to school every day.",
+    "options": [
+      "va",
+      "vais",
+      "aller",
+      "allé"
+    ],
+    "answer": "va"
+  },
+  {
+    "question": "Choisissez le synonyme de 'heureux'.",
+    "translation": "Choose the synonym of 'happy'.",
+    "options": [
+      "triste",
+      "joyeux",
+      "fâché",
+      "fatigué"
+    ],
+    "answer": "joyeux"
+  },
+  {
+    "question": "Choisissez le contraire de 'chaud'.",
+    "translation": "Choose the antonym of 'hot'.",
+    "options": [
+      "tiède",
+      "brûlant",
+      "froid",
+      "épicé"
+    ],
+    "answer": "froid"
+  },
+  {
+    "question": "Quelle phrase utilise le passé composé correctement ?",
+    "translation": "Which sentence correctly uses the past tense?",
+    "options": [
+      "Elle mange le dîner hier soir.",
+      "Elle a mangé le dîner hier soir.",
+      "Elle mangeait le dîner hier soir.",
+      "Elle mange le dîner hier soir."
+    ],
+    "answer": "Elle a mangé le dîner hier soir."
+  },
+  {
+    "question": "Comment répondre poliment à 'Merci' ?",
+    "translation": "How do you politely respond to 'Thank you'?",
+    "options": [
+      "Oui",
+      "De rien",
+      "D'accord",
+      "S'il vous plaît"
+    ],
+    "answer": "De rien"
+  }
+]

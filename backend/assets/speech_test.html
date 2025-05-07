@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Speech Test - Word2Vec</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .similar-word {
+            margin: 5px 0;
+            padding: 5px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Speech Test - Word2Vec Processing</h1>
+    <div class="container">
+        <div>
+            <textarea id="inputText" rows="4" cols="50" placeholder="Enter text to process..."></textarea>
+        </div>
+        <div>
+            <button onclick="processText()">Process Text</button>
+        </div>
+        <div id="results">
+            <h3>Results:</h3>
+            <div id="similarWords"></div>
+        </div>
+    </div>
+
+    <script>
+        const socket = new WebSocket('{{ speech_websocket_url }}');
+
+        socket.onopen = function(e) {
+            console.log('Connected to speech service');
+        };
+
+        socket.onmessage = function(event) {
+            const response = JSON.parse(event.data);
+            displayResults(response);
+        };
+
+        socket.onerror = function(error) {
+            console.error('WebSocket error:', error);
+            document.getElementById('similarWords').innerHTML = 'Error connecting to speech service';
+        };
+
+        function processText() {
+            const text = document.getElementById('inputText').value;
+            if (text.trim()) {
+                socket.send(JSON.stringify({ text: text }));
+            }
+        }
+
+        function displayResults(response) {
+            const container = document.getElementById('similarWords');
+            if (response.error) {
+                container.innerHTML = `<div class="error">${response.error}</div>`;
+                return;
+            }
+
+            let html = `<div>Input text: "${response.input_text}"</div><br>`;
+            html += '<div>Similar words:</div>';
+            
+            response.similar_words.forEach(item => {
+                html += `
+                    <div class="similar-word">
+                        ${item.word} (similarity: ${item.score.toFixed(4)})
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html> 

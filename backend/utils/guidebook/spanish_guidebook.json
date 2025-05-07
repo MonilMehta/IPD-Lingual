@@ -1,0 +1,512 @@
+{
+  "local_markets": [
+    {
+      "label1": "¿Cuánto cuesta esto?",
+      "label2": "How much is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Puedo obtener un descuento?",
+      "label2": "Can I get a discount?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿De qué está hecho esto?",
+      "label2": "What is this made of?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Dónde está el mercado más cercano?",
+      "label2": "Where is the nearest market?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Aceptan tarjetas?",
+      "label2": "Do you accept cards?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Está hecho a mano?",
+      "label2": "Is it handmade?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Puede bajar el precio?",
+      "label2": "Can you lower the price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Esto es demasiado caro.",
+      "label2": "This is too expensive.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Me lo llevo.",
+      "label2": "I'll take it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Puedo ver otro?",
+      "label2": "Can I see another one?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Qué antigüedad tiene esto?",
+      "label2": "How old is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Cuál es la política de devolución?",
+      "label2": "What's the return policy?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Puede empacarlo?",
+      "label2": "Can you pack it?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Esto parece dañado.",
+      "label2": "This looks damaged.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Cuál es su mejor precio?",
+      "label2": "What's your best price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Tiene esto en otro color?",
+      "label2": "Do you have this in another color?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "¿Puedo probármelo?",
+      "label2": "Can I try it on?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Solo estoy mirando.",
+      "label2": "I'm just looking.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Lo pensaré.",
+      "label2": "I'll think about it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "Gracias por su ayuda.",
+      "label2": "Thank you for your help.",
+      "category": "Local Markets Guide"
+    }
+  ],
+  "transport": [
+    {
+      "label1": "¿Dónde está la estación de autobuses?",
+      "label2": "Where is the bus station?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Cómo llego al aeropuerto?",
+      "label2": "How do I get to the airport?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Necesito un taxi.",
+      "label2": "I need a taxi.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Es este el tren correcto?",
+      "label2": "Is this the right train?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿A qué hora es el próximo autobús?",
+      "label2": "What time is the next bus?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Dónde puedo comprar un boleto?",
+      "label2": "Where can I buy a ticket?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Es una ruta directa?",
+      "label2": "Is it a direct route?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Cuánto cuesta el pasaje?",
+      "label2": "How much is the fare?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Puedo reservar un asiento?",
+      "label2": "Can I get a seat reservation?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Dónde está el andén?",
+      "label2": "Where is the platform?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Esto va al centro de la ciudad?",
+      "label2": "Does this go to the city center?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Cuál es la próxima parada?",
+      "label2": "What stop is next?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Cuánto dura el viaje?",
+      "label2": "How long is the ride?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Necesito cambiar de tren?",
+      "label2": "Do I need to change trains?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Hay algún retraso?",
+      "label2": "Is there a delay?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Puedo alquilar un coche?",
+      "label2": "Can I rent a car?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Me pasé de parada.",
+      "label2": "I missed my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Puede llamar a un taxi?",
+      "label2": "Can you call a cab?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "Esta es mi parada.",
+      "label2": "This is my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "¿Es seguro por la noche?",
+      "label2": "Is it safe at night?",
+      "category": "Transport Guide"
+    }
+  ],
+  "restaurant": [
+    {
+      "label1": "¿Puedo ver el menú?",
+      "label2": "Can I see the menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Soy vegetariano/a.",
+      "label2": "I'm vegetarian.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Qué me recomienda?",
+      "label2": "What do you recommend?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Este plato es picante?",
+      "label2": "Is this dish spicy?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Tengo alergia alimentaria.",
+      "label2": "I have a food allergy.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Puedo tener un poco de agua?",
+      "label2": "Can I have some water?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "La cuenta, por favor.",
+      "label2": "The bill, please.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Puedo pagar con tarjeta?",
+      "label2": "Can I pay by card?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Está incluido el servicio?",
+      "label2": "Is service included?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Esto no es lo que pedí.",
+      "label2": "This is not what I ordered.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Puedo obtenerlo sin cebollas?",
+      "label2": "Can I get it without onions?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Tienen menú infantil?",
+      "label2": "Do you have a kids menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Es esto sin gluten?",
+      "label2": "Is this gluten-free?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Me lo puede poner para llevar?",
+      "label2": "Can I have it to go?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Soy alérgico/a a los frutos secos.",
+      "label2": "I'm allergic to nuts.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Estaba delicioso.",
+      "label2": "It was delicious.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Puedo tener otro?",
+      "label2": "Can I have another one?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Sirven alcohol?",
+      "label2": "Do you serve alcohol?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "¿Qué lleva este plato?",
+      "label2": "What's in this dish?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "Gracias, estuvo excelente.",
+      "label2": "Thank you, it was great.",
+      "category": "Restaurant Guide"
+    }
+  ],
+  "scam_save": [
+    {
+      "label1": "No te conozco.",
+      "label2": "I don't know you.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Déjame en paz.",
+      "label2": "Leave me alone.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Llamen a la policía.",
+      "label2": "Call the police.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Esa no es mi bolsa.",
+      "label2": "That's not my bag.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Esto parece una estafa.",
+      "label2": "This feels like a scam.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "No estoy interesado/a.",
+      "label2": "I'm not interested.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Deja de seguirme.",
+      "label2": "Stop following me.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Muéstrame tu identificación.",
+      "label2": "Show me your ID.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Quiero hablar con el gerente.",
+      "label2": "I want to speak to the manager.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "No estuve de acuerdo con esto.",
+      "label2": "I didn't agree to this.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Vamos a la comisaría.",
+      "label2": "Let's go to the police station.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Por favor, devuélvemelo.",
+      "label2": "Please give it back.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "No dijiste que costaba dinero.",
+      "label2": "You didn't say it costs money.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "No significa no.",
+      "label2": "No means no.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "¿Tienes licencia?",
+      "label2": "Do you have a license?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Quiero un recibo.",
+      "label2": "I want a receipt.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Esto no parece correcto.",
+      "label2": "This doesn't look right.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "¿Es esto legal?",
+      "label2": "Is this legal?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "Me estás haciendo sentir incómodo/a.",
+      "label2": "You're making me uncomfortable.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "¡Ayuda! ¡Que alguien llame a seguridad!",
+      "label2": "Help! Someone call security.",
+      "category": "Scam Safety Guide"
+    }
+  ],
+  "kids_guide": [
+    {
+      "label1": "¿Dónde está mi mamá?",
+      "label2": "Where is my mom?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Estoy perdido/a.",
+      "label2": "I'm lost.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "¿Puedes ayudarme?",
+      "label2": "Can you help me?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Quiero un helado.",
+      "label2": "I want ice cream.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Necesito ir al baño.",
+      "label2": "I need to go to the bathroom.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Ese es mi juguete.",
+      "label2": "That's my toy.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "¿A dónde vamos?",
+      "label2": "Where are we going?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Tengo hambre.",
+      "label2": "I'm hungry.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "¿Qué es eso?",
+      "label2": "What's that?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "¿Podemos jugar?",
+      "label2": "Can we play?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Estoy cansado/a.",
+      "label2": "I'm tired.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Quiero ir a casa.",
+      "label2": "I want to go home.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "No me siento bien.",
+      "label2": "I don't feel good.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "¿Podemos ver dibujos animados?",
+      "label2": "Can we watch a cartoon?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "Me gusta esto.",
+      "label2": "I like this.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "¡Vamos!",
+      "label2": "Let's go!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "No quiero eso.",
+      "label2": "I don't want that.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "¡Esto es divertido!",
+      "label2": "This is fun!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "¿Puedo tener uno?",
+      "label2": "Can I have one?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "¡Por favor, espérame!",
+      "label2": "Please wait for me!",
+      "category": "Kids Guide"
+    }
+  ]
+}

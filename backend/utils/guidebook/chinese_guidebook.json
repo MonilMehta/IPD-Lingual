@@ -1,0 +1,512 @@
+{
+  "local_markets": [
+    {
+      "label1": "这个多少钱？",
+      "label2": "How much is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "可以打折吗？",
+      "label2": "Can I get a discount?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "这是用什么做的？",
+      "label2": "What is this made of?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "最近的市场在哪里？",
+      "label2": "Where is the nearest market?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "你们接受刷卡吗？",
+      "label2": "Do you accept cards?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "这是手工制作的吗？",
+      "label2": "Is it handmade?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "能便宜一点吗？",
+      "label2": "Can you lower the price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "这个太贵了。",
+      "label2": "This is too expensive.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "我要这个。",
+      "label2": "I'll take it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "我能看看另一个吗？",
+      "label2": "Can I see another one?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "这个有多旧了？",
+      "label2": "How old is this?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "退货政策是什么？",
+      "label2": "What's the return policy?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "你能帮我包起来吗？",
+      "label2": "Can you pack it?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "这看起来有损坏。",
+      "label2": "This looks damaged.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "你的最低价格是多少？",
+      "label2": "What's your best price?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "你们有别的颜色吗？",
+      "label2": "Do you have this in another color?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "我能试试吗？",
+      "label2": "Can I try it on?",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "我只是看看。",
+      "label2": "I'm just looking.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "我考虑一下。",
+      "label2": "I'll think about it.",
+      "category": "Local Markets Guide"
+    },
+    {
+      "label1": "谢谢你的帮助。",
+      "label2": "Thank you for your help.",
+      "category": "Local Markets Guide"
+    }
+  ],
+  "transport": [
+    {
+      "label1": "公交车站在哪里？",
+      "label2": "Where is the bus station?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "怎么去机场？",
+      "label2": "How do I get to the airport?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "我需要一辆出租车。",
+      "label2": "I need a taxi.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "这是正确的火车吗？",
+      "label2": "Is this the right train?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "下一班公交车什么时间？",
+      "label2": "What time is the next bus?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "在哪里可以买票？",
+      "label2": "Where can I buy a ticket?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "这是直达路线吗？",
+      "label2": "Is it a direct route?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "车费多少钱？",
+      "label2": "How much is the fare?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "我能预订座位吗？",
+      "label2": "Can I get a seat reservation?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "站台在哪里？",
+      "label2": "Where is the platform?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "这个去市中心吗？",
+      "label2": "Does this go to the city center?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "下一站是哪里？",
+      "label2": "What stop is next?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "旅程需要多长时间？",
+      "label2": "How long is the ride?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "我需要换车吗？",
+      "label2": "Do I need to change trains?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "有延误吗？",
+      "label2": "Is there a delay?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "我可以租车吗？",
+      "label2": "Can I rent a car?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "我错过了我的站。",
+      "label2": "I missed my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "您能叫出租车吗？",
+      "label2": "Can you call a cab?",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "这是我的站。",
+      "label2": "This is my stop.",
+      "category": "Transport Guide"
+    },
+    {
+      "label1": "晚上安全吗？",
+      "label2": "Is it safe at night?",
+      "category": "Transport Guide"
+    }
+  ],
+  "restaurant": [
+    {
+      "label1": "能看看菜单吗？",
+      "label2": "Can I see the menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "我是素食主义者。",
+      "label2": "I'm vegetarian.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "您推荐什么？",
+      "label2": "What do you recommend?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "这道菜辣吗？",
+      "label2": "Is this dish spicy?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "我有食物过敏。",
+      "label2": "I have a food allergy.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "能给我一些水吗？",
+      "label2": "Can I have some water?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "请结账。",
+      "label2": "The bill, please.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "可以用卡支付吗？",
+      "label2": "Can I pay by card?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "包含服务费吗？",
+      "label2": "Is service included?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "这不是我点的菜。",
+      "label2": "This is not what I ordered.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "可以不放洋葱吗？",
+      "label2": "Can I get it without onions?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "你们有儿童菜单吗？",
+      "label2": "Do you have a kids menu?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "这是无麸质的吗？",
+      "label2": "Is this gluten-free?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "我可以打包吗？",
+      "label2": "Can I have it to go?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "我对坚果过敏。",
+      "label2": "I'm allergic to nuts.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "很好吃。",
+      "label2": "It was delicious.",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "我能再要一个吗？",
+      "label2": "Can I have another one?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "你们提供酒吗？",
+      "label2": "Do you serve alcohol?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "这道菜里有什么？",
+      "label2": "What's in this dish?",
+      "category": "Restaurant Guide"
+    },
+    {
+      "label1": "谢谢，很棒。",
+      "label2": "Thank you, it was great.",
+      "category": "Restaurant Guide"
+    }
+  ],
+  "scam_save": [
+    {
+      "label1": "我不认识你。",
+      "label2": "I don't know you.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "请离我远点。",
+      "label2": "Leave me alone.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "叫警察！",
+      "label2": "Call the police.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "那不是我的包。",
+      "label2": "That's not my bag.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "这感觉像是诈骗。",
+      "label2": "This feels like a scam.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "我不感兴趣。",
+      "label2": "I'm not interested.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "请停止跟踪我。",
+      "label2": "Stop following me.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "给我看你的证件。",
+      "label2": "Show me your ID.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "我想和经理说话。",
+      "label2": "I want to speak to the manager.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "我没有同意这个。",
+      "label2": "I didn't agree to this.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "我们去警察局吧。",
+      "label2": "Let's go to the police station.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "请把它还给我。",
+      "label2": "Please give it back.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "你没说这要花钱。",
+      "label2": "You didn't say it costs money.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "不就是不。",
+      "label2": "No means no.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "你有许可证吗？",
+      "label2": "Do you have a license?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "我要收据。",
+      "label2": "I want a receipt.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "这看起来不对劲。",
+      "label2": "This doesn't look right.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "这合法吗？",
+      "label2": "Is this legal?",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "你让我感到不舒服。",
+      "label2": "You're making me uncomfortable.",
+      "category": "Scam Safety Guide"
+    },
+    {
+      "label1": "救命！有人叫保安！",
+      "label2": "Help! Someone call security.",
+      "category": "Scam Safety Guide"
+    }
+  ],
+  "kids_guide": [
+    {
+      "label1": "我妈妈在哪里？",
+      "label2": "Where is my mom?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我迷路了。",
+      "label2": "I'm lost.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "你能帮我吗？",
+      "label2": "Can you help me?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我想要冰淇淋。",
+      "label2": "I want ice cream.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我需要去洗手间。",
+      "label2": "I need to go to the bathroom.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "那是我的玩具。",
+      "label2": "That's my toy.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我们去哪里？",
+      "label2": "Where are we going?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我饿了。",
+      "label2": "I'm hungry.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "那是什么？",
+      "label2": "What's that?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我们可以玩吗？",
+      "label2": "Can we play?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我累了。",
+      "label2": "I'm tired.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我想回家。",
+      "label2": "I want to go home.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我感觉不舒服。",
+      "label2": "I don't feel good.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我们能看动画片吗？",
+      "label2": "Can we watch a cartoon?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我喜欢这个。",
+      "label2": "I like this.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我们走吧！",
+      "label2": "Let's go!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我不想要那个。",
+      "label2": "I don't want that.",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "这很好玩！",
+      "label2": "This is fun!",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "我可以要一个吗？",
+      "label2": "Can I have one?",
+      "category": "Kids Guide"
+    },
+    {
+      "label1": "请等我！",
+      "label2": "Please wait for me!",
+      "category": "Kids Guide"
+    }
+  ]
+}

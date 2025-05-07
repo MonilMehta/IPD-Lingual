@@ -1,0 +1,126 @@
+[
+  {
+    "day": 1,
+    "challenge": "person"
+  },
+  {
+    "day": 2,
+    "challenge": "bicycle"
+  },
+  {
+    "day": 3,
+    "challenge": "car"
+  },
+  {
+    "day": 4,
+    "challenge": "motorcycle"
+  },
+  {
+    "day": 5,
+    "challenge": "airplane"
+  },
+  {
+    "day": 6,
+    "challenge": "bus"
+  },
+  {
+    "day": 7,
+    "challenge": "train"
+  },
+  {
+    "day": 8,
+    "challenge": "truck"
+  },
+  {
+    "day": 9,
+    "challenge": "boat"
+  },
+  {
+    "day": 10,
+    "challenge": "traffic light"
+  },
+  {
+    "day": 11,
+    "challenge": "fire hydrant"
+  },
+  {
+    "day": 12,
+    "challenge": "stop sign"
+  },
+  {
+    "day": 13,
+    "challenge": "parking meter"
+  },
+  {
+    "day": 14,
+    "challenge": "bench"
+  },
+  {
+    "day": 15,
+    "challenge": "bird"
+  },
+  {
+    "day": 16,
+    "challenge": "cat"
+  },
+  {
+    "day": 17,
+    "challenge": "dog"
+  },
+  {
+    "day": 18,
+    "challenge": "horse"
+  },
+  {
+    "day": 19,
+    "challenge": "sheep"
+  },
+  {
+    "day": 20,
+    "challenge": "cow"
+  },
+  {
+    "day": 21,
+    "challenge": "elephant"
+  },
+  {
+    "day": 22,
+    "challenge": "bear"
+  },
+  {
+    "day": 23,
+    "challenge": "zebra"
+  },
+  {
+    "day": 24,
+    "challenge": "giraffe"
+  },
+  {
+    "day": 25,
+    "challenge": "backpack"
+  },
+  {
+    "day": 26,
+    "challenge": "umbrella"
+  },
+  {
+    "day": 27,
+    "challenge": "handbag"
+  },
+  {
+    "day": 28,
+    "challenge": "tie"
+  },
+  {
+    "day": 29,
+    "challenge": "suitcase"
+  },
+  {
+    "day": 30,
+    "challenge": "frisbee"
+  },
+  {
+    "day": 31,
+    "challenge": "skateboard"
+  }
+]

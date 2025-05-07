@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: flask-app
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python run_server.py" # Use run_server.py to start Hypercorn

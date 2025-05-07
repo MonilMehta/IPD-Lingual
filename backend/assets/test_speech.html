@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Speech WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .panel {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #cccccc;
+        }
+        button:hover:not(:disabled) {
+            background-color: #45a049;
+        }
+        .result-box {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        select, textarea {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .log {
+            font-family: monospace;
+            font-size: 14px;
+            background-color: #f5f5f5;
+        }
+        .mic-icon {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .recording {
+            background-color: #f44336 !important;
+        }
+        .translated {
+            margin-top: 10px;
+            padding: 5px;
+            background-color: #e6f7ff;
+            border-left: 3px solid #1890ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>IPD-Lingual: Speech WebSocket Test</h1>
+    <div class="container">
+        <div class="panel">
+            <h2>Connection Status</h2>
+            <div class="controls">
+                <button id="connectBtn">Connect</button>
+                <button id="disconnectBtn" disabled>Disconnect</button>
+                <span id="connectionStatus">Not connected</span>
+            </div>
+            <div>
+                <label for="serverUrl">WebSocket URL:</label>
+                <input type="text" id="serverUrl" value="ws://localhost:8766" style="width: 250px;">
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Language Settings</h2>
+            <div class="controls">
+                <div>
+                    <label for="language1">Language 1:</label>
+                    <select id="language1">
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="ja">Japanese</option>
+                        <option value="zh">Chinese</option>
+                        <option value="ru">Russian</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="language2">Language 2:</label>
+                    <select id="language2">
+                        <option value="en">English</option>
+                        <option value="hi" selected>Hindi</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="ja">Japanese</option>
+                        <option value="zh">Chinese</option>
+                        <option value="ru">Russian</option>
+                    </select>
+                </div>
+                <button id="setLanguagesBtn" disabled>Set Languages</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Speech Input</h2>
+            <div class="controls">
+                <button id="startRecordingBtn" disabled>
+                    <svg class="mic-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                    </svg>
+                    Start Recording
+                </button>
+                <button id="stopRecordingBtn" disabled>Stop Recording</button>
+                <span id="recordingStatus"></span>
+            </div>
+            <div class="controls">
+                <input type="file" id="audioFileInput" accept="audio/*" disabled>
+                <button id="uploadAudioBtn" disabled>Upload Audio</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Text Input</h2>
+            <div>
+                <select id="textSourceLang">
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                </select>
+                <textarea id="textInput" rows="3" cols="50" placeholder="Enter text to translate"></textarea>
+                <div class="controls">
+                    <button id="sendTextBtn" disabled>Send Text</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Results</h2>
+            <div class="result-box" id="resultsContainer"></div>
+        </div>
+
+        <div class="panel">
+            <h2>Log</h2>
+            <div class="result-box log" id="logContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Variables for WebSocket and audio handling
+        let socket = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordingInterval = null;
+
+        // DOM elements
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const setLanguagesBtn = document.getElementById('setLanguagesBtn');
+        const startRecordingBtn = document.getElementById('startRecordingBtn');
+        const stopRecordingBtn = document.getElementById('stopRecordingBtn');
+        const uploadAudioBtn = document.getElementById('uploadAudioBtn');
+        const audioFileInput = document.getElementById('audioFileInput');
+        const sendTextBtn = document.getElementById('sendTextBtn');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const recordingStatus = document.getElementById('recordingStatus');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const logContainer = document.getElementById('logContainer');
+        const serverUrlInput = document.getElementById('serverUrl');
+        const language1Select = document.getElementById('language1');
+        const language2Select = document.getElementById('language2');
+        const textSourceLangSelect = document.getElementById('textSourceLang');
+        const textInput = document.getElementById('textInput');
+
+        // Helper functions
+        function log(message) {
+            const logEntry = document.createElement('div');
+            logEntry.innerText = new Date().toLocaleTimeString() + ': ' + message;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function displayResult(result) {
+            const resultElement = document.createElement('div');
+            resultElement.classList.add('result-entry');
+            
+            if (result.type === 'translation') {
+                resultElement.innerHTML = `
+                    <strong>${result.original.language.toUpperCase()}</strong>: ${result.original.text}
+                    <div class="translated">
+                        <strong>${result.translated.language.toUpperCase()}</strong>: ${result.translated.text}
+                    </div>
+                    <hr>
+                `;
+            } else {
+                resultElement.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre><hr>`;
+            }
+            
+            resultsContainer.appendChild(resultElement);
+            resultsContainer.scrollTop = resultsContainer.scrollHeight;
+        }
+
+        // WebSocket connection handling
+        function connectWebSocket() {
+            const url = serverUrlInput.value;
+            log(`Connecting to ${url}...`);
+            
+            try {
+                socket = new WebSocket(url);
+                
+                socket.onopen = () => {
+                    log('Connected to speech service');
+                    connectionStatus.textContent = 'Connected';
+                    connectionStatus.style.color = 'green';
+                    
+                    // Enable buttons
+                    disconnectBtn.disabled = false;
+                    setLanguagesBtn.disabled = false;
+                    startRecordingBtn.disabled = false;
+                    uploadAudioBtn.disabled = false;
+                    audioFileInput.disabled = false;
+                    sendTextBtn.disabled = false;
+                    
+                    // Disable connect button
+                    connectBtn.disabled = true;
+                };
+                
+                socket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    log(`Received: ${event.data.slice(0, 100)}...`);
+                    displayResult(data);
+                };
+                
+                socket.onclose = () => {
+                    log('Connection closed');
+                    connectionStatus.textContent = 'Disconnected';
+                    connectionStatus.style.color = 'red';
+                    resetUI();
+                };
+                
+                socket.onerror = (error) => {
+                    log(`WebSocket error: ${error.message}`);
+                    connectionStatus.textContent = 'Error';
+                    connectionStatus.style.color = 'red';
+                };
+            } catch (error) {
+                log(`Connection error: ${error.message}`);
+                alert(`Failed to connect: ${error.message}`);
+            }
+        }
+
+        function disconnectWebSocket() {
+            if (socket) {
+                socket.close();
+                socket = null;
+                log('Disconnected from server');
+            }
+            resetUI();
+        }
+
+        function resetUI() {
+            // Reset button states
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+            setLanguagesBtn.disabled = true;
+            startRecordingBtn.disabled = true;
+            stopRecordingBtn.disabled = true;
+            uploadAudioBtn.disabled = true;
+            audioFileInput.disabled = true;
+            sendTextBtn.disabled = true;
+            
+            // Stop recording if active
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+            
+            // Clear recording interval
+            if (recordingInterval) {
+                clearInterval(recordingInterval);
+                recordingInterval = null;
+            }
+            
+            recordingStatus.textContent = '';
+            startRecordingBtn.classList.remove('recording');
+        }
+
+        // Speech recording functions
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.addEventListener('dataavailable', event => {
+                    audioChunks.push(event.data);
+                });
+                
+                mediaRecorder.addEventListener('stop', () => {
+                    // Stop all tracks to release microphone
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    // Process recording when stopped
+                    processAudioRecording();
+                    
+                    // Update UI
+                    startRecordingBtn.disabled = false;
+                    stopRecordingBtn.disabled = true;
+                    recordingStatus.textContent = '';
+                    startRecordingBtn.classList.remove('recording');
+                    
+                    // Clear interval
+                    if (recordingInterval) {
+                        clearInterval(recordingInterval);
+                        recordingInterval = null;
+                    }
+                    
+                    log('Recording stopped');
+                });
+                
+                // Start recording
+                mediaRecorder.start();
+                log('Recording started');
+                
+                // Update UI
+                startRecordingBtn.disabled = true;
+                stopRecordingBtn.disabled = false;
+                startRecordingBtn.classList.add('recording');
+                
+                // Initialize recording counter
+                let seconds = 0;
+                recordingStatus.textContent = '00:00';
+                recordingInterval = setInterval(() => {
+                    seconds++;
+                    const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+                    const secs = (seconds % 60).toString().padStart(2, '0');
+                    recordingStatus.textContent = `${minutes}:${secs}`;
+                    
+                    // Auto-stop after 30 seconds to prevent very large files
+                    if (seconds >= 30) {
+                        stopRecording();
+                    }
+                }, 1000);
+                
+            } catch (error) {
+                log(`Recording error: ${error.message}`);
+                alert(`Error accessing microphone: ${error.message}`);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+        }
+
+        async function processAudioRecording() {
+            if (audioChunks.length === 0) return;
+            
+            try {
+                // Create blob and convert to base64
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                
+                // Convert to base64
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = () => {
+                    const base64data = reader.result.split(',')[1]; // Remove the data URL prefix
+                    
+                    // Send to WebSocket
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        const message = {
+                            audio: base64data,
+                            format: 'wav'
+                        };
+                        socket.send(JSON.stringify(message));
+                        log(`Sent audio recording (${(audioBlob.size / 1024).toFixed(1)} KB)`);
+                    } else {
+                        log('WebSocket not connected');
+                    }
+                };
+            } catch (error) {
+                log(`Error processing audio: ${error.message}`);
+            }
+        }
+
+        // File upload handling
+        function handleAudioFileUpload() {
+            const file = audioFileInput.files[0];
+            if (!file) {
+                alert('Please select an audio file');
+                return;
+            }
+            
+            log(`Processing file: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64data = e.target.result.split(',')[1]; // Remove the data URL prefix
+                
+                // Send to WebSocket
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    const format = file.name.split('.').pop().toLowerCase();
+                    const message = {
+                        audio: base64data,
+                        format: format
+                    };
+                    socket.send(JSON.stringify(message));
+                    log(`Sent audio file (${(file.size / 1024).toFixed(1)} KB)`);
+                } else {
+                    log('WebSocket not connected');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Set language configuration
+        function setLanguages() {
+            const lang1 = language1Select.value;
+            const lang2 = language2Select.value;
+            
+            if (lang1 === lang2) {
+                alert('Languages must be different');
+                return;
+            }
+            
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                const message = {
+                    setLanguages: {
+                        language1: lang1,
+                        language2: lang2
+                    }
+                };
+                socket.send(JSON.stringify(message));
+                log(`Setting languages: ${lang1} and ${lang2}`);
+            } else {
+                log('WebSocket not connected');
+            }
+        }
+
+        // Send text for translation
+        function sendText() {
+            const text = textInput.value.trim();
+            const sourceLang = textSourceLangSelect.value;
+            
+            if (!text) {
+                alert('Please enter text to translate');
+                return;
+            }
+            
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                const message = {
+                    text: text,
+                    language: sourceLang
+                };
+                socket.send(JSON.stringify(message));
+                log(`Sent text (${text.length} chars) in ${sourceLang}`);
+            } else {
+                log('WebSocket not connected');
+            }
+        }
+
+        // Event listeners
+        connectBtn.addEventListener('click', connectWebSocket);
+        disconnectBtn.addEventListener('click', disconnectWebSocket);
+        setLanguagesBtn.addEventListener('click', setLanguages);
+        startRecordingBtn.addEventListener('click', startRecording);
+        stopRecordingBtn.addEventListener('click', stopRecording);
+        uploadAudioBtn.addEventListener('click', handleAudioFileUpload);
+        sendTextBtn.addEventListener('click', sendText);
+    </script>
+</body>
+</html>
