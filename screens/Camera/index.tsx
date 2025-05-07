@@ -30,6 +30,7 @@ import { Marker } from './marker';
 import { getToken } from '@/services/Auth';
 import * as Speech from 'expo-speech';
 import { Ionicons } from '@expo/vector-icons';
+import { showMessage } from 'react-native-flash-message';
 
 // Define the structure for API detection results
 interface ApiDetectionObject {
@@ -523,21 +524,25 @@ export default function CameraScreen({ navigation }: any) {
       const result = await response.json();
       console.log('Save result:', result);
       setShowChallengeSnackbar(false); // Hide any previous challenge snackbar
-      // Show a custom orange Snackbar for save success
-       <Snackbar
-              visible={ShowSaveSnackbar}
-              onDismiss={() => setShowSaveSnackbar(false)}
-              duration={2000}
-              style={{ backgroundColor: '#4CD964', borderRadius: 12, margin: 16 }}
-            >
-              Detection saved!
-            </Snackbar>
+      showMessage({
+        message: 'Detection saved!',
+        description: 'Detection has been saved successfully.',
+        type: 'success',
+        icon: 'success',
+        duration: 2000,
+      });
       hideBottomSheet();
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error saving detection';
       console.error('Error saving detection:', errorMessage);
-      Alert.alert('Save Failed', `Could not save detection: ${errorMessage}`);
+      showMessage({
+        message: 'Save Failed',
+        description: `Could not save detection: ${errorMessage}`,
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
     }
   }, [authToken, hideBottomSheet, ShowSaveSnackbar]);
 
@@ -574,7 +579,13 @@ export default function CameraScreen({ navigation }: any) {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error fetching phrases';
       console.error('Error fetching phrases:', errorMessage);
-      Alert.alert('Learn More Failed', `Could not fetch phrases: ${errorMessage}`);
+      showMessage({
+        message: 'Learn More Failed',
+        description: `Could not fetch phrases: ${errorMessage}`,
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
     }
   }, [authToken, language]);
 

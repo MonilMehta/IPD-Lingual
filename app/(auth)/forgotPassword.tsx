@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { router } from 'expo-router';
+import { showMessage } from 'react-native-flash-message';
 
 const FORGOT_ENDPOINT = 'https://lingual-yn5c.onrender.com/forgot_password';
 const RESET_ENDPOINT = 'https://lingual-yn5c.onrender.com/reset_password';
@@ -19,7 +20,13 @@ const ForgotPasswordScreen = () => {
 
   const handleSendEmail = async () => {
     if (!email) {
-      Alert.alert('Error', 'Please enter your email');
+      showMessage({
+        message: 'Error',
+        description: 'Please enter your email',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
       return;
     }
     setLoading(true);
@@ -36,8 +43,21 @@ const ForgotPasswordScreen = () => {
           return prev - 1;
         });
       }, 1000);
+      showMessage({
+        message: 'OTP Sent',
+        description: 'Check your email for the OTP.',
+        type: 'success',
+        icon: 'success',
+        duration: 2500,
+      });
     } catch (e) {
-      Alert.alert('Error', 'Failed to send OTP. Please try again.');
+      showMessage({
+        message: 'Error',
+        description: 'Failed to send OTP. Please try again.',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
     } finally {
       setLoading(false);
     }
@@ -45,17 +65,34 @@ const ForgotPasswordScreen = () => {
 
   const handleResetPassword = async () => {
     if (!otp || !newPassword) {
-      Alert.alert('Error', 'Please enter OTP and new password');
+      showMessage({
+        message: 'Error',
+        description: 'Please enter OTP and new password',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
       return;
     }
     setLoading(true);
     try {
       await axios.post(RESET_ENDPOINT, { email, otp, new_password: newPassword });
-      Alert.alert('Success', 'Password reset! Please login.', [
-        { text: 'OK', onPress: () => router.replace('/(auth)/login') }
-      ]);
+      showMessage({
+        message: 'Success',
+        description: 'Password reset! Please login.',
+        type: 'success',
+        icon: 'success',
+        duration: 2500,
+        onHide: () => router.replace('/(auth)/login'),
+      });
     } catch (e) {
-      Alert.alert('Error', 'Invalid OTP or password.');
+      showMessage({
+        message: 'Error',
+        description: 'Invalid OTP or password.',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
     } finally {
       setLoading(false);
     }
@@ -76,9 +113,21 @@ const ForgotPasswordScreen = () => {
           return prev - 1;
         });
       }, 1000);
-      Alert.alert('OTP resent!');
+      showMessage({
+        message: 'OTP resent!',
+        description: 'A new OTP has been sent to your email.',
+        type: 'success',
+        icon: 'success',
+        duration: 2500,
+      });
     } catch (e) {
-      Alert.alert('Error', 'Failed to resend OTP.');
+      showMessage({
+        message: 'Error',
+        description: 'Failed to resend OTP.',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
     } finally {
       setLoading(false);
     }

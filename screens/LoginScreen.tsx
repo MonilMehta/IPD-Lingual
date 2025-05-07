@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { router } from 'expo-router';
 import CatPasswordToggle from '../components/CatPasswordToggle';
+import { showMessage } from 'react-native-flash-message';
 
 const LoginScreen: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -22,12 +23,17 @@ const LoginScreen: React.FC = () => {
 
   const handleLogin = async () => {
     if (!username || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      showMessage({
+        message: 'Please fill in all fields',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
       return;
     }
     setLoading(true);
     try {
-      const response = await axios.post('https://lingual-yn5c.onrender.com/login', {
+      const response = await axios.post('https://lingual-yn5c.onrender.com/login/', {
         username,
         password
       });
@@ -37,10 +43,13 @@ const LoginScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      Alert.alert(
-        'Login Failed',
-        'Invalid username or password. Please try again.'
-      );
+      showMessage({
+        message: 'Login Failed',
+        description: 'Invalid username or password. Please try again.',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
     } finally {
       setLoading(false);
     }
@@ -65,7 +74,7 @@ const LoginScreen: React.FC = () => {
           <Text style={styles.subtitle}>Sign in to continue</Text>
           <View style={{ height: 24 }} />
           <View style={styles.inputWrapper}>
-            <Ionicons name="mail-outline" size={22} color="#FF6B00" style={styles.inputIcon} />
+            <Ionicons name="person-outline" size={22} color="#FF6B00" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder="Username"
@@ -129,7 +138,8 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#fff',
     borderRadius: 18,
-    padding: 28,
+    paddingVertical: 28,
+    paddingHorizontal: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
@@ -152,16 +162,16 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     marginBottom: 20,
     borderWidth: 1,
     borderColor: '#eee',
     height: 56,
   },
   inputIcon: {
-    marginRight: 8,
+    marginRight: 12,
   },
   input: {
     flex: 1,
@@ -191,7 +201,7 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 17,
+    fontSize: 18,
   },
   signupLink: {
     alignItems: 'center',

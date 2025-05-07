@@ -14,7 +14,7 @@ import { Collapsible } from '@/components/Collapsible';
 const mascotImg= require('../../assets/images/cat-fixing.png');
 import { FloatingTabBar } from '../../components/Navigation/FloatingTabBar';
 import { View as RNView } from 'react-native';
-
+import { showMessage } from 'react-native-flash-message';
 // Separated constants for better organization
 const CONSTANTS = {
   HELP_CENTER_URL: 'https://savory-worm-69e.notion.site/ebd/1ebdd605d73581dda6c0db129990cbd9',
@@ -70,7 +70,7 @@ export default function Settings() {
     email: '',
     satisfaction: '',
     recommendation: '',
-    additionalNotes: '',
+    comments: '',
     message: '',
     loading: false,
     success: false,
@@ -111,11 +111,22 @@ export default function Settings() {
   const handleExport = async () => {
     // Form validation
     if (!dataExport.email) {
-      return Alert.alert('Missing Information', 'Please enter your email address');
+      showMessage({
+        message: 'Please enter your email address',
+        type: 'warning',
+        duration: 3000,
+      });
+      return;
     }
     
     if (!validateEmail(dataExport.email)) {
-      return Alert.alert('Invalid Email', 'Please enter a valid email address');
+      showMessage({
+        message: 'Please enter a valid email address',
+        type: 'warning',
+        duration: 3000,
+      });
+      return;
+
     }
     
     setDataExport(prev => ({ ...prev, loading: true, error: null }));
@@ -144,15 +155,31 @@ export default function Settings() {
   const handleFeedback = async () => {
     // Form validation
     if (!feedback.email || !feedback.message || !feedback.satisfaction || !feedback.recommendation) {
-      return Alert.alert('Missing Information', 'Please fill all required fields');
+      showMessage({
+        message: 'Please fill in all required fields',
+        type: 'warning',
+        duration: 3000,
+      });
+      return;
     }
     
     if (!validateEmail(feedback.email)) {
-      return Alert.alert('Invalid Email', 'Please enter a valid email address');
+      showMessage({
+        message: 'Please enter a valid email address',
+        type: 'warning',
+        duration: 3000,
+      });
+      return;
     }
     
     if (!validateRating(parseInt(feedback.satisfaction)) || !validateRating(parseInt(feedback.recommendation))) {
-      return Alert.alert('Invalid Rating', 'Ratings must be between 1 and 5');
+      showMessage({
+        message: 'Please select a valid rating (1-5)',
+        type: 'warning',
+        duration: 3000,
+      });
+      return;
+
     }
     
     setFeedback(prev => ({ ...prev, loading: true, error: null }));
@@ -163,8 +190,7 @@ export default function Settings() {
         email: feedback.email,
         satisfaction: parseInt(feedback.satisfaction),
         recommendation: parseInt(feedback.recommendation),
-        additionalNotes: feedback.additionalNotes,
-        message: feedback.message,
+        comments: feedback.comments,
       };
       
       // Make the POST request
@@ -188,11 +214,14 @@ export default function Settings() {
         email: '',
         satisfaction: '',
         recommendation: '',
-        additionalNotes: '',
-        message: '',
+        comments: '',
       }));
       
-      Alert.alert('Success', 'Thank you for your feedback! We appreciate your input.');
+      showMessage({
+        message: 'Feedback submitted successfully!',
+        type: 'success',
+        duration: 3000,
+      });
       
     } catch (error) {
       setFeedback(prev => ({ 
@@ -201,7 +230,12 @@ export default function Settings() {
         error: 'Failed to submit feedback. Please try again.' 
       }));
       
-      Alert.alert('Error', 'Failed to submit feedback. Please try again later.');
+      showMessage({
+        message: 'Failed to submit feedback. Please try again.',
+        type: 'danger',
+        duration: 3000,
+      });
+
     }
   };
 
@@ -291,8 +325,8 @@ export default function Settings() {
             <FormField 
               label="Additional Comments (Optional)"
               placeholder="Any suggestions for improvement?"
-              value={feedback.additionalNotes}
-              onChangeText={(text) => setFeedback(prev => ({ ...prev, additionalNotes: text }))}
+              value={feedback.comments}
+              onChangeText={(text) => setFeedback(prev => ({ ...prev, comments: text }))}
               multiline
               numberOfLines={3}
             />

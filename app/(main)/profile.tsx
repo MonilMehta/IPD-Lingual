@@ -6,6 +6,8 @@ import { Feather } from '@expo/vector-icons';
 import { ProgressBar } from 'react-native-paper';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
+import { showMessage } from 'react-native-flash-message';
+import { Skeleton } from 'moti/skeleton';
 const SERVER = process.env.EXPO_PUBLIC_SERVER || 'https://lingual-yn5c.onrender.com';
 
 const LANGUAGES = [
@@ -47,14 +49,28 @@ export default function ProfileScreen() {
           setEditName(data.name);
           setEditLang(data.target_language);
         })
-        .catch(() => Alert.alert('Error', 'Failed to load profile'))
+        .catch((err) => {
+          showMessage({
+            message: 'Profile Load Failed',
+            description: `Could not load profile: ${err?.message || 'Unknown error'}`,
+            type: 'danger',
+            icon: 'danger',
+            duration: 2500,
+          });
+        })
         .finally(() => setLoading(false));
     })();
   }, []);
 
   const handleSaveName = async () => {
     if (!editName.trim()) {
-      Alert.alert('Validation', 'Name cannot be empty');
+      showMessage({
+        message: 'Validation Failed',
+        description: 'Please enter a valid name',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
       return;
     }
     setSaving(true);
@@ -66,20 +82,47 @@ export default function ProfileScreen() {
     })
       .then(res => {
         if (!res.ok) throw new Error();
-        Alert.alert('Success', 'Name updated!');
+        showMessage({
+          message: 'Name Updated',
+          description: `Name updated to ${editName}`,
+          type: 'success',
+          icon: 'success',
+          duration: 2500,
+        });
         setEditMode(false);
       })
-      .catch(() => Alert.alert('Error', 'Failed to update name'))
+      .catch((err) => {
+        showMessage({
+          message: 'Update Failed',
+          description: `Could not update name: ${err?.message || 'Unknown error'}`,
+          type: 'danger',
+          icon: 'danger',
+          duration: 2500,
+        });
+      })
       .finally(() => setSaving(false));
   };
 
   const handleSavePassword = async () => {
     if (!editPassword || !editPassword2) {
-      Alert.alert('Validation', 'Please enter and repeat your new password');
+      showMessage({
+        message: 'Validation Failed',
+        description: 'Please enter a valid password',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
       return;
     }
     if (editPassword !== editPassword2) {
-      Alert.alert('Validation', 'Passwords do not match');
+      showMessage({
+        message: 'Validation Failed',
+        description: 'Passwords do not match',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
+      setEditPassword('');
       return;
     }
     setSaving(true);
@@ -91,12 +134,26 @@ export default function ProfileScreen() {
     })
       .then(res => {
         if (!res.ok) throw new Error();
-        Alert.alert('Success', 'Password updated!');
+        showMessage({
+          message: 'Password Updated',
+          description: 'Password updated successfully',
+          type: 'success',
+          icon: 'success',
+          duration: 2500,
+        });
         setEditPassword('');
         setEditPassword2('');
         setShowPasswordFields(false);
       })
-      .catch(() => Alert.alert('Error', 'Failed to update password'))
+      .catch((err) => {
+        showMessage({
+          message: 'Password Update Failed',
+          description: `Could not update password: ${err?.message || 'Unknown error'}`,
+          type: 'danger',
+          icon: 'danger',
+          duration: 2500,
+        });
+      })
       .finally(() => setSaving(false));
   };
 
@@ -124,9 +181,23 @@ export default function ProfileScreen() {
               .then(res => {
                 if (!res.ok) throw new Error();
                 setEditLang(lang);
-                Alert.alert('Language Changed', 'Your learning language has been updated.');
+                showMessage({
+                  message: 'Language Change Successfully',
+                  description: `Language changed to ${LANGUAGES.find(l => l.value === lang)?.label}`,
+                  type: 'success',
+                  icon: 'success',
+                  duration: 2500,
+                });
               })
-              .catch(() => Alert.alert('Error', 'Failed to change language'))
+              .catch((err) => {
+                showMessage({
+                  message: 'Language Change Failed',
+                  description: `Could not change language: ${err?.message || 'Unknown error'}`,
+                  type: 'danger',
+                  icon: 'danger',
+                  duration: 2500,
+                });
+              })
               .finally(() => {
                 setLangChanging(false);
                 setLangDropdown(false);
@@ -142,16 +213,58 @@ export default function ProfileScreen() {
     const token = await getToken();
     fetch(`${SERVER}/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } })
       .then(() => {
-        Alert.alert('Logged out', 'You have been logged out.');
+        showMessage({
+          message: 'Logged Out',
+          description: 'You have been logged out successfully',
+          type: 'success',
+          icon: 'success',
+          duration: 2500,
+        });
+
         router.replace('/login');
       })
-      .catch(() => Alert.alert('Error', 'Failed to logout'));
+      .catch((err) => {
+        showMessage({
+          message: 'Logout Failed',
+          description: `Could not logout: ${err?.message || 'Unknown error'}`,
+          type: 'danger',
+          icon: 'danger',
+          duration: 2500,
+        });
+      });
   };
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.centered, { backgroundColor: '#FFF' }]}> 
-        <ActivityIndicator size="large" color="#FF6B00" />
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF' }}>
+        <ScrollView contentContainerStyle={styles.container}>
+          {/* Top mascot and logout */}
+          <View style={styles.topRow}>
+            <View style={styles.avatarShadow}>
+              <View style={styles.avatarCircle}>
+                <Skeleton colorMode="light" width={80} height={80} style={{ borderRadius: 40 }} />
+              </View>
+            </View>
+            <View style={styles.logoutIcon}>
+              <Skeleton colorMode="light" width={32} height={32} style={{ borderRadius: 16 }} />
+            </View>
+          </View>
+          <Skeleton colorMode="light" width={160} height={28} style={{ alignSelf: 'center', marginBottom: 8, borderRadius: 8 }} />
+          <Skeleton colorMode="light" width={80} height={20} style={{ alignSelf: 'center', marginBottom: 18, borderRadius: 8 }} />
+          <View style={styles.statsRow}>
+            <Skeleton colorMode="light" width={120} height={60} style={{ borderRadius: 14 }} />
+            <Skeleton colorMode="light" width={120} height={60} style={{ borderRadius: 14 }} />
+          </View>
+          <View style={styles.progressCard}>
+            <Skeleton colorMode="light" width={120} height={18} style={{ marginBottom: 8, borderRadius: 8 }} />
+            <Skeleton colorMode="light" width={'100%'} height={16} style={{ marginBottom: 4, borderRadius: 8 }} />
+            <Skeleton colorMode="light" width={80} height={14} style={{ borderRadius: 8 }} />
+          </View>
+          <Text style={styles.settingsHeader}>Account Settings</Text>
+          <Skeleton colorMode="light" width={'100%'} height={54} style={{ borderRadius: 12, marginBottom: 14 }} />
+          <Skeleton colorMode="light" width={'100%'} height={54} style={{ borderRadius: 12, marginBottom: 14 }} />
+          <Skeleton colorMode="light" width={'100%'} height={54} style={{ borderRadius: 12, marginBottom: 14 }} />
+        </ScrollView>
       </SafeAreaView>
     );
   }

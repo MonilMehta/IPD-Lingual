@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { LearningPathway } from '../../components/LearningPathway';
 import { FloatingTabBar } from '../../components/Navigation/FloatingTabBar';
 import { getToken } from '../../services/Auth';
-
+import { showMessage } from 'react-native-flash-message';
 export default function LearnScreen() {
   const [loading, setLoading] = useState(true);
   const [quizData, setQuizData] = useState(null);
@@ -50,7 +50,13 @@ export default function LearnScreen() {
         });
       } catch (err) {
         setError(err.message || 'Error fetching quiz');
-        Alert.alert('Error', err.message || 'Error fetching quiz');
+        showMessage({
+          message: 'Error',
+          description: 'Failed to load quiz. Please try again later.',
+          type: 'danger',
+          icon: 'danger',
+          duration: 2500,
+        });
       } finally {
         setLoading(false);
       }

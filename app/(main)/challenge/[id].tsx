@@ -5,6 +5,7 @@ import { getToken } from '../../../services/Auth';
 
 import { ChallengeQuiz } from '../../../components/Challenge/ChallengeQuiz';
 import { ChallengeComplete } from '../../../components/Challenge/ChallengeComplete';
+import { showMessage } from 'react-native-flash-message';
 
 // Fetch questions from API and memoize
 const fetchChallengeData = async (challengeId, memoRef) => {
@@ -82,7 +83,13 @@ export default function ChallengeScreen() {
       setCompleted(true);
       setScore(prevScore => prevScore);
       if (specialMessage) {
-        Alert.alert('Milestone!', specialMessage);
+        showMessage({
+          message: specialMessage,
+          type: 'success',
+          duration: 3000,
+          icon: 'success',
+        });
+
       }
     }
   };

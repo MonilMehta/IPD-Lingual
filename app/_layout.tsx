@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { PaperProvider } from 'react-native-paper'; // <-- add this line
+import FlashMessage from 'react-native-flash-message';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 
@@ -36,6 +37,7 @@ export default function RootLayout() {
           <Stack.Screen name="(main)" />
         </Stack>
         <StatusBar style="auto" />
+        <FlashMessage position="top" />
         </PaperProvider>
       </ThemeProvider>
     

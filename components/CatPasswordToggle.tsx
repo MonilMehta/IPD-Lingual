@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import Svg, { Ellipse, Polygon, Path, G, Circle } from 'react-native-svg';
+import { Ionicons } from '@expo/vector-icons';
 
 interface CatPasswordToggleProps {
   value: string;
@@ -13,6 +14,7 @@ const CatPasswordToggle: React.FC<CatPasswordToggleProps> = ({ value, onChangeTe
   
   return (
     <View style={styles.wrapper}>
+      <Ionicons name="lock-closed-outline" size={22} color="#FF6B00" style={styles.passwordIcon} />
       <TextInput
         style={styles.input}
         value={value}
@@ -31,7 +33,7 @@ const CatPasswordToggle: React.FC<CatPasswordToggleProps> = ({ value, onChangeTe
       >
         <View style={styles.catSvgWrapper}>
           {/* Cat face base */}
-          <Svg width={48} height={48} viewBox="0 0 64 64">
+          <Svg width={40} height={40} viewBox="0 0 64 64">
             {/* Base cat head */}
             <Ellipse cx="32" cy="36" rx="22" ry="18" fill="#E67E22" />
             <Ellipse cx="32" cy="38" rx="18" ry="14" fill="#FFA259" />
@@ -95,13 +97,18 @@ const styles = StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8, // reduced to fit icons
     marginBottom: 20,
     borderWidth: 1,
     borderColor: '#eee',
     height: 56,
+    overflow: 'hidden', // ensure nothing overflows
+  },
+  passwordIcon: {
+    marginRight: 8,
+    marginLeft: 4,
   },
   input: {
     flex: 1,
@@ -111,11 +118,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   catContainer: {
-    marginLeft: 8,
+    marginLeft: -26,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 48,
+    width: 32, // further reduced for small screens
     height: 48,
+    maxWidth: 32,
+    maxHeight: 48,
   },
   catSvgWrapper: {
     position: 'relative',

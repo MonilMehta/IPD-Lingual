@@ -47,6 +47,21 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
   return res;
 }
 
+// Language code detection helper
+function guessLanguage(text: string): string {
+  // Simple Unicode range checks for major languages
+  if (/\p{Script=Devanagari}/u.test(text)) return 'hi-IN'; // Hindi, Marathi (India)
+  if (/[\u0C80-\u0CFF]/.test(text)) return 'kn-IN'; // Kannada (India)
+  if (/[\u0A80-\u0AFF]/.test(text)) return 'gu-IN'; // Gujarati (India)
+  if (/[\u4e00-\u9fff]/.test(text)) return 'zh-CN'; // Chinese (China)
+  if (/\p{Script=Cyrillic}/u.test(text)) return 'ru-RU'; // Russian (Russia)
+  if (/\p{Script=Hiragana}|\p{Script=Katakana}/u.test(text)) return 'ja-JP'; // Japanese (Japan)
+  if (/[áéíóúñü¿¡]/i.test(text)) return 'es-ES'; // Spanish (Spain)
+  if (/ç|é|è|ê|à|â|î|ô|û|œ|ë|ï|ü|ù|ÿ/i.test(text)) return 'fr-FR'; // French (France)
+  // Default to English (India)
+  return 'en-IN';
+}
+
 const PhrasesList: React.FC<PhrasesListProps> = ({ phrases, showSearch = true }) => {
   const params = useLocalSearchParams();
   const [search, setSearch] = useState(params.search ? String(params.search) : '');
@@ -62,7 +77,8 @@ const PhrasesList: React.FC<PhrasesListProps> = ({ phrases, showSearch = true })
   const sortedCategories = Object.keys(grouped).sort((a, b) => grouped[b].length - grouped[a].length);
 
   const handleSpeak = (text: string) => {
-    Speech.speak(text, { language: 'hi-IN' });
+    const lang = guessLanguage(text);
+    Speech.speak(text, { language: lang });
   };
 
   return (

@@ -42,20 +42,23 @@ const GuidesScreen: React.FC = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
-          {/* Guidebook Carousel Skeleton */}
-          <View style={{ marginTop: 28, marginBottom: 8, paddingLeft: 16 }}>
-            <Skeleton colorMode="light" width={220} height={28} style={{ marginBottom: 8, borderRadius: 8 }} />
-            <Skeleton colorMode="light" width={280} height={18} style={{ marginBottom: 18, borderRadius: 8 }} />
-            <View style={{ flexDirection: 'row' }}>
-              {[0,1,2].map(i => (
-                <Skeleton key={i} colorMode="light" width={180} height={120} style={{ borderRadius: 18, marginRight: 16 }} />
-              ))}
-            </View>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Guidebook Carousel Heading */}
+          <View style={{ paddingHorizontal: 16, marginTop: 32, marginBottom: 8 }}>
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#FF6B00', marginBottom: 4 }}>Explore Tourist Guides</Text>
+            <Text style={{ fontSize: 15, color: '#666', marginBottom: 18 }}>Handpicked guides to help you navigate, dine, shop, and explore like a local.</Text>
           </View>
-          {/* Phrases List Skeleton */}
-          <View style={{ marginTop: 32, paddingHorizontal: 16 }}>
-            <Skeleton colorMode="light" width={180} height={24} style={{ marginBottom: 12, borderRadius: 8 }} />
+          {/* Guidebook Loader */}
+          <View style={{ paddingHorizontal: 16, marginBottom: 24 }}>
+            <Skeleton colorMode="light" width={320} height={120} style={{ borderRadius: 18 }} />
+          </View>
+          {/* Quick Phrases Heading */}
+          <View style={{ paddingHorizontal: 16, marginTop: 32, marginBottom: 8 }}>
+            <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#FF6B00', marginBottom: 4 }}>Quick Phrases</Text>
+            <Text style={{ fontSize: 15, color: '#666', marginBottom: 18 }}>Essential phrases to zip you through any situation, from greetings to emergencies.</Text>
+          </View>
+          {/* Quick Phrases Loader */}
+          <View style={{ paddingHorizontal: 16, marginBottom: 24 }}>
             {[...Array(6)].map((_, i) => (
               <Skeleton key={i} colorMode="light" width={'100%'} height={20} style={{ marginBottom: 14, borderRadius: 8 }} />
             ))}

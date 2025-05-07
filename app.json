@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "lingual",
-    "slug": "lingual",
-    "version": "1.0.0",
+    "name": "Lingual",
+    "slug": "Lingual",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/1.png",
     "scheme": "myapp",
@@ -17,14 +17,15 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/3.png",
-        "backgroundColor": "#ffae4c"
+        "backgroundColor": "#ffffff"
       },
       "permissions": [
+        "INTERNET",
         "CAMERA",
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
-      "package": "com.monilmeh.lingual"
+      "package": "com.monilmehta.lingual"
     },
     "web": {
       "bundler": "metro",
@@ -36,10 +37,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/2.png",
+          "image": "./assets/images/3.png",
           "imageWidth": 400,
           "resizeMode": "contain",
-          "backgroundColor": "transparent"
+          "backgroundColor": "#ffffff"
         }
       ],
       [
@@ -62,6 +63,7 @@
       "eas": {
         "projectId": "f2eaee6d-f829-49d3-8cb8-905300815bc2"
       }
-    }
+    },
+    "owner": "monilmeh"
   }
 }

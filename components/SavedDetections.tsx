@@ -21,7 +21,7 @@ interface Detection {
   timestamp: string;
 }
 
-const API_URL = process.env.EXPO_PUBLIC_SERVER || 'https://lingual-yn5c.onrender.com';
+const API_URL = 'https://lingual-yn5c.onrender.com';
 
 const SavedDetections: React.FC = () => {
   const [detections, setDetections] = useState<Detection[]>([]);

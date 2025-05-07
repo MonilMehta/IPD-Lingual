@@ -13,7 +13,7 @@ const mascots = [
   require('../../assets/images/cat-sayinghi.png'),
 ];
 
-const API_URL = process.env.EXPO_PUBLIC_SERVER || 'https://lingual-yn5c.onrender.com';
+const API_URL ='https://lingual-yn5c.onrender.com';
 
 interface Detection {
   _id: string;

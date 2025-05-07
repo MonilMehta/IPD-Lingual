@@ -18,6 +18,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CatPasswordToggle from '../components/CatPasswordToggle';
+import { showMessage } from 'react-native-flash-message';
 
 interface FormData {
   name: string;
@@ -166,14 +167,23 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ navigation }) => {
         await AsyncStorage.setItem('userToken', response.data.access_token);
         router.replace('/(main)/home');
       } else {
-        Alert.alert('Signup Failed', response.data?.msg || 'Unknown error');
+        showMessage({
+          message: 'Signup Failed',
+          description: response.data?.msg || 'Unknown error',
+          type: 'danger',
+          icon: 'danger',
+          duration: 2500,
+        });
       }
     } catch (error) {
-console.error('Signup error:', error);
-      Alert.alert(
-'Signup Failed',
-error.response?.data?.message || 'An error occurred during signup'
-);
+      console.error('Signup error:', error);
+      showMessage({
+        message: 'Signup Failed',
+        description: error.response?.data?.message || 'An error occurred during signup',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
     } finally {
       setLoading(false);
     }
@@ -181,6 +191,12 @@ error.response?.data?.message || 'An error occurred during signup'
 
   const renderStep1 = () => (
     <View style={styles.centered}>
+      <TouchableOpacity 
+        style={styles.backButton}
+        onPress={handleBack}
+      >
+        <Ionicons name="arrow-back" size={24} color="#FF6B00" />
+      </TouchableOpacity>
       <Image 
         source={require('../assets/images/logo-cat.png')} 
         style={styles.mascot}
@@ -245,8 +261,16 @@ error.response?.data?.message || 'An error occurred during signup'
   const renderStep2 = () => (
     <View style={[styles.centered, { justifyContent: 'flex-start', paddingTop: 40 }]}>
       <View style={styles.card}>
-        <Text style={styles.title}>Choose Your Language</Text>
-        <Text style={styles.subtitle}>Which language do you want to learn?</Text>
+        <View style={styles.header1}>
+        <TouchableOpacity 
+        style={styles.backButton}
+        onPress={handleBack}
+      >
+        <Ionicons name="arrow-back" size={24} color="#FF6B00" />
+      </TouchableOpacity>
+        <Text style={styles.title}>Select Language</Text>
+        </View>
+        <Text style={styles.subtitle1}>Which language do you want to learn?</Text>
         <View style={{ height: 10 }} />
         <View style={styles.languageGridWrap}>
           {LANGUAGES.map(lang => (
@@ -309,6 +333,7 @@ error.response?.data?.message || 'An error occurred during signup'
     <SafeAreaView style={styles.container}>
       {currentStep < 3 && (
         <View style={styles.progressBar}>
+          
           {[1, 2].map((step) => (
             <View
               key={step}
@@ -341,8 +366,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
+  header1: {
+    flexDirection: 'row',
+    alignItems: 'center',
+
+  },
   backButton: {
+    marginTop:-12,
     padding: 8,
+    marginRight: 8,
   },
   stepIndicator: {
     flex: 1,
@@ -532,7 +564,7 @@ const styles = StyleSheet.create({
     maxWidth: 400,
     backgroundColor: '#FFF',
     borderRadius: 12,
-    padding: 24,
+    padding: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -547,10 +579,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 4,
+  },
+  subtitle1: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 4,
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -606,12 +644,12 @@ const styles = StyleSheet.create({
   languageCardSmall: {
     backgroundColor: '#FFF',
     borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 2,
     borderWidth: 1,
     borderColor: '#E5E7EB',
     margin: 4,
-    minWidth: 90,
+    minWidth: 110,
     alignItems: 'center',
   },
   languageTextSmall: {
@@ -629,12 +667,12 @@ const styles = StyleSheet.create({
   profileCardSmall: {
     backgroundColor: '#FFF',
     borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
     borderWidth: 1,
     borderColor: '#E5E7EB',
     margin: 4,
-    minWidth: 200,
+    minWidth: 230,
     alignItems: 'center',
   },
   profileTextSmall: {

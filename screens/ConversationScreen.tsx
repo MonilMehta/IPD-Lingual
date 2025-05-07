@@ -7,6 +7,7 @@ import { Mic, MicOff, ArrowLeft, Languages } from 'lucide-react-native';
 import { useNavigation } from 'expo-router';
 import * as FileSystem from 'expo-file-system';
 import * as Speech from 'expo-speech';
+import { showMessage } from 'react-native-flash-message';
 import { 
   TranslationService, 
   TranslationResponse, 
@@ -70,7 +71,13 @@ const ConversationScreen: React.FC = () => {
         setSupportedLanguages(langs);
         setShowLanguagePicker(true);
       } catch (e) {
-        Alert.alert('Error', 'Failed to fetch supported languages');
+        showMessage({
+          message: 'Error',
+          description: 'Failed to fetch supported languages',
+          type: 'danger',
+          icon: 'danger',
+          duration: 2500,
+        });
       }
     })();
     return () => {
@@ -210,12 +217,24 @@ const ConversationScreen: React.FC = () => {
               },
             ]);
           } else {
-            Alert.alert('Error', 'Invalid response from server. Please try again.');
+            showMessage({
+              message: 'Error',
+              description: 'Invalid response from server. Please try again.',
+              type: 'danger',
+              icon: 'danger',
+              duration: 2500,
+            });
           }
         } catch (err) {
           setIsWaitingForResponse(false);
           setIsProcessing(false);
-          Alert.alert('Error', 'Failed to process audio.');
+          showMessage({
+            message: 'Error',
+            description: 'Failed to process audio.',
+            type: 'danger',
+            icon: 'danger',
+            duration: 2500,
+          });
         }
         try {
           await FileSystem.deleteAsync(uri);
@@ -277,7 +296,13 @@ const ConversationScreen: React.FC = () => {
               },
             ]);
           } else {
-            Alert.alert('Error', 'Invalid response from server. Please try again.');
+            showMessage({
+              message: 'Error',
+              description: 'Invalid response from server. Please try again.',
+              type: 'danger',
+              icon: 'danger',
+              duration: 2500,
+            });
           }
           
           try {
@@ -358,7 +383,13 @@ const ConversationScreen: React.FC = () => {
         onError: () => {
           setIsSpeaking(false);
           setSpeakingUtteranceId(null);
-          Alert.alert("Speech Error", "Unable to play speech");
+          showMessage({
+            message: 'Speech Error',
+            description: 'Unable to play speech',
+            type: 'danger',
+            icon: 'danger',
+            duration: 2500,
+          });
         },
       });
     } catch (error) {
@@ -379,12 +410,24 @@ const ConversationScreen: React.FC = () => {
 
   const handleLanguageSelect = async () => {
     if (!selectedLanguage1 || !selectedLanguage2) {
-      Alert.alert('Error', 'Please select both languages');
+      showMessage({
+        message: 'Error',
+        description: 'Please select both languages',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
       return;
     }
 
     if (selectedLanguage1 === selectedLanguage2) {
-      Alert.alert('Error', 'Please select different languages');
+      showMessage({
+        message: 'Error',
+        description: 'Please select different languages',
+        type: 'danger',
+        icon: 'danger',
+        duration: 2500,
+      });
       return;
     }
 
