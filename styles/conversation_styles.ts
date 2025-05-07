@@ -37,13 +37,13 @@ const styles = StyleSheet.create({
   },
   languageCard: {
     backgroundColor: '#fff7ed',
-    paddingHorizontal: 18,
-    paddingVertical: 14,
+    paddingHorizontal: 10, // reduced from 18
+    paddingVertical: 10, // reduced from 14
     borderRadius: 16,
-    minWidth: 110,
+    minWidth: 90, // reduced from 110
     alignItems: 'center',
-    marginVertical: 6,
-    marginHorizontal: 4,
+    marginVertical: 4, // reduced from 6
+    marginHorizontal: 2, // reduced from 4
     borderWidth: 2,
     borderColor: '#FF6B00',
     shadowColor: '#FF6B00',
@@ -61,9 +61,10 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   languageLabel: {
-    fontSize: 16,
+    fontSize: 13, // reduced from 16
     fontWeight: 'bold',
     color: '#333',
+    textAlign: 'center',
   },
   conversationContainer: {
     flex: 1,
@@ -346,10 +347,10 @@ const styles = StyleSheet.create({
   // Wave animation container with better visibility
   
   languageGrid: {
-    flexDirection: 'column',
+    flexDirection: 'row', // changed from column to row for better fit
     flexWrap: 'wrap',
-    gap: 10,
-    marginVertical: 8,
+    gap: 6, // reduced from 10
+    marginVertical: 4, // reduced from 8
     alignItems: 'center',
     justifyContent: 'center',
   },

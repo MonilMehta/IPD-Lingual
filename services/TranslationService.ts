@@ -54,15 +54,19 @@ class TranslationService {
 
   static async getSupportedLanguagesFromAPI(): Promise<SupportedLanguages> {
     // Remove API call, return static mapping
-    const codes = ["en", "hi", "es", "fr", "de", "it", "pt", "ru"];
+    const codes = [
+      "en", "hi", "mr", "kn", "gu", "es", "fr", "ja", "zh", "ru"
+    ];
     const languageNames: Record<string, string> = {
       en: 'English',
       hi: 'Hindi',
+      mr: 'Marathi',
+      kn: 'Kannada',
+      gu: 'Gujarati',
       es: 'Spanish',
       fr: 'French',
-      de: 'German',
-      it: 'Italian',
-      pt: 'Portuguese',
+      ja: 'Japanese',
+      zh: 'Chinese',
       ru: 'Russian'
     };
     const supported: SupportedLanguages = {};

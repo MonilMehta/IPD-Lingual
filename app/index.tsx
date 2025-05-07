@@ -22,6 +22,11 @@ const CharBubble = memo(({ char }) => (
 ));
 
 export default function SplashScreen() {
+  // Trigger backend wake-up on app startup
+  useEffect(() => {
+    fetch('https://lingual-yn5c.onrender.com/').catch(() => {});
+  }, []);
+
   const router = useRouter();
   const [displayedChars, setDisplayedChars] = useState([]);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -78,9 +83,9 @@ export default function SplashScreen() {
       />
       <MotiView
         style={[styles.gradientCircle, styles.bottomCircle]}
-        from={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 0.1, scale: 1 }}
-        transition={{ type: 'timing', duration: 800, delay: 200 }}
+        from={{ opacity: 0, scaleY: 0.7, scaleX: 0.7 }}
+        animate={{ opacity: 0.12, scaleY: 1, scaleX: 1 }}
+        transition={{ type: 'timing', duration: 1200, delay: 300, easing: Easing.out(Easing.exp) }}
       />
 
       {/* Logo images */}

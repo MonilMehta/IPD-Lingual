@@ -16,8 +16,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/3.png",
+        "backgroundColor": "#ffae4c"
       },
       "permissions": [
         "CAMERA",
@@ -36,10 +36,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/2.png",
+          "imageWidth": 400,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "transparent"
         }
       ],
       [
@@ -49,7 +49,8 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "recordAudioAndroid": true
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

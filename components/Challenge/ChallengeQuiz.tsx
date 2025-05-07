@@ -4,6 +4,7 @@ import { MotiView } from 'moti';
 import { useRouter } from 'expo-router';
 import { getToken } from '../../services/Auth';
 import { ChallengeComplete } from './ChallengeComplete';
+import { ArrowLeft } from 'lucide-react-native';
 
 // Mascot images
 const mascots = [
@@ -62,9 +63,20 @@ export const ChallengeQuiz = ({
   const [submitting, setSubmitting] = useState(false);
   const [showMilestone, setShowMilestone] = useState(false);
   const router = useRouter();
+  // Compute questionNo based on currentQuestion.id only once per question
+  const questionNo = React.useMemo(() => {
+    if (currentQuestion.id < 10) return 10;
+    if (currentQuestion.id < 20) return 20;
+    if (currentQuestion.id < 30) return 30;
+    if (currentQuestion.id < 40) return 40;
+    return 50;
+  }, [currentQuestion.id]);
 
   // Pick a mascot based on question number for variety
   const mascot = mascots[questionNumber % mascots.length];
+
+  // Fix typo: fallback to 'optiions' if 'options' is missing
+  const options = currentQuestion.options || currentQuestion.optiions || [];
 
   const isAnswerCorrect = selectedOption === currentQuestion.correctAnswer;
 
@@ -109,8 +121,16 @@ export const ChallengeQuiz = ({
 
   return (
     <View style={styles.container}>
+      {/* Back Button */}
+      
       <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>Question {questionNumber} of {totalQuestions}</Text>
+      <TouchableOpacity
+        style={{ position: 'absolute', top: 32, left: 16, zIndex: 10, padding: 8 }}
+        onPress={() => router.back()}
+      >
+       <ArrowLeft size={28} color="#ff6b00" />
+      </TouchableOpacity>
+        <Text style={styles.progressText}>Question {currentQuestion.id} of {questionNo}</Text>
       </View>
       <MotiView
         key={`question-${currentQuestion.id}`}
@@ -122,14 +142,13 @@ export const ChallengeQuiz = ({
         <Text style={styles.questionText}>{currentQuestion.question}</Text>
         <Image source={mascot} style={styles.mascot} resizeMode="contain" />
         <View style={styles.optionsContainer}>
-          {currentQuestion.options.map((option, index) => (
+          {options.map((option, index) => (
             <TouchableOpacity
               key={index}
               style={[
                 styles.optionButton,
                 selectedOption === option && styles.selectedOption,
-                showFeedback && selectedOption === option && isAnswerCorrect && styles.correctOption,
-                showFeedback && selectedOption === option && !isAnswerCorrect && styles.wrongOption,
+                showFeedback && selectedOption === option && (selectedOption === currentQuestion.correctAnswer ? styles.correctOption : styles.wrongOption),
               ]}
               onPress={() => handleOptionSelect(option)}
               disabled={showFeedback || submitting}
@@ -138,8 +157,7 @@ export const ChallengeQuiz = ({
                 style={[
                   styles.optionText,
                   selectedOption === option && styles.selectedOptionText,
-                  showFeedback && selectedOption === option && isAnswerCorrect && styles.correctOptionText,
-                  showFeedback && selectedOption === option && !isAnswerCorrect && styles.wrongOptionText,
+                  showFeedback && selectedOption === option && (selectedOption === currentQuestion.correctAnswer ? styles.correctOptionText : styles.wrongOptionText),
                 ]}
               >
                 {option}
@@ -201,9 +219,10 @@ const styles = StyleSheet.create({
   progressContainer: {
     marginBottom: 24,
     alignItems: 'center',
+    paddingTop:32,
   },
   progressText: {
-    fontSize: 16,
+    fontSize: 24,
     color: '#666',
     fontWeight: '500',
   },

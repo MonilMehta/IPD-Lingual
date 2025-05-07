@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import * as Speech from 'expo-speech';
+import { useLocalSearchParams } from 'expo-router';
 
 interface Phrase {
   category: string;
@@ -47,7 +48,15 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
 }
 
 const PhrasesList: React.FC<PhrasesListProps> = ({ phrases, showSearch = true }) => {
-  const [search, setSearch] = useState('');
+  const params = useLocalSearchParams();
+  const [search, setSearch] = useState(params.search ? String(params.search) : '');
+
+  useEffect(() => {
+    if (params.search && params.search !== search) {
+      setSearch(String(params.search));
+    }
+  }, [params.search]);
+
   const grouped = useMemo(() => groupByCategory(phrases, search), [phrases, search]);
   // Sort categories by number of phrases (descending)
   const sortedCategories = Object.keys(grouped).sort((a, b) => grouped[b].length - grouped[a].length);

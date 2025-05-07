@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput,Animated,Easing } from 'react-native';
 import { MotiView } from 'moti';
+import { useRouter } from 'expo-router';
 
 import { API_URL } from '../../config/constants';
 import { Search } from 'lucide-react-native';
@@ -42,6 +43,8 @@ export const Header = ({ homepage, loading, error }) => {
   // If homepage/props loading is provided, use it, else fetch here
   const [userLoading, setUserLoading] = useState(loading ?? true);
   const [user, setUser] = useState(homepage ? { name: homepage.name, level: homepage.current_level } : null);
+  const router = useRouter();
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     if (homepage) return;
@@ -89,11 +92,23 @@ export const Header = ({ homepage, loading, error }) => {
         </View>
       </View>
       <View style={styles.searchContainer}>
-        <Search size={20} color="#666" />
+        <Search size={20} color="#666" onPress={() => {
+          if (searchText.trim()) {
+            router.push({ pathname: '/(main)/guides', params: { search: searchText.trim() } });
+          }
+        }} />
         <TextInput 
           style={styles.searchInput} 
           placeholder="Search phrases, translations..." 
           placeholderTextColor="#999" 
+          value={searchText}
+          onChangeText={setSearchText}
+          onSubmitEditing={() => {
+            if (searchText.trim()) {
+              router.push({ pathname: '/(main)/guides', params: { search: searchText.trim() } });
+            }
+          }}
+          returnKeyType="search"
         />
       </View>
     </MotiView>

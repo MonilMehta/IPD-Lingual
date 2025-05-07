@@ -62,7 +62,7 @@ export default function Phrasebook({ navigation }) {
   }, [search, detections]);
 
   const handleBack = () => {
-    router.navigate('/home');
+    router.back();
   };
 
   // Language code detection helper
