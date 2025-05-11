@@ -931,7 +931,7 @@ export default function Home() {
                       className="gap-1 bg-primary hover:bg-primary/90 transition-all duration-200 transform hover:scale-105"
                       asChild
                     >
-                      <Link href="https://drive.google.com" target="_blank" rel="noopener noreferrer">
+                      <Link href="https://drive.google.com/drive/u/0/folders/1kGYKdCSA_LC6O1GQw_5C1ubCR5eGxEA6" target="_blank" rel="noopener noreferrer">
                         <Download className="mr-2 h-5 w-5" />
                         Download from Google Drive
                         <ExternalLink className="ml-1 h-4 w-4" />
